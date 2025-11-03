@@ -1,0 +1,30 @@
+.recommendation-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.recommendation-btn {
+  padding: 1rem 2.5rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.recommendation-btn:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+.recommendation-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}

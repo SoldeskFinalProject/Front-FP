@@ -1,0 +1,91 @@
+/* Fixed navbar at top with proper spacing and styling */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 100;
+  font-family: "Pretendard", "Noto Sans KR", sans-serif;
+}
+
+/* 공통 구조: 3개 섹션 */
+.navbar-section {
+  display: flex;
+  align-items: center;
+}
+
+/* 왼쪽 로고 */
+.navbar-left .navbar-logo {
+  font-size: 22px;
+  font-weight: 700;
+  padding: 10px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+/* 중앙 메뉴 */
+.navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+.nav-item {
+  color: #444;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.nav-item:hover {
+  color: #2563eb;
+}
+
+.nav-item.active {
+  color: #2563eb;
+  font-weight: 700;
+  border-bottom: 2px solid #2563eb;
+  padding-bottom: 2px;
+}
+
+/* 오른쪽 버튼 */
+.navbar-right {
+  gap: 12px;
+}
+
+.nav-btn {
+  text-decoration: none;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.nav-btn:hover {
+  background-color: #e6eeff;
+}
+
+.nav-btn.primary {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+}
+
+.nav-btn.primary:hover {
+  background-color: #1e4edb;
+}
