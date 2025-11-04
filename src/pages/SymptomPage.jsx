@@ -1,11 +1,11 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import CategorySelect from "../components/symptom/CategorySelect"
 import SymptomSelect from "../components/symptom/SymptomSelect"
 import SelectedSymptoms from "../components/symptom/SelectedSymptoms"
 import RecommendationButton from "../components/symptom/RecommendationButton"
-import { getAllCategories, getSymptomByCategory } from "../api/SymptomApi"
+import SymptomSearch from "../components/symptom/SymptomSearch"
+import CategoryDescription from "../components/symptom/CategoryDescription"
+import { getAllCategories, getSymptomByCategory } from "../api/symptomAPI"
 import "./SymptomPage.css"
 
 export default function SymptomPage() {
@@ -15,6 +15,7 @@ export default function SymptomPage() {
   const [symptoms, setSymptoms] = useState([])
   const [selectedSymptoms, setSelectedSymptoms] = useState([])
   const [uploadedImage, setUploadedImage] = useState(null)
+  // const [searchedSymptoms, setSearchedSymptoms] = useState([]) // ✅ 검색 결과 상태
 
   // ✅ 카테고리 전체 조회
   useEffect(() => {
@@ -45,11 +46,11 @@ export default function SymptomPage() {
   const handleSymptomToggle = (symptom) => {
     setSelectedSymptoms((prev) => {
       const alreadySelected = prev.some((s) => s.symptomId === symptom.symptomId)
-
+      
       if (alreadySelected) {
         return prev.filter((s) => s.symptomId !== symptom.symptomId)
       } else {
-        return [...prev, { ...symptom, categoryName: selectedCategory.categoryName }]
+        return [...prev, { ...symptom, categoryName: selectedCategory?.categoryName }]
       }
     })
   }
@@ -101,36 +102,64 @@ export default function SymptomPage() {
         </button>
       </div>
 
+      {/* ✅ 내상 탭 */}
       {activeTab === "internal" && (
-        <>
-          {/* 카테고리 선택 */}
-          <section className="section">
-            <h3 className="section-title">1. 카테고리 선택</h3>
-            <CategorySelect
-              categories={categories}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-            />
-          </section>
+        <div className="content-layout">
+          <div className="main-section">
+            {/* 1. 카테고리 선택 */}
+            <section className="section">
+              <h3 className="section-title">1. 카테고리 선택</h3>
+              <CategorySelect
+                categories={categories}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
+            </section>
 
-          {/* 증상 선택 */}
-          <section className="section">
-            <h3 className="section-title">2. 증상 선택 (중복 가능)</h3>
-            <SymptomSelect symptoms={symptoms} selectedSymptoms={selectedSymptoms} onToggle={handleSymptomToggle} />
-          </section>
+            {/* 2. 증상 검색
+            <section className="section">
+              <h3 className="section-title">2. 증상 검색 (직접 입력)</h3>
+              <SymptomSearch onSelect={setSearchedSymptoms} />
+            </section> */}
 
-          {/* 선택된 증상 목록 */}
-          <section className="section">
-            <SelectedSymptoms selectedSymptoms={selectedSymptoms} setSelectedSymptoms={setSelectedSymptoms} />
-          </section>
-        </>
+            {/* 3. 증상 선택 */}
+            <section className="section">
+              <h3 className="section-title">3. 증상 선택 (중복 가능)</h3>
+              <SymptomSelect
+                symptoms={symptoms}
+                selectedSymptoms={selectedSymptoms}
+                onToggle={handleSymptomToggle}
+              />
+            </section>
+
+            {/* 4. 선택된 증상 */}
+            <section className="section">
+              <SelectedSymptoms
+                selectedSymptoms={selectedSymptoms}
+                setSelectedSymptoms={setSelectedSymptoms}
+              />
+            </section>
+          </div>
+
+          {/* ✅ 오른쪽 사이드 - 카테고리 설명 */}
+          <aside className="side-section">
+            <CategoryDescription category={selectedCategory} />
+          </aside>
+        </div>
       )}
 
+      {/* ✅ 외상 탭 */}
       {activeTab === "external" && (
         <section className="section">
           <h3 className="section-title">외상 이미지 업로드</h3>
           <div className="image-upload-container">
-            <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" id="image-upload" />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="file-input"
+              id="image-upload"
+            />
             <label htmlFor="image-upload" className="file-label">
               이미지 선택
             </label>
@@ -144,7 +173,7 @@ export default function SymptomPage() {
         </section>
       )}
 
-      {/* 병원 추천 버튼 */}
+      {/* ✅ 병원 추천 버튼 */}
       <section className="section">
         <RecommendationButton
           disabled={activeTab === "internal" ? selectedSymptoms.length === 0 : !uploadedImage}
