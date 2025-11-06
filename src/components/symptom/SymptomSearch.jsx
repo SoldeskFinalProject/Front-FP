@@ -26,6 +26,8 @@ export default function SymptomSearch({ onSelect }) {
 
       {results.length > 0 && (
         <div className="search-results">
+
+          
           <p>🔍 검색 결과</p>
           <ul>
             {results.map((symptom) => (
