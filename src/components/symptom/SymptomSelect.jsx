@@ -2,14 +2,15 @@
 import "./SymptomSelect.css"
 
 const SymptomSelect = ({ symptoms, selectedSymptoms, onToggle }) => {
-  console.log("🧩 현재 symptoms:", symptoms)
+  console.log("[v0] SymptomSelect - 받은 증상 데이터:", symptoms)
+  console.log("[v0] SymptomSelect - 선택된 증상:", selectedSymptoms)
 
   if (!symptoms) {
-    return <p>증상 목록을 불러오는 중입니다...</p>
+    return <p className="info-message">증상 목록을 불러오는 중입니다...</p>
   }
 
   if (Array.isArray(symptoms) && symptoms.length === 0) {
-    return <p>해당 카테고리에 증상 정보가 없습니다.</p>
+    return <p className="info-message">해당 그룹에 증상 정보가 없습니다.</p>
   }
 
   return (
