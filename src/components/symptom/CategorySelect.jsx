@@ -7,7 +7,7 @@ const CategorySelect = ({ categories, selectedCategory, setSelectedCategory }) =
     const [showOthersDropdown, setShowOthersDropdown] = useState(false)
 
     const mainCategories = ["머리", "목", "가슴", "배", "등", "엉덩이", "팔", "다리"]
-    const otherCategories = ["눈", "귀", "코", "입", "전신", "피부", "골반", "손", "발", "유방", "생식기"]
+    const otherCategories = ["눈", "귀", "코", "입", "전신", "피부", "골반", "손", "발"]
 
     useEffect(() => {
         console.log("[v0] 전체 카테고리 데이터:", categories)
