@@ -20,3 +20,7 @@ export const CATEGORY_ENDPOINTS = {
 export const SYMPTOM_ENDPOINTS = {
     SEARCH: "symptoms/search", // 키워드로 증상 검색
 };
+
+export const DRUG_ENDPOINTS = {
+    SEARCH: "/api/drugs/search", // 약품 키워드 검색
+};

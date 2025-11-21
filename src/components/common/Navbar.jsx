@@ -14,7 +14,16 @@ const Navbar = () => {
         </Link>
       </div>
 
-      <div className="navbar-section navbar-center"></div>
+      {/* 가운데 메뉴 */}
+      <div className="navbar-section navbar-center">
+      {/* Navbar.css에 .nav-item 스타일이 이미 있으므로 Link 태그에 className="nav-item"을 적용 */}
+      <Link to="/" className="nav-item">
+        증상검색
+      </Link>
+      <Link to="/dictionary" className="nav-item">
+        의약품 사전
+      </Link>
+      </div>
 
       {/* 오른쪽 버튼 */}
       <div className="navbar-section navbar-right">

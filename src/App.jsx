@@ -3,6 +3,7 @@ import Navbar from "./components/common/Navbar"
 import SymptomPage from "./pages/SymptomPage"
 import Dictionary from "./pages/Dictionary"
 import Reserv from "./pages/Reserv"
+import DrugDetail from "./pages/DrugDetail";
 import "./App.css"
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<SymptomPage />} />
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/reserv" element={<Reserv />} />
+            <Route path="/drug/:id" element={<DrugDetail />} />
           </Routes>
         </main>
       </div>
