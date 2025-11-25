@@ -1,13 +1,73 @@
 "use client"
 
-import { useState } from "react"
-import { addUserInput } from "../../api/symptomAPI"
+import { useState, useEffect, useRef } from "react"
+import { addUserInput, searchSymptoms } from "../../api/symptomAPI"
 import "./SymptomSearch.css"
 
 export default function SymptomSearch({ onSymptomAdd }) {
   const [inputText, setInputText] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  
+  const [searchResults, setSearchResults] = useState([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef(null)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    const delaySearch = setTimeout(async () => {
+      if (inputText.trim().length >= 2) {
+        setIsSearching(true)
+        try {
+          const results = await searchSymptoms(inputText.trim())
+          console.log("[v0] 검색 결과:", results)
+          setSearchResults(results || [])
+          setShowDropdown(true)
+        } catch (error) {
+          console.error("[v0] 검색 실패:", error)
+          setSearchResults([])
+        } finally {
+          setIsSearching(false)
+        }
+      } else {
+        setSearchResults([])
+        setShowDropdown(false)
+      }
+    }, 300) // 300ms 디바운스
+
+    return () => clearTimeout(delaySearch)
+  }, [inputText])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && 
+          inputRef.current && !inputRef.current.contains(event.target)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleSelectSymptom = (symptom) => {
+    console.log("[v0] 증상 선택:", symptom)
+    
+    if (onSymptomAdd) {
+      onSymptomAdd({
+        symptomId: symptom.symptomId,
+        symptomName: symptom.symptomName,
+        categoryName: symptom.categoryName,
+        isCustom: false,
+      })
+    }
+
+    // 선택 후 입력창 초기화 및 드롭다운 닫기
+    setInputText("")
+    setShowDropdown(false)
+    setSearchResults([])
+  }
 
   const handleSubmit = async () => {
     if (!inputText.trim()) {
@@ -17,10 +77,11 @@ export default function SymptomSearch({ onSymptomAdd }) {
 
     setIsSubmitting(true)
     setSubmitSuccess(false)
+    setShowDropdown(false)
 
     try {
       const requestData = {
-        userId: null, // 로그인 기능 구현 전에는 null
+        userId: null,
         inputText: inputText.trim(),
         imageUrl: null,
       }
@@ -32,14 +93,14 @@ export default function SymptomSearch({ onSymptomAdd }) {
 
       if (onSymptomAdd) {
         onSymptomAdd({
-          symptomId: `custom-${Date.now()}`, // 임시 ID
+          symptomId: `custom-${Date.now()}`,
           symptomName: inputText.trim(),
           categoryName: "사용자 입력",
-          isCustom: true, // 사용자 입력 증상임을 표시
+          isCustom: true,
         })
       }
 
-      setInputText("") // 입력창 초기화
+      setInputText("")
 
       setTimeout(() => {
         setSubmitSuccess(false)
@@ -54,22 +115,61 @@ export default function SymptomSearch({ onSymptomAdd }) {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !isSubmitting) {
-      handleSubmit()
+      if (showDropdown && searchResults.length > 0) {
+        handleSelectSymptom(searchResults[0])
+      } else {
+        handleSubmit()
+      }
     }
   }
 
   return (
     <div className="symptom-search-container">
       <div className="search-input-wrapper">
-        <input
-          type="text"
-          className="symptom-search-input"
-          placeholder="예: 머리가 지끈지끈 아파요, 기침이 심해요"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={isSubmitting}
-        />
+        <div className="search-input-container">
+          <input
+            ref={inputRef}
+            type="text"
+            className="symptom-search-input"
+            placeholder="예: 두통, 기침, 복통 등 증상 키워드 입력"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onFocus={() => {
+              if (searchResults.length > 0) {
+                setShowDropdown(true)
+              }
+            }}
+            disabled={isSubmitting}
+          />
+          
+          {showDropdown && (
+            <div ref={dropdownRef} className="search-dropdown">
+              {isSearching ? (
+                <div className="dropdown-loading">검색 중...</div>
+              ) : searchResults.length > 0 ? (
+                <>
+                  <div className="dropdown-header">검색 결과 (클릭하여 추가)</div>
+                  {searchResults.map((symptom) => (
+                    <div
+                      key={symptom.symptomId}
+                      className="dropdown-item"
+                      onClick={() => handleSelectSymptom(symptom)}
+                    >
+                      <div className="dropdown-symptom-name">{symptom.symptomName}</div>
+                      <div className="dropdown-category-name">{symptom.categoryName}</div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className="dropdown-empty">
+                  검색 결과가 없습니다. &quot;증상 등록&quot; 버튼으로 등록하세요.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
         <button className="symptom-search-btn" onClick={handleSubmit} disabled={isSubmitting || !inputText.trim()}>
           {isSubmitting ? "등록중..." : "증상 등록"}
         </button>
@@ -77,7 +177,10 @@ export default function SymptomSearch({ onSymptomAdd }) {
 
       {submitSuccess && <div className="submit-success-message">증상이 성공적으로 등록되었습니다!</div>}
 
-      <div className="search-help-text">자연어로 증상을 자유롭게 입력하세요. 등록된 증상은 병원 추천에 활용됩니다.</div>
+      <div className="search-help-text">
+        키워드 입력 시 자동완성으로 등록된 증상을 검색할 수 있습니다. 
+        없는 증상은 &quot;증상 등록&quot; 버튼으로 자유롭게 등록하세요.
+      </div>
     </div>
   )
 }

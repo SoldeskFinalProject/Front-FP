@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Navbar from "./components/common/Navbar"
 import SymptomPage from "./pages/SymptomPage"
+import SymptomResultPage from "./pages/SymptomResultPage"
 import Dictionary from "./pages/Dictionary"
 import Reserv from "./pages/Reserv"
 import "./App.css"
@@ -14,6 +15,7 @@ function App() {
         <main className="content">
           <Routes>
             <Route path="/" element={<SymptomPage />} />
+            <Route path="/result" element={<SymptomResultPage />} />
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/reserv" element={<Reserv />} />
           </Routes>
