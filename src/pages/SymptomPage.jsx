@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import CategorySelect from "../components/symptom/CategorySelect"
 import CategoryGroup from "../components/symptom/CategoryGroup"
 import SymptomSelect from "../components/symptom/SymptomSelect"
@@ -19,6 +20,7 @@ export default function SymptomPage() {
   const [symptoms, setSymptoms] = useState([])
   const [selectedSymptoms, setSelectedSymptoms] = useState([])
   const [uploadedImage, setUploadedImage] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -101,12 +103,16 @@ export default function SymptomPage() {
       alert("외상 이미지를 업로드해주세요.")
       return
     }
-    console.log("추천 요청 데이터:", {
+
+    const resultData = {
       tabType: activeTab,
       selectedSymptoms,
       uploadedImage,
-    })
-    alert("병원 추천 기능은 준비 중입니다.")
+      timestamp: new Date().toISOString(),
+    }
+
+    console.log("[v0] 결과 페이지로 이동:", resultData)
+    navigate("/result", { state: resultData })
   }
 
   return (
@@ -162,10 +168,12 @@ export default function SymptomPage() {
               </section>
             )}
 
-            <section className="section">
-              <h3 className="section-title">5. 선택된 증상</h3>
-              <SelectedSymptoms selectedSymptoms={selectedSymptoms} setSelectedSymptoms={setSelectedSymptoms} />
-            </section>
+            {selectedSymptoms.length > 0 && (
+              <section className="section">
+                <h3 className="section-title">5. 선택된 증상</h3>
+                <SelectedSymptoms selectedSymptoms={selectedSymptoms} setSelectedSymptoms={setSelectedSymptoms} />
+              </section>
+            )}
           </div>
 
           <aside className="side-section">
@@ -192,12 +200,14 @@ export default function SymptomPage() {
         </section>
       )}
 
-      <section className="section">
-        <RecommendationButton
-          disabled={activeTab === "internal" ? selectedSymptoms.length === 0 : !uploadedImage}
-          onClick={handleRecommend}
-        />
-      </section>
+      {((activeTab === "internal" && selectedSymptoms.length > 0) || (activeTab === "external" && uploadedImage)) && (
+        <section className="section">
+          <RecommendationButton
+            disabled={activeTab === "internal" ? selectedSymptoms.length === 0 : !uploadedImage}
+            onClick={handleRecommend}
+          />
+        </section>
+      )}
     </div>
   )
 }
