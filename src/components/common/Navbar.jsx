@@ -3,8 +3,6 @@ import { Link } from "react-router-dom"
 import "./Navbar.css"
 
 const Navbar = () => {
-  // const location = useLocation()
-
   return (
     <header className="navbar">
       {/* 왼쪽 로고 */}
@@ -14,7 +12,11 @@ const Navbar = () => {
         </Link>
       </div>
 
-      <div className="navbar-section navbar-center"></div>
+      <div className="navbar-section navbar-center">
+        <Link to="/qna" className="nav-btn">
+          Q&A
+        </Link>
+      </div>
 
       {/* 오른쪽 버튼 */}
       <div className="navbar-section navbar-right">
