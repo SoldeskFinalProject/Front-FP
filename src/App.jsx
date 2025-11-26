@@ -4,6 +4,7 @@ import SymptomPage from "./pages/SymptomPage"
 import SymptomResultPage from "./pages/SymptomResultPage"
 import Dictionary from "./pages/Dictionary"
 import Reserv from "./pages/Reserv"
+import QnaPage from "./pages/QnaPage"
 import "./App.css"
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
             <Route path="/result" element={<SymptomResultPage />} />
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/reserv" element={<Reserv />} />
+            <Route path="/qna" element={<QnaPage />} />
           </Routes>
         </main>
       </div>

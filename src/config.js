@@ -19,3 +19,15 @@ export const CATEGORY_ENDPOINTS = {
     SEARCH: "/category/search", // 키워드로 증상 검색
     CUSTOM_LOG: "/category/custom", // 사용자 증상 입력 (symptom_log)
 }
+
+// 📍 Q&A API 엔드포인트
+export const QNA_ENDPOINTS = {
+    QUESTIONS: "/api/question",
+    QUESTION_DETAIL: (id) => `/api/question/${id}`,
+    QUESTION_CREATE: "/api/question/create",
+    QUESTION_DELETE: (id) => `/api/question/${id}`,
+    QUESTION_STATUS: (id) => `/api/question/${id}/status`,
+    QUESTION_ACCEPT: (questionId, answerId) => `/api/question/${questionId}/accept/${answerId}`,
+    ANSWERS: "/api/answer",
+    ANSWER_CREATE: "/api/answer",
+}
