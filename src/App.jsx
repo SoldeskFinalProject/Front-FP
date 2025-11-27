@@ -17,7 +17,7 @@ function App() {
             <Route path="/" element={<SymptomPage />} />
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/reserv" element={<Reserv />} />
-            <Route path="/drug/:id" element={<DrugDetail />} />
+            <Route path="/dictionary/detail/:itemSeq" element={<DrugDetail />} />
           </Routes>
         </main>
       </div>

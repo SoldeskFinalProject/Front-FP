@@ -3,80 +3,76 @@ import "./DrugResult.css";
 
 export default function DrugResult({ drugData, currentPage, onPageChange }) {
   
-  // (1) 검색 전 (null)
-  if (!drugData) {
-    return <p className="result-info-text">검색어를 입력하고 검색 버튼을 눌러주세요.</p>;
-  }
-  
-  // (2) 검색 결과 없음 (빈 배열 또는 content가 비었을 때)
-  // drugData가 배열일 수도 있고 객체(content 포함)일 수도 있는 상황 모두 고려
-  const drugs = Array.isArray(drugData) ? drugData : (drugData.content || []);
-  
-  if (drugs.length === 0) {
-    return <p className="result-info-text">검색 결과가 없습니다.</p>;
+  // 1. 데이터 로딩 전/검색 전 체크
+  if (!drugData) return null;
+
+  // 2. 데이터 구조 분해 (PageResponseDto 대응)
+  // 백엔드가 비어있을 때 content가 null일 수도 있으므로 안전하게 처리
+  const content = drugData.content || [];
+  const totalPages = drugData.totalPages || 0;
+
+  // 결과 없음 처리
+  if (content.length === 0) {
+    return (
+      <div className="no-result">
+        <p>검색 결과가 없습니다.</p>
+        <span>철자를 확인하거나 다른 검색어를 입력해보세요.</span>
+      </div>
+    );
   }
 
-  // (3) 페이지네이션 로직
-  // totalPages가 없으면 0으로 처리하여 버튼이 안 나오게 함
-  const totalPages = drugData.totalPages || 0;
-  const pageGroupSize = 5; // 한 번에 보여줄 페이지 번호 개수 (1~5, 6~10 ...)
-  
-  // 현재 페이지가 속한 그룹 계산 (0~4 -> 0번 그룹, 5~9 -> 1번 그룹)
+  // --- 페이지네이션 계산 로직 ---
+  const pageGroupSize = 5; // 한 번에 보여줄 페이지 개수 (1~5, 6~10)
   const currentGroup = Math.floor(currentPage / pageGroupSize);
-  
-  // 현재 그룹의 시작 페이지 번호와 끝 페이지 번호 계산
   const startPage = currentGroup * pageGroupSize;
   const endPage = Math.min(startPage + pageGroupSize, totalPages);
 
   return (
     <div className="drug-result-container">
-      {/* --- 약품 목록 --- */}
+      
+      {/* 리스트 영역 */}
       <div className="drug-result-list">
-        {drugs.map(drug => (
+        {content.map((drug) => (
           <Link 
-            to={`/drug/${drug.id || drug.itemSeq}`} 
-            key={drug.id || drug.itemSeq} 
+            // [핵심] 요청하신 경로: /dictionary/detail/{itemSeq}
+            to={`/dictionary/detail/${drug.itemSeq}`} 
+            key={drug.itemSeq} 
             className="drug-list-item"
           >
             <div className="drug-item-image-container">
               {drug.itemImage ? (
                 <img src={drug.itemImage} alt={drug.itemName} className="drug-item-image" />
               ) : (
-                <div className="drug-item-placeholder"><span>이미지 없음</span></div>
+                <div className="drug-item-placeholder"><span>No Image</span></div>
               )}
             </div>
             <div className="drug-item-info">
-              <h2 className="drug-item-name">{drug.itemName}</h2>
+              {/* 낱알 정보(DrugAppearance)와 기본 정보(Drug) 모두 itemName, entpName 필드를 가짐 */}
+              <h4 className="drug-item-name">{drug.itemName}</h4>
               <p className="drug-item-entp">{drug.entpName}</p>
+              
+              {/* 낱알 검색 결과일 경우 식별 문자 등 추가 정보를 보여줄 수도 있음 (선택 사항) */}
+              {drug.printFront && (
+                 <span className="drug-print-info">식별: {drug.printFront}</span>
+              )}
             </div>
           </Link>
         ))}
       </div>
 
-      {/* --- 페이지네이션 버튼 --- */}
+      {/* 페이지네이션 버튼 영역 */}
       {totalPages > 0 && (
         <div className="pagination">
-          {/* [<<] 맨 처음으로 */}
+          {/* 이전 그룹(<) 버튼: 첫 그룹(0~4페이지)이 아닐 때만 노출 */}
           <button 
             className="page-btn move-btn"
             disabled={currentPage === 0}
-            onClick={() => onPageChange(0)}
-            title="맨 처음"
-          >
-            &lt;&lt;
-          </button>
-
-          {/* [<] 이전 그룹으로 (또는 이전 페이지로) */}
-          <button 
-            className="page-btn move-btn"
-            disabled={currentPage === 0}
-            onClick={() => onPageChange(Math.max(0, currentPage - 1))}
-            title="이전"
+            onClick={() => onPageChange(currentPage - 1)}
           >
             &lt;
           </button>
 
-          {/* [1] [2] [3] [4] [5] 숫자 버튼 */}
+          {/* 페이지 번호 버튼 */}
           {Array.from({ length: endPage - startPage }, (_, i) => {
             const pageNum = startPage + i;
             return (
@@ -90,24 +86,13 @@ export default function DrugResult({ drugData, currentPage, onPageChange }) {
             );
           })}
 
-          {/* [>] 다음 그룹으로 (또는 다음 페이지로) */}
+          {/* 다음 그룹(>) 버튼: 마지막 페이지가 아닐 때만 노출 */}
           <button 
             className="page-btn move-btn"
             disabled={currentPage === totalPages - 1}
-            onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
-            title="다음"
+            onClick={() => onPageChange(currentPage + 1)}
           >
             &gt;
-          </button>
-
-          {/* [>>] 맨 끝으로 */}
-          <button 
-            className="page-btn move-btn"
-            disabled={currentPage === totalPages - 1}
-            onClick={() => onPageChange(totalPages - 1)}
-            title="맨 끝"
-          >
-            &gt;&gt;
           </button>
         </div>
       )}

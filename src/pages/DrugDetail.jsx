@@ -1,39 +1,101 @@
-import { useEffect, useState } from 'react';
+// src/pages/DrugDetail.jsx
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchDrugDetail } from '../api/drugAPI'; 
-import "./DrugDetail.css"; 
+import { fetchDrugDetail } from '../api/drugAPI';
+import "./DrugDetail.css";
+
+/**
+ * 백엔드에서 오는 HTML을 표 구조 & 스타일링이 잘 되도록 정규화하는 함수
+ */
+function normalizeHtmlContent(rawHtml) {
+  if (!rawHtml) return "";
+
+  let html = rawHtml;
+
+  // 1) width / height / style 인라인 속성 제거 (우리 CSS가 컨트롤하도록)
+  html = html
+    .replace(/\swidth="[^"]*"/gi, "")
+    .replace(/\sheight="[^"]*"/gi, "")
+    .replace(/\sstyle="[^"]*"/gi, "");
+
+  // 2) <table> 태그가 없는 상태에서 <tbody> 또는 <tr>만 있는 경우 감싸주기
+  const hasTable = /<table[^>]*>/i.test(html);
+  const hasTbodyOrTr = /<(tbody|tr)[\s>]/i.test(html);
+  const trimmedLower = html.trim().toLowerCase();
+
+  if (!hasTable && hasTbodyOrTr) {
+    // 이미 <tbody>가 있을 수도 있으니, 일단 <tbody>는 정리해서 하나만 두는 방식
+    const bodyContent = html.replace(/<\/?tbody[^>]*>/gi, "");
+    html = `<table class="drug-html-table"><tbody>${bodyContent}</tbody></table>`;
+  } else if (trimmedLower.startsWith("<tbody")) {
+    // tbody로 시작하지만 table이 없는 케이스
+    html = `<table class="drug-html-table">${html}</table>`;
+  }
+
+  return html;
+}
 
 export default function DrugDetail() {
-  const { id } = useParams(); 
+  const { itemSeq } = useParams();
   const navigate = useNavigate();
   const [drug, setDrug] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 목차(TOC) 관리를 위한 상태
+  const [toc, setToc] = useState([]);
+  const [activeId, setActiveId] = useState("");
+
+  // 각 섹션으로 이동하기 위한 Refs (지금은 필요 없어도 확장성 위해 남겨둠)
+  const sectionRefs = useRef({});
+
   useEffect(() => {
     const loadDetail = async () => {
       try {
-        // 백엔드 GET /api/drugs/{id} 호출
-        const data = await fetchDrugDetail(id);
+        const data = await fetchDrugDetail(itemSeq);
         setDrug(data);
+
+        // 데이터가 로드되면 목차 생성
+        const newToc = [];
+        if (data.efcyQesitm) newToc.push({ id: "efcy", label: "효능·효과" });
+        if (data.useMethodQesitm) newToc.push({ id: "usage", label: "용법·용량" });
+        if (data.atpnQesitm) newToc.push({ id: "attention", label: "사용상 주의사항" });
+        if (data.depositMethodQesitm) newToc.push({ id: "deposit", label: "보관 방법" });
+
+        setToc(newToc);
       } catch (error) {
         console.error(error);
         alert("약품 정보를 불러오는데 실패했습니다.");
-        navigate('/dictionary'); // 에러 시 목록으로 이동
+        navigate("/dictionary");
       } finally {
         setLoading(false);
       }
     };
-    loadDetail();
-  }, [id, navigate]);
+
+    if (itemSeq) loadDetail();
+  }, [itemSeq, navigate]);
+
+  // 스크롤 이동 함수
+  const scrollToSection = (id) => {
+    setActiveId(id);
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 120;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   if (loading) return <div className="loading-container">로딩 중...</div>;
   if (!drug) return null;
 
   return (
     <div className="drug-detail-container">
-      <button className="back-btn" onClick={() => navigate(-1)}>← 목록으로 돌아가기</button>
-      
-      {/* 상단 헤더: 이미지, 이름, 업체명 */}
+      {/* 1. 상단 헤더 */}
       <div className="detail-header">
         <div className="detail-img-box">
           {drug.itemImage ? (
@@ -43,72 +105,77 @@ export default function DrugDetail() {
           )}
         </div>
         <div className="detail-title-box">
-            {/* itemSeq는 필요하다면 표시, 아니면 숨김 */}
-            <span className="drug-seq">품목코드: {drug.itemSeq}</span>
-            <h1 className="drug-name">{drug.itemName}</h1>
-            <p className="company-name">{drug.entpName}</p>
+          <span className="badge-company">{drug.entpName}</span>
+          <h1 className="drug-name">{drug.itemName}</h1>
+          <p className="drug-code">품목기준코드: {drug.itemSeq}</p>
         </div>
       </div>
 
-      <hr className="divider" />
+      {/* 2. 목차 (네비게이션 바) */}
+      {toc.length > 0 && (
+        <nav className="drug-toc-nav">
+          {toc.map((item) => (
+            <button
+              key={item.id}
+              className={`toc-btn ${activeId === item.id ? "active" : ""}`}
+              onClick={() => scrollToSection(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      )}
 
-      {/* 상세 정보 본문: DB 컬럼과 1:1 매핑 */}
       <div className="detail-body">
-        
-        {/* 1. 효능/효과 (efcyQesitm) */}
+        {/* 3. 각 섹션 렌더링 (dangerouslySetInnerHTML 사용) */}
+
         {drug.efcyQesitm && (
-          <section className="info-section">
-            <h3>💊 효능 · 효과</h3>
-            <p className="info-text">{drug.efcyQesitm}</p>
+          <section id="efcy" className="info-section">
+            <h3 className="section-title">효능 · 효과</h3>
+            <div
+              className="drug-html-content"
+              dangerouslySetInnerHTML={{
+                __html: normalizeHtmlContent(drug.efcyQesitm),
+              }}
+            />
           </section>
         )}
 
-        {/* 2. 용법/용량 (useMethodQesitm) */}
         {drug.useMethodQesitm && (
-          <section className="info-section">
-            <h3>📋 용법 · 용량</h3>
-            <p className="info-text">{drug.useMethodQesitm}</p>
+          <section id="usage" className="info-section">
+            <h3 className="section-title">용법 · 용량</h3>
+            <div
+              className="drug-html-content"
+              dangerouslySetInnerHTML={{
+                __html: normalizeHtmlContent(drug.useMethodQesitm),
+              }}
+            />
           </section>
         )}
 
-        {/* 3. 경고 및 주의사항 (atpnWarnQesitm + atpnQesitm) */}
-        {(drug.atpnWarnQesitm || drug.atpnQesitm) && (
-          <section className="info-section warning-section">
-            <h3>⚠️ 주의사항 및 경고</h3>
-            {drug.atpnWarnQesitm && (
-                <div className="warning-box">
-                    <strong>[경고]</strong>
-                    <p>{drug.atpnWarnQesitm}</p>
-                </div>
-            )}
-            {drug.atpnQesitm && <p className="info-text">{drug.atpnQesitm}</p>}
+        {drug.atpnQesitm && (
+          <section id="attention" className="info-section">
+            <h3 className="section-title">사용상 주의사항</h3>
+            <div
+              className="drug-html-content"
+              dangerouslySetInnerHTML={{
+                __html: normalizeHtmlContent(drug.atpnQesitm),
+              }}
+            />
           </section>
         )}
 
-        {/* 4. 상호작용 (intrcQesitm) */}
-        {drug.intrcQesitm && (
-          <section className="info-section">
-            <h3>🤝 상호작용</h3>
-            <p className="info-text">{drug.intrcQesitm}</p>
-          </section>
-        )}
-
-        {/* 5. 부작용 (seQesitm) */}
-        {drug.seQesitm && (
-          <section className="info-section side-effect-section">
-            <h3>몸에 이상반응(부작용)이 나타날 경우</h3>
-            <p className="info-text">{drug.seQesitm}</p>
-          </section>
-        )}
-
-        {/* 6. 보관법 (depositMethodQesitm) */}
         {drug.depositMethodQesitm && (
-          <section className="info-section">
-            <h3>보관 방법</h3>
-            <p className="info-text">{drug.depositMethodQesitm}</p>
+          <section id="deposit" className="info-section">
+            <h3 className="section-title">보관 방법</h3>
+            <div
+              className="drug-html-content"
+              dangerouslySetInnerHTML={{
+                __html: normalizeHtmlContent(drug.depositMethodQesitm),
+              }}
+            />
           </section>
         )}
-
       </div>
     </div>
   );
