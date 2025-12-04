@@ -49,7 +49,10 @@ const QuestionList = ({ questions }) => {
           >
             <div className="question-main">
               <div className="question-header">
-                <h3 className="question-title">{question.title}</h3>
+                <h3 className="question-title">
+                  {question.isAccepted && <span className="accepted-icon">✔ </span>}
+                  {question.title}
+                </h3>
                 <span className={`status-badge ${badge.class}`}>{badge.text}</span>
               </div>
               <p className="question-preview">{question.content.substring(0, 100)}...</p>
@@ -63,6 +66,12 @@ const QuestionList = ({ questions }) => {
                   <>
                     <span className="separator">·</span>
                     <span className="answers">답변 {question.answerCount}</span>
+                  </>
+                )}
+                {question.isAccepted && (
+                  <>
+                    <span className="separator">·</span>
+                    <span className="accepted-badge-small">채택완료</span>
                   </>
                 )}
               </div>
@@ -85,6 +94,7 @@ QuestionList.propTypes = {
       answerCount: PropTypes.number,
       userName: PropTypes.string,
       createdAt: PropTypes.string.isRequired,
+      isAccepted: PropTypes.bool, // 채택 여부 prop 추가
     }),
   ).isRequired,
 }

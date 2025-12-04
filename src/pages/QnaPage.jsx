@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { getQuestionList } from "../api/qnaAPI"
-import QuestionList from "../components/qna/QuestionList";
+import QuestionList from "../components/qna/QuestionList"
+import PopularQuestions from "../components/qna/PopularQuestions"
+import QuestionTabs from "../components/qna/QuestionTabs"
 import "./QnaPage.css"
 
 const QnaPage = () => {
@@ -45,7 +47,14 @@ const QnaPage = () => {
         <div className="qna-header">
             <h1>Q&A 게시판</h1>
             <p>의료 전문가와 함께 궁금증을 해결하세요</p>
+            <button className="create-question-btn" onClick={handleCreateQuestion}>
+            질문하기
+            </button>
         </div>
+
+        <PopularQuestions />
+
+        <QuestionTabs />
 
         <div className="qna-toolbar">
             <div className="status-filters">
@@ -68,10 +77,6 @@ const QnaPage = () => {
                 해결됨
             </button>
             </div>
-
-            <button className="create-question-btn" onClick={handleCreateQuestion}>
-            질문하기
-            </button>
         </div>
 
         {loading ? (

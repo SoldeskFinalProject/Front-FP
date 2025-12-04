@@ -25,9 +25,12 @@ export const QNA_ENDPOINTS = {
     QUESTIONS: "/api/question",
     QUESTION_DETAIL: (id) => `/api/question/${id}`,
     QUESTION_CREATE: "/api/question/create",
+    Question_UPDATE: (questionId) => `/api/question/${questionId}/update`,
     QUESTION_DELETE: (id) => `/api/question/${id}`,
     QUESTION_STATUS: (id) => `/api/question/${id}/status`,
     QUESTION_ACCEPT: (questionId, answerId) => `/api/question/${questionId}/accept/${answerId}`,
     ANSWERS: "/api/answer",
-    ANSWER_CREATE: "/api/answer",
+    ANSWER_CREATE: (questionId) => `/api/answer?questionId=${questionId}`,
+    ANSWER_UPDATE: (answerId) => `/api/answer/${answerId}`,
+    ANSWER_DELETE: (answerId) => `/api/answer/${answerId}`,
 }
