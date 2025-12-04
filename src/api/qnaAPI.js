@@ -1,10 +1,12 @@
 import { api, QNA_ENDPOINTS } from "../config"
 
 // 질문 목록 조회
-export const getQuestionList = async (status = "PUBLIC", page = 0, size = 10) => {
-  const response = await api.get(QNA_ENDPOINTS.QUESTIONS, {
-    params: { status, page, size },
-  })
+export const getQuestionList = async (status = "PUBLIC", page = 0, size = 10, sort = null, hasAnswer = null) => {
+  const params = { status, page, size }
+  if (sort) params.sort = sort
+  if (hasAnswer !== null) params.hasAnswer = hasAnswer
+
+  const response = await api.get(QNA_ENDPOINTS.QUESTIONS, { params })
   return response.data
 }
 
@@ -17,6 +19,12 @@ export const getQuestionDetail = async (questionId) => {
 // 질문 생성
 export const createQuestion = async (questionData) => {
   const response = await api.post(QNA_ENDPOINTS.QUESTION_CREATE, questionData)
+  return response.data
+}
+
+// 질문 수정
+export const updateQuestion = async (questionId, updateData) => {
+  const response = await api.patch(QNA_ENDPOINTS.Question_UPDATE(questionId), updateData)
   return response.data
 }
 
@@ -42,9 +50,21 @@ export const getAnswerList = async (questionId) => {
   return response.data
 }
 
-// 답변 생성
-export const createAnswer = async (answerData) => {
-  const response = await api.post(QNA_ENDPOINTS.ANSWER_CREATE, answerData)
+// 답변 등록
+export const createAnswer = async (questionId, answerData) => {
+  const response = await api.post(`/api/answer?questionId=${questionId}`, answerData)
+  return response.data
+}
+
+// 답변 수정
+export const updateAnswer = async (answerId, updateData) => {
+  const response = await api.patch(QNA_ENDPOINTS.ANSWER_UPDATE(answerId), updateData)
+  return response.data
+}
+
+// 답변 삭제
+export const deleteAnswer = async (answerId) => {
+  const response = await api.delete(QNA_ENDPOINTS.ANSWER_DELETE(answerId))
   return response.data
 }
 

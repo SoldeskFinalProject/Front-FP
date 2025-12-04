@@ -5,6 +5,8 @@ import SymptomResultPage from "./pages/SymptomResultPage"
 import Dictionary from "./pages/Dictionary"
 import Reserv from "./pages/Reserv"
 import QnaPage from "./pages/QnaPage"
+import QnaCreate from "./components/qna/QnaCreate"
+import QnaDetail from "./components/qna/QnaDetail"
 import "./App.css"
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/reserv" element={<Reserv />} />
             <Route path="/qna" element={<QnaPage />} />
+            <Route path="/qna/create" element={<QnaCreate />} />
+            <Route path="/qna/:questionId" element={<QnaDetail />} />
           </Routes>
         </main>
       </div>
