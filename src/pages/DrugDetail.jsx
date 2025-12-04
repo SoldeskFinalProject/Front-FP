@@ -12,25 +12,22 @@ function normalizeHtmlContent(rawHtml) {
 
   let html = rawHtml;
 
-  // 1) width / height / style 인라인 속성 제거 (우리 CSS가 컨트롤하도록)
+  // 1) 인라인 스타일/width/height 제거 (프론트 CSS로 통일)
   html = html
     .replace(/\swidth="[^"]*"/gi, "")
     .replace(/\sheight="[^"]*"/gi, "")
     .replace(/\sstyle="[^"]*"/gi, "");
 
-  // 2) <table> 태그가 없는 상태에서 <tbody> 또는 <tr>만 있는 경우 감싸주기
-  const hasTable = /<table[^>]*>/i.test(html);
-  const hasTbodyOrTr = /<(tbody|tr)[\s>]/i.test(html);
-  const trimmedLower = html.trim().toLowerCase();
+  // 2) 각 <tbody>...</tbody> 를 개별 <table>로 감싸기
+  //    → 설명 텍스트(문장)와 h4 제목 등은 그대로 바깥에 남고,
+  //      테이블 부분만 표로 렌더링됨
+  html = html.replace(
+    /<tbody[^>]*>([\s\S]*?)<\/tbody>/gi,
+    (match, inner) => `<table class="drug-html-table"><tbody>${inner}</tbody></table>`
+  );
 
-  if (!hasTable && hasTbodyOrTr) {
-    // 이미 <tbody>가 있을 수도 있으니, 일단 <tbody>는 정리해서 하나만 두는 방식
-    const bodyContent = html.replace(/<\/?tbody[^>]*>/gi, "");
-    html = `<table class="drug-html-table"><tbody>${bodyContent}</tbody></table>`;
-  } else if (trimmedLower.startsWith("<tbody")) {
-    // tbody로 시작하지만 table이 없는 케이스
-    html = `<table class="drug-html-table">${html}</table>`;
-  }
+  // 3) (선택) 필요하면 여기서 \n -> <br> 치환도 가능하지만
+  //     이미 CSS에 white-space: pre-line; 을 쓰고 있으므로 생략
 
   return html;
 }

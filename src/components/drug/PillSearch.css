@@ -79,8 +79,19 @@
 
 /* 색상 도트 (선택사항) */
 .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid #ccc;}
-.color-dot.하양 { background: #fff; }
-.color-dot.노랑 { background: #ffeb3b; }
-.color-dot.분홍 { background: #ffc0cb; }
-.color-dot.빨강 { background: #f44336; }
+.color-dot.하양 { background: #fff; }           /* White */
+.color-dot.노랑 { background: #ffeb3b; }        /* Yellow */
+.color-dot.분홍 { background: #ffc0cb; }        /* Pink */
+.color-dot.빨강 { background: #f44336; }        /* Red */
+.color-dot.주황 { background: #ff9800; }        /* Orange */
+.color-dot.갈색 { background: #795548; }        /* Brown */
+.color-dot.연두 { background: #cddc39; }        /* Lime Green */
+.color-dot.초록 { background: #4caf50; }        /* Green */
+.color-dot.청록 { background: #00bcd4; }        /* Cyan/Teal */
+.color-dot.파랑 { background: #2196f3; }        /* Blue */
+.color-dot.남색 { background: #3f51b5; }        /* Indigo/Dark Blue */
+.color-dot.자주 { background: #9c27b0; }        /* Purple/Magenta */
+.color-dot.보라 { background: #673ab7; }        /* Deep Purple */
+.color-dot.회색 { background: #9e9e9e; }        /* Grey */
+.color-dot.검정 { background: #000; }           /* Black */
 /* ... 나머지 색상도 필요시 추가 */
