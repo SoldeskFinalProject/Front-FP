@@ -1,0 +1,29 @@
+/* src/pages/Dictionary.css */
+
+.dictionary-container {
+  width: 100%;
+  max-width: 1200px; /* SymptomPage와 동일한 최대 너비 */
+  margin: 0 auto;     /* 페이지 중앙 정렬 */
+  padding: 2rem;      /* SymptomPage와 동일한 내부 여백 */
+  color: #000000;    /* 기본 텍스트 색상 */
+
+  /* 내용을 세로로 정렬 (검색창 -> 결과) */
+  display: flex;
+  flex-direction: column;
+
+  /* SymptomPage의 .page-container는 'align-items: center'로 
+    내부 요소를 모두 중앙 정렬합니다. 
+    하지만 '약품 백과사전'은 검색창과 결과 리스트가
+    화면 너비를 100% 채우는 것이 더 자연스럽습니다.
+    따라서 'align-items: stretch'로 설정합니다.
+  */
+  align-items: stretch;
+}
+
+/* Dictionary.jsx의 h1 태그에 대한 스타일 */
+.dictionary-container h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center; /* 제목만 중앙 정렬 */
+}

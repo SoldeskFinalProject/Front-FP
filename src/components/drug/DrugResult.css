@@ -1,0 +1,150 @@
+/* src/components/drug/DrugResult.css */
+
+/* (1) 검색 결과 목록 전체 컨테이너 */
+.drug-result-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* (2) "검색 결과 없음" 등 안내 메시지 스타일 */
+.result-info-text {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* (3) 약품 카드 1개 (Link 태그) */
+.drug-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  text-decoration: none;
+  color: #000;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.drug-list-item:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* (4) 이미지 및 정보 스타일 */
+.drug-item-image-container {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eee;
+}
+
+.drug-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drug-item-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  background-color: #f0f0f0;
+}
+
+.drug-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.drug-item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drug-item-entp {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+}
+
+
+/* --- 페이지네이션 스타일 --- */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* 버튼 사이 간격 */
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.page-btn {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #555;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 숫자 버튼 스타일 */
+.number-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%; /* 원형 버튼 */
+  font-weight: 500;
+}
+
+.number-btn:hover:not(.active) {
+  background-color: #f0f0f0; /* 호버 시 연한 회색 */
+}
+
+/* 현재 활성화된 페이지 */
+.page-btn.active {
+  background-color: #2563eb;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+}
+
+/* 이동 버튼 (<<, <, >, >>) 스타일 */
+.move-btn {
+  padding: 0 8px;
+  font-weight: bold;
+  color: #9ca3af; /* 연한 회색 */
+}
+
+.move-btn:hover:not(:disabled) {
+  color: #374151; /* 진한 회색 */
+}
+
+.move-btn:disabled {
+  color: #e5e7eb; /* 매우 연한 회색 (비활성화) */
+  cursor: not-allowed;
+}
