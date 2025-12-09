@@ -33,11 +33,14 @@ export const QNA_ENDPOINTS = {
     Question_UPDATE: (questionId) => `/api/question/${questionId}/update`,
     QUESTION_DELETE: (id) => `/api/question/${id}`,
     QUESTION_STATUS: (id) => `/api/question/${id}/status`,
-    QUESTION_ACCEPT: (questionId, answerId) =>
-        `/api/question/${questionId}/accept/${answerId}`,
-
+    QUESTION_ACCEPT: (questionId, answerId) => `/api/question/${questionId}/accept/${answerId}`,
     ANSWERS: "/api/answer",
     ANSWER_CREATE: (questionId) => `/api/answer?questionId=${questionId}`,
     ANSWER_UPDATE: (answerId) => `/api/answer/${answerId}`,
     ANSWER_DELETE: (answerId) => `/api/answer/${answerId}`,
+    // 📍 댓글 관련 엔드포인트 추가
+    COMMENTS: "/api/comments",
+    COMMENTS_BY_ANSWER: (answerId) => `/api/comments/answer/${answerId}`,
+    COMMENT_UPDATE: (commentId) => `/api/comments/${commentId}`,
+    COMMENT_DELETE: (commentId) => `/api/comments/${commentId}`,
 }
