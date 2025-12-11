@@ -1,13 +1,16 @@
 .qna-page {
+  width: 100%;              /* 가로폭 절대 고정 (핵심) */
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
+  box-sizing: border-box;
 }
 
 .qna-header {
   height: 220px;              /* 고정 높이 */
   min-height: 220px;          /* 최소 높이도 220으로 통일 */
   max-height: 220px;          /* 최대 높이도 220으로 제한 */
+  width: 100%;
   
   text-align: center;
   margin-bottom: 50px;
