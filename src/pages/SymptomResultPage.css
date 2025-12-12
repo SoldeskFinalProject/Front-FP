@@ -130,6 +130,102 @@
   color: #6b7280;
 }
 
+/* 카드 전체는 왼쪽 정렬 */
+.hospital-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  text-align: left;        /* ★ 중요: 가운데 정렬 깨기 */
+}
+
+/* 1. 상단: 이름 / 평점+거리 */
+.hospital-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hospital-top-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.hospital-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hospital-type {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.hospital-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+  gap: 2px;
+}
+
+.hospital-rating {
+  color: #111827;
+}
+
+.hospital-distance {
+  color: #374151;
+}
+
+/* 2. 중간: 주소 한 줄 */
+.hospital-row-middle {
+  margin-top: 6px;
+}
+
+.hospital-address {
+  font-size: 0.9rem;
+  color: #374151;
+  margin: 0;
+}
+
+/* 3. 하단: 전화번호 / 길찾기 버튼 */
+.hospital-row-bottom {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hospital-tel {
+  font-size: 0.86rem;
+  color: #4b5563;
+}
+
+/* 파랑/흰색 길찾기 버튼 */
+.naver-route-button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.naver-route-button:hover {
+  background-color: #1d4ed8;
+}
+
+
+
 @media (max-width: 768px) {
     .result-header {
         flex-direction: column;
