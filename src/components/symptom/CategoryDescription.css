@@ -1,21 +1,71 @@
-components/symptom/CategoryDescription.css
-.category-description {
-  width: 260px;
-  background-color: #fafafa;
-  border-left: 1px solid #e0e0e0;
-  padding: 16px;
-  margin-left: 24px;
-  border-radius: 8px;
+.category-description-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 100px;
+  height: fit-content;
 }
 
-.category-description h4 {
-  font-size: 18px;
-  margin-bottom: 6px;
-  color: #333;
+.description-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
 }
 
-.category-description p {
+.description-placeholder p {
   font-size: 14px;
+  line-height: 1.6;
+}
+
+.description-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #2196f3;
+}
+
+.description-content {
+  margin-bottom: 24px;
+}
+
+.description-text {
+  font-size: 14px;
+  line-height: 1.8;
   color: #555;
-  line-height: 1.5;
+  margin: 0;
+}
+
+.description-info {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .category-description-container {
+    position: static;
+    margin-top: 20px;
+  }
 }

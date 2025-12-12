@@ -1,0 +1,377 @@
+.qna-detail-page {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.detail-content {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 30px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detail-actions button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.detail-actions button:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.detail-actions .delete-btn {
+  margin-left: auto;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.detail-actions .delete-btn:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* 질문 수정 UI 스타일 추가 */
+.edit-question-box {
+  margin-bottom: 40px;
+}
+
+.edit-title-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.edit-title-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.edit-content-textarea {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  line-height: 1.8;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 12px;
+}
+
+.edit-content-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn {
+  padding: 10px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-btn:hover {
+  background: #0056b3;
+}
+
+.cancel-btn {
+  padding: 10px 24px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+}
+
+.qna-detail-page h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff;
+}
+
+.answer-list {
+  margin-bottom: 40px;
+}
+
+.no-answers {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* 의사 정보 표시 스타일 추가 */
+.doctor-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.doctor-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: white;
+  color: #667eea;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.doctor-department {
+  color: white;
+  font-weight: 600;
+}
+
+.doctor-hospital {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+}
+
+.answer-item {
+  padding: 20px;
+  margin-bottom: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+  position: relative;
+}
+
+/* 채택된 답변 강조 스타일 */
+.answer-item.accepted-answer {
+  background: #f0fdf4;
+  border-left-color: #10b981;
+}
+
+.answer-content {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.answer-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.answer-date {
+  margin-left: 8px;
+  color: #999;
+}
+
+/* 답변 액션 버튼들 스타일 */
+.answer-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.accept-btn {
+  padding: 6px 14px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.accept-btn:hover {
+  background: #218838;
+}
+
+.accepted-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.edit-answer-btn {
+  padding: 6px 14px;
+  background: #ffc107;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-answer-btn:hover {
+  background: #e0a800;
+}
+
+.delete-answer-btn {
+  padding: 6px 14px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-answer-btn:hover {
+  background: #c82333;
+}
+
+/* 답변 수정 모드 스타일 */
+.edit-answer-box {
+  padding: 16px;
+  background: white;
+  border: 2px solid #007bff;
+  border-radius: 6px;
+}
+
+.edit-answer-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.edit-answer-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.answer-create-box {
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #ddd;
+}
+
+.answer-create-box textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  resize: vertical;
+  margin-bottom: 12px;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.answer-create-box textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.submit-answer {
+  padding: 10px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-answer:hover {
+  background: #0056b3;
+}
+
+.loading {
+  text-align: center;
+  padding: 100px 20px;
+  font-size: 18px;
+  color: #666;
+}

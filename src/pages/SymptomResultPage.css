@@ -1,0 +1,249 @@
+.result-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.result-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.back-btn {
+  padding: 10px 24px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #2563eb;
+}
+
+.result-section {
+  margin-bottom: 40px;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.result-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.symptom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.symptom-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.symptom-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.symptom-category {
+  font-size: 14px;
+  color: #6b7280;
+  background-color: #e0e7ff;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.no-data {
+  text-align: center;
+  color: #9ca3af;
+  padding: 20px;
+}
+
+.uploaded-image-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.result-image {
+  max-width: 500px;
+  max-height: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+}
+
+.recommendation-placeholder p {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 8px 0;
+}
+
+.placeholder-hint {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+/* 카드 전체는 왼쪽 정렬 */
+.hospital-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  text-align: left;        /* ★ 중요: 가운데 정렬 깨기 */
+}
+
+/* 1. 상단: 이름 / 평점+거리 */
+.hospital-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hospital-top-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.hospital-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hospital-type {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.hospital-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+  gap: 2px;
+}
+
+.hospital-rating {
+  color: #111827;
+}
+
+.hospital-distance {
+  color: #374151;
+}
+
+/* 2. 중간: 주소 한 줄 */
+.hospital-row-middle {
+  margin-top: 6px;
+}
+
+.hospital-address {
+  font-size: 0.9rem;
+  color: #374151;
+  margin: 0;
+}
+
+/* 3. 하단: 전화번호 / 길찾기 버튼 */
+.hospital-row-bottom {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hospital-tel {
+  font-size: 0.86rem;
+  color: #4b5563;
+}
+
+/* 파랑/흰색 길찾기 버튼 */
+.naver-route-button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.naver-route-button:hover {
+  background-color: #1d4ed8;
+}
+
+
+
+@media (max-width: 768px) {
+    .result-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .result-title {
+        font-size: 24px;
+    }
+
+    .symptom-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .result-image {
+        max-width: 100%;
+    }
+}
