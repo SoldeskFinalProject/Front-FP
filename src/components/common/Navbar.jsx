@@ -18,13 +18,26 @@ const Navbar = () => {
         <Link to="/" className="nav-item">
           증상검색
         </Link>
-        <Link to="/dictionary" className="nav-item">
-          의약품 사전
-        </Link>
-        <Link to="/qna" className="nav-item">
-          Q&amp;A
-        </Link>
-      </div>
+
+        {/* 👇 [수정됨] 드롭다운 메뉴 영역 */}
+        <div className="nav-item dropdown-container">
+          {/* 마우스를 올릴 텍스트 */}
+          <span className="dropdown-trigger">
+            의학 백과 ▾
+          </span>
+          
+          {/* 숨겨져 있다가 나타날 메뉴들 */}
+          <div className="dropdown-menu">
+            <Link to="/dictionary" className="dropdown-item">
+              의약품 백과
+            </Link>
+            <Link to="/disease" className="dropdown-item">
+              질환 백과
+            </Link>
+          </div>
+        </div> 
+      </div> 
+
 
       {/* 오른쪽 버튼 */}
       <div className="navbar-section navbar-right">

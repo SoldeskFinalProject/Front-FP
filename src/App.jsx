@@ -8,6 +8,8 @@ import DrugDetail from "./pages/DrugDetail"
 import QnaPage from "./pages/QnaPage"
 import QnaCreate from "./components/qna/QnaCreate"
 import QnaDetail from "./components/qna/QnaDetail"
+import DiseaseDictionary from "./pages/DiseaseDictionary";
+import DiseaseDetail from "./pages/DiseaseDetail";
 import "./App.css"
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
             <Route path="/qna" element={<QnaPage />} />
             <Route path="/qna/create" element={<QnaCreate />} />
             <Route path="/qna/:questionId" element={<QnaDetail />} />
+            <Route path="/disease" element={<DiseaseDictionary />} />
+            <Route path="/disease/:diseaseId" element={<DiseaseDetail />} />
           </Routes>
         </main>
       </div>
