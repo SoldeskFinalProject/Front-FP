@@ -19,7 +19,7 @@ const QnaCreate = () => {
             title,
             content,
             status,
-            userId: 1, // TODO 로그인 후 실제 사용자로 교체
+            userId: 1, // TODO 로그인 �� 실제 사용자로 교체
         }
 
         try {

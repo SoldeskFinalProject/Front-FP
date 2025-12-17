@@ -12,6 +12,7 @@ import {
     deleteAnswer,
     acceptAnswer,
 } from "../../api/qnaAPI"
+import AnswerComments from "./AnswerComments"
 import "./QnaDetail.css"
 
 const QnaDetail = () => {
@@ -241,6 +242,8 @@ const QnaDetail = () => {
                         삭제
                         </button>
                     </div>
+
+                    <AnswerComments answerId={answer.answerId} />
                     </>
                 )}
                 </div>
