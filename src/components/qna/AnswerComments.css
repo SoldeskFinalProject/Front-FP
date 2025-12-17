@@ -216,3 +216,18 @@
 .replies {
   display: none;
 }
+
+.comment-toggle-btn {
+  margin: 6px 0 14px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #ddd;
+  background: #2563eb;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.comment-toggle-btn:hover {
+  background: #2563eb;
+}
+
