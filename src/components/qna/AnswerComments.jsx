@@ -11,6 +11,7 @@ const AnswerComments = ({ answerId }) => {
     const [replyContent, setReplyContent] = useState("")
     const [editingCommentId, setEditingCommentId] = useState(null)
     const [editContent, setEditContent] = useState("")
+    const [expandedGroups, setExpandedGroups] = useState({})
 
     // 임시 사용자 ID (로그인 기능 없을 때)
     const TEMP_USER_ID = 1
@@ -60,14 +61,15 @@ const AnswerComments = ({ answerId }) => {
         setReplyContent("")
         loadComments()
         } catch (err) {
-        console.error("대댓글 작성 실패:", err)
-        alert("대댓글 작성에 실패했습니다.")
+            console.error("대댓글 작성 실패:", err)
+            alert("대댓글 작성에 실패했습니다.")
         }
     }
 
     const handleUpdateComment = async (commentId) => {
+        console.log("PUT", commentId, TEMP_USER_ID, editContent)
+        
         if (!editContent.trim()) return
-
         try {
         await updateComment(commentId, TEMP_USER_ID, { content: editContent })
         setEditingCommentId(null)
@@ -106,71 +108,119 @@ const AnswerComments = ({ answerId }) => {
         return flattened
     }
 
+    const toggleGroup = (parentId) => {
+        setExpandedGroups((prev) => ({
+            ...prev,
+            [parentId]: !prev[parentId],
+        }))
+    }
+
+
     const renderCommentGroup = (parentComment) => {
         const flatComments = flattenCommentTree(parentComment)
 
+        const parentId = parentComment.commentId
+        const isExpanded = !!expandedGroups[parentId]
+
+        const parentOnly = flatComments.slice(0, 1)           // ✅ 부모 1개
+        const rest = flatComments.slice(1)                     // ✅ 나머지(대댓글 등)
+        const restCount = rest.length
+
+        // ✅ 화면에 보여줄 리스트: 펼치면 전체, 아니면 부모만
+        const visibleComments = isExpanded ? flatComments : parentOnly
+
         return (
-        <div key={parentComment.commentId} className="comment-group">
-            {flatComments.map((comment, index) => {
-            const isParent = index === 0
-            return (
-                <div key={comment.commentId} className={`comment-item ${!isParent ? "reply-item" : ""}`}>
-                {editingCommentId === comment.commentId ? (
+            <div key={parentId} className="comment-group">
+            {visibleComments.map((comment, index) => {
+                const isParent = index === 0
+
+                return (
+                <div
+                    key={comment.commentId}
+                    className={`comment-item ${!isParent ? "reply-item" : ""}`}
+                >
+                    {editingCommentId === comment.commentId ? (
                     <div className="comment-edit-box">
-                    <textarea
+                        <textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
                         placeholder="댓글을 입력하세요..."
                         rows={2}
-                    />
-                    <div className="comment-edit-actions">
-                        <button className="save-btn" onClick={() => handleUpdateComment(comment.commentId)}>
-                        저장
+                        />
+                        <div className="comment-edit-actions">
+                        <button
+                            className="save-btn"
+                            onClick={() => handleUpdateComment(comment.commentId)}
+                        >
+                            저장
                         </button>
                         <button className="cancel-btn" onClick={() => setEditingCommentId(null)}>
-                        취소
+                            취소
                         </button>
+                        </div>
                     </div>
-                    </div>
-                ) : (
+                    ) : (
                     <>
-                    <div className="comment-header">
+                        <div className="comment-header">
                         <span className="comment-author">{comment.userName}</span>
-                        <span className="comment-date">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <p className="comment-content">{comment.content}</p>
-                    <div className="comment-actions">
-                        <button onClick={() => setReplyingTo(parentComment.commentId)}>답글</button>
+                        <span className="comment-date">
+                            {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                        </div>
+
+                        <p className="comment-content">{comment.content}</p>
+
+                        <div className="comment-actions">
+                        <button onClick={() => setReplyingTo(parentId)}>답글</button>
                         <button onClick={() => startEditing(comment)}>수정</button>
                         <button onClick={() => handleDeleteComment(comment.commentId)}>삭제</button>
-                    </div>
+                        </div>
                     </>
-                )}
+                    )}
 
-                {replyingTo === parentComment.commentId && index === flatComments.length - 1 && (
+                    {/* ✅ 답글 입력은: 접혀있으면 부모 바로 아래, 펼쳐있으면 '마지막 댓글 아래' */}
+                    {replyingTo === parentId && (
+                    (!isExpanded && isParent) ||
+                    (isExpanded && index === visibleComments.length - 1)
+                    ) && (
                     <div className="reply-box">
-                    <textarea
+                        <textarea
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder="답글을 입력하세요..."
                         rows={2}
-                    />
-                    <div className="reply-actions">
-                        <button className="submit-btn" onClick={() => handleCreateReply(parentComment.commentId)}>
-                        답글 등록
+                        />
+                        <div className="reply-actions">
+                        <button
+                            className="submit-btn"
+                            onClick={() => handleCreateReply(parentId)}
+                        >
+                            답글 등록
                         </button>
                         <button className="cancel-btn" onClick={() => setReplyingTo(null)}>
-                        취소
+                            취소
                         </button>
+                        </div>
                     </div>
-                    </div>
-                )}
+                    )}
                 </div>
-            )
+                )
             })}
-        </div>
+
+            {/* ✅ 더보기/접기 버튼 (부모 댓글 1개 외 나머지가 있을 때만) */}
+            {restCount > 0 && (
+                <button
+                type="button"
+                className="comment-toggle-btn"
+                onClick={() => toggleGroup(parentId)}
+                >
+                {isExpanded ? "댓글 접기" : `댓글 ${restCount}개 더보기`}
+                </button>
+            )}
+            </div>
         )
     }
+
 
     const topLevelComments = comments.filter((comment) => !comment.parentCommentId)
 
