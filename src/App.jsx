@@ -11,6 +11,8 @@ import SignupPage from "./components/auth/SignupPage"
 import LoginPage from "./components/auth/LoginPage"
 import PendingApprovalPage from "./components/auth/PendingApprovalPage"
 import AdminApprovalPage from "./components/admin/AdminApprovalPage"
+import HospitalReservationPage from "./pages/HospitalReservationPage";
+import HospitalReviewPage from "./pages/HospitalReviewPage";
 import "./App.css"
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/pending" element={<PendingApprovalPage />} />
             <Route path="/admin/approval" element={<AdminApprovalPage />} />
+            <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
+            <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
           </Routes>
         </main>
       </div>
