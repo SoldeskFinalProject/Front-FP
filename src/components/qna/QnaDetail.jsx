@@ -110,11 +110,11 @@ const QnaDetail = () => {
 
         try {
         await deleteAnswer(answerId)
-        alert("답변이 삭제되었습니다.")
-        loadDetail()
+            alert("답변이 삭제되었습니다.")
+            loadDetail()
         } catch (err) {
-        console.error("답변 삭제 실패:", err)
-        alert("답변 삭제에 실패했습니다.")
+            console.error("답변 삭제 실패:", err)
+            alert("답변 삭제에 실패했습니다.")
         }
     }
 
@@ -122,12 +122,12 @@ const QnaDetail = () => {
         if (!window.confirm("이 답변을 채택하시겠습니까?")) return
 
         try {
-        await acceptAnswer(questionId, answerId)
-        alert("답변이 채택되었습니다!")
-        loadDetail()
+            await acceptAnswer(questionId, answerId)
+            alert("답변이 채택되었습니다!")
+            loadDetail()
         } catch (err) {
-        console.error("답변 채택 실패:", err)
-        alert("답변 채택에 실패했습니다.")
+            console.error("답변 채택 실패:", err)
+            alert("답변 채택에 실패했습니다.")
         }
     }
 

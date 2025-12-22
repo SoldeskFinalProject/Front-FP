@@ -4,15 +4,16 @@ import SymptomPage from "./pages/SymptomPage"
 import SymptomResultPage from "./pages/SymptomResultPage"
 import Dictionary from "./pages/Dictionary"
 import Reserv from "./pages/Reserv"
+import DrugDetail from "./pages/DrugDetail";
 import QnaPage from "./pages/QnaPage"
 import QnaCreate from "./components/qna/QnaCreate"
 import QnaDetail from "./components/qna/QnaDetail"
+import DiseaseDictionary from "./pages/DiseaseDictionary";
+import DiseaseDetail from "./pages/DiseaseDetail";
 import SignupPage from "./components/auth/SignupPage"
 import LoginPage from "./components/auth/LoginPage"
 import PendingApprovalPage from "./components/auth/PendingApprovalPage"
 import AdminApprovalPage from "./components/admin/AdminApprovalPage"
-import HospitalReservationPage from "./pages/HospitalReservationPage";
-import HospitalReviewPage from "./pages/HospitalReviewPage";
 import "./App.css"
 
 function App() {
@@ -26,10 +27,17 @@ function App() {
             <Route path="/" element={<SymptomPage />} />
             <Route path="/result" element={<SymptomResultPage />} />
             <Route path="/dictionary" element={<Dictionary />} />
+            <Route path="/dictionary/detail/:itemSeq" element={<DrugDetail />} />
             <Route path="/reserv" element={<Reserv />} />
             <Route path="/qna" element={<QnaPage />} />
             <Route path="/qna/create" element={<QnaCreate />} />
             <Route path="/qna/:questionId" element={<QnaDetail />} />
+
+            {/* 질병 사전 관련 라우트 */}
+            <Route path="/disease" element={<DiseaseDictionary />} />
+            <Route path="/disease/:diseaseId" element={<DiseaseDetail />} />
+
+            {/* 인증 및 관리자 관련 라우트 */}
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/pending" element={<PendingApprovalPage />} />
@@ -40,7 +48,7 @@ function App() {
         </main>
       </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
