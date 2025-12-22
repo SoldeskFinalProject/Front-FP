@@ -14,6 +14,8 @@ import SignupPage from "./components/auth/SignupPage"
 import LoginPage from "./components/auth/LoginPage"
 import PendingApprovalPage from "./components/auth/PendingApprovalPage"
 import AdminApprovalPage from "./components/admin/AdminApprovalPage"
+import HospitalReservationPage from "./pages/HospitalReservationPage"; 
+import HospitalReviewPage from "./pages/HospitalReviewPage";
 import "./App.css"
 
 function App() {
