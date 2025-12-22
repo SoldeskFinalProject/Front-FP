@@ -1,0 +1,160 @@
+.admin-page {
+  min-height: calc(100vh - 70px);
+  padding: 40px 20px;
+  background-color: #f5f7fa;
+}
+
+.admin-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.admin-container h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 32px;
+}
+
+.admin-description {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.pending-count {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.approval-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+}
+
+.tab-button:hover {
+  color: #2c3e50;
+}
+
+.tab-button.active {
+  color: #2c3e50;
+  border-bottom-color: #2c3e50;
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  color: #666;
+}
+
+.approval-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.approval-item {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.user-header h3 {
+  color: #2c3e50;
+  font-size: 20px;
+  margin: 0;
+}
+
+.role-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.role-badge.doctor {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.role-badge.hospital {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.user-email {
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.user-detail {
+  color: #888;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.approve-button,
+.reject-button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.approve-button {
+  background: #28a745;
+  color: white;
+}
+
+.approve-button:hover {
+  background: #218838;
+}
+
+.reject-button {
+  background: #dc3545;
+  color: white;
+}
+
+.reject-button:hover {
+  background: #c82333;
+}

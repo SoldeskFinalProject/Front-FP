@@ -4,10 +4,15 @@ import SymptomPage from "./pages/SymptomPage"
 import SymptomResultPage from "./pages/SymptomResultPage"
 import Dictionary from "./pages/Dictionary"
 import Reserv from "./pages/Reserv"
-import DrugDetail from "./pages/DrugDetail"
 import QnaPage from "./pages/QnaPage"
 import QnaCreate from "./components/qna/QnaCreate"
 import QnaDetail from "./components/qna/QnaDetail"
+import SignupPage from "./components/auth/SignupPage"
+import LoginPage from "./components/auth/LoginPage"
+import PendingApprovalPage from "./components/auth/PendingApprovalPage"
+import AdminApprovalPage from "./components/admin/AdminApprovalPage"
+import HospitalReservationPage from "./pages/HospitalReservationPage";
+import HospitalReviewPage from "./pages/HospitalReviewPage";
 import "./App.css"
 
 function App() {
@@ -22,10 +27,15 @@ function App() {
             <Route path="/result" element={<SymptomResultPage />} />
             <Route path="/dictionary" element={<Dictionary />} />
             <Route path="/reserv" element={<Reserv />} />
-            <Route path="/dictionary/detail/:itemSeq" element={<DrugDetail />} />
             <Route path="/qna" element={<QnaPage />} />
             <Route path="/qna/create" element={<QnaCreate />} />
             <Route path="/qna/:questionId" element={<QnaDetail />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/pending" element={<PendingApprovalPage />} />
+            <Route path="/admin/approval" element={<AdminApprovalPage />} />
+            <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
+            <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
           </Routes>
         </main>
       </div>
