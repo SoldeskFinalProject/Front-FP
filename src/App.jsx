@@ -1,21 +1,22 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/common/Navbar";
-import SymptomPage from "./pages/SymptomPage";
-import SymptomResultPage from "./pages/SymptomResultPage";
-import Dictionary from "./pages/Dictionary";
-import Reserv from "./pages/Reserv";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import Navbar from "./components/common/Navbar"
+import SymptomPage from "./pages/SymptomPage"
+import SymptomResultPage from "./pages/SymptomResultPage"
+import Dictionary from "./pages/Dictionary"
+import Reserv from "./pages/Reserv"
 import DrugDetail from "./pages/DrugDetail";
-import QnaPage from "./pages/QnaPage";
-import QnaCreate from "./components/qna/QnaCreate";
-import QnaDetail from "./components/qna/QnaDetail";
+import QnaPage from "./pages/QnaPage"
+import QnaCreate from "./components/qna/QnaCreate"
+import QnaDetail from "./components/qna/QnaDetail"
 import DiseaseDictionary from "./pages/DiseaseDictionary";
 import DiseaseDetail from "./pages/DiseaseDetail";
-import SignupPage from "./components/auth/SignupPage";
-import LoginPage from "./components/auth/LoginPage";
-import PendingApprovalPage from "./components/auth/PendingApprovalPage";
-import AdminApprovalPage from "./components/admin/AdminApprovalPage";
-
-import "./App.css";
+import SignupPage from "./components/auth/SignupPage"
+import LoginPage from "./components/auth/LoginPage"
+import PendingApprovalPage from "./components/auth/PendingApprovalPage"
+import AdminApprovalPage from "./components/admin/AdminApprovalPage"
+import HospitalReservationPage from "./pages/HospitalReservationPage"; 
+import HospitalReviewPage from "./pages/HospitalReviewPage";
+import "./App.css"
 
 function App() {
   return (
@@ -43,6 +44,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/pending" element={<PendingApprovalPage />} />
             <Route path="/admin/approval" element={<AdminApprovalPage />} />
+            <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
+            <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
           </Routes>
         </main>
       </div>

@@ -4,6 +4,23 @@
 const BASE_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
+/** 공통 에러 처리 헬퍼 */
+async function ensureOk(res, defaultErrorMessage) {
+  if (res.ok) {
+    // body 가 없을 수도 있어서 안전하게 처리
+    try {
+      return await res.json();
+    } catch (e) {
+      return {};
+    }
+  }
+
+  const text = await res.text().catch(() => "");
+  throw new Error(
+    `${defaultErrorMessage}: ${res.status} ${res.statusText} ${text}`,
+  );
+}
+
 /**
  * 추천 병원 조회 API
  *
@@ -25,14 +42,7 @@ export async function getRecommendedHospitals(params = {}) {
     credentials: "include",
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `추천 병원 조회 실패: ${res.status} ${res.statusText} ${text}`,
-    );
-  }
-
-  return res.json();
+  return ensureOk(res, "추천 병원 조회 실패");
 }
 
 /**
@@ -49,14 +59,7 @@ export async function addHospitalFavorite(hospitalId) {
     },
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `병원 즐겨찾기 추가 실패: ${res.status} ${res.statusText} ${text}`,
-    );
-  }
-
-  return res.json().catch(() => ({})); // 바디 없어도 에러 안 나게
+  return ensureOk(res, "병원 즐겨찾기 추가 실패");
 }
 
 /**
@@ -70,21 +73,24 @@ export async function removeHospitalFavorite(hospitalId) {
     credentials: "include",
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `병원 즐겨찾기 해제 실패: ${res.status} ${res.statusText} ${text}`,
-    );
-  }
-
-  return res.json().catch(() => ({}));
+  return ensureOk(res, "병원 즐겨찾기 해제 실패");
 }
 
 /**
  * 병원 예약 생성
- * payload: { reservedAt, memo, symptomCodes, symptomNames … }
+ *
+ * @param {number|string} hospitalId
+ * @param {{
+ *   userId?: number,
+ *   patientName?: string,
+ *   phone?: string,
+ *   memo?: string,
+ *   reservedAt?: string,
+ *   symptomCodes?: string[],
+ *   symptomNames?: string[]
+ * }} payload
  */
-export async function createHospitalReservation(hospitalId, payload) {
+export async function createHospitalReservation(hospitalId, payload = {}) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations`;
 
   const res = await fetch(url, {
@@ -93,15 +99,33 @@ export async function createHospitalReservation(hospitalId, payload) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload ?? {}),
+    body: JSON.stringify(payload),
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `병원 예약 실패: ${res.status} ${res.statusText} ${text}`,
-    );
-  }
+  return ensureOk(res, "병원 예약 실패");
+}
 
-  return res.json().catch(() => ({}));
+/**
+ * 병원 리뷰 작성
+ *
+ * @param {number|string} hospitalId
+ * @param {{
+ *   rating: number,
+ *   content: string,
+ *   userId?: number
+ * }} payload
+ */
+export async function createHospitalReview(hospitalId, payload = {}) {
+  const url = `${BASE_URL}/api/hospitals/${hospitalId}/reviews`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return ensureOk(res, "병원 리뷰 작성 실패");
 }

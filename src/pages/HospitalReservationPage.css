@@ -1,0 +1,154 @@
+/* src/pages/HospitalReservationPage.css */
+
+.reservation-page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.reservation-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.reservation-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.reservation-section {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  padding: 24px 24px 28px;
+}
+
+/* 병원 정보 카드 */
+.reservation-hospital-info {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.reservation-hospital-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.reservation-hospital-addr,
+.reservation-hospital-tel {
+  font-size: 14px;
+  color: #4b5563;
+  margin: 2px 0;
+}
+
+/* 증상 정보 박스 (있다면) */
+.reservation-symptom-box {
+  background-color: #eff6ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.reservation-symptom-label {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+
+.reservation-symptom-text {
+  font-size: 14px;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* 폼 공통 */
+.reservation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reservation-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reservation-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.reservation-input,
+.reservation-select,
+.reservation-textarea {
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.reservation-textarea {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+/* 버튼 영역 */
+.reservation-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.reservation-cancel-btn,
+.reservation-submit-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.reservation-cancel-btn {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.reservation-cancel-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.reservation-submit-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.reservation-submit-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.reservation-submit-btn:disabled,
+.reservation-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .reservation-page-container {
+    padding: 24px 16px 40px;
+  }
+
+  .reservation-section {
+    padding: 20px 16px 24px;
+  }
+}
