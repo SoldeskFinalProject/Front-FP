@@ -52,8 +52,17 @@ export const AUTH_ENDPOINTS = {
 
 // 유저 공통 - 로그인 후 사용
 export const USER_ENDPOINTS = {
+    // 내 기본 정보 조회 (params: userId)
     ME: "/api/users/me",
+
+    // 특정 유저 조회 (관리자/테스트용)
+    DETAIL: (id) => `/api/users/${id}`,
+
+    // 회원 정보 수정
     UPDATE: (id) => `/api/users/${id}`,
+
+    // 회원 탈퇴
+    DELETE: (id) => `/api/users/${id}`,
 }
 
 // 인증 요청 및 검증 (Verification)
@@ -61,13 +70,13 @@ export const VERIFICATION_ENDPOINTS = {
     // 사업자 진위 확인
     NTS_VERIFY: "/api/verification/nts/verify",
     REQUEST_DOCTOR: "/api/verification/doctor/requests",    // 의사 인증 요청 생성
-    REQUEST_HOSPITAL: "/api/verification/hospital/request", // 병원 인증 요청 생성
+    REQUEST_HOSPITAL: "/api/verification/hospital/requests", // 병원 인증 요청 생성
     MY_STATUS: "/api/verification/me",      // 공통. 내 인증 상태 조회
 }
 
 // 관리자 관련 엔드포인트 추가
 export const ADMIN_ENDPOINTS = {
-    REQUESTS: "api/admin/verification/requests",
+    REQUESTS: "/api/admin/verification/requests",
     APPROVE: (requestId) => `/api/admin/verification/requests/${requestId}/approve`,
     REJECT: (requestId) => `/api/admin/verification/requests/${requestId}/reject`,
 }
@@ -76,9 +85,6 @@ export const ADMIN_ENDPOINTS = {
 export const DOCTOR_ENDPOINTS = {
     // 병원 상세 페이지 - 병원별 의사 목록
     BY_HOSPITAL: (hospitalId) => `/api/doctors/hospital/${hospitalId}`,
-
-    // 특정 의사 상세 조회
-    DETAIL: (doctorId) => `/api/doctors/${doctorId}`,
 
     // 내 의사 프로필 조회 (userId 기준)
     PROFILE: (userId) => `/api/doctors/profile/${userId}`,
@@ -93,5 +99,5 @@ export const HOSPITAL_ENDPOINTS = {
     DETAIL: (hospitalMemberId) => `/api/hospital-members/${hospitalMemberId}`,
 
     // (로그인된) 내 병원 관리자 프로필 조회
-    MY_PROFILE: (userId) => `/api/hospital-member/profile/${userId}`,
+    MY_PROFILE: (userId) => `/api/hospital-members/profile/${userId}`,
 }

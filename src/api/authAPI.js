@@ -41,3 +41,9 @@ export const rejectRequest = async (requestId, reason) => {
     })
     return response.data;
 }
+
+// 병원 목록 조회
+export const getAllHospitals = async () => {
+    const response = await api.get(AUTH_ENDPOINTS.HOSPITALS)
+    return response.data
+}
