@@ -22,7 +22,16 @@ export const CATEGORY_ENDPOINTS = {
 
 // Drug API 엔드포인트
 export const DRUG_ENDPOINTS = {
-    SEARCH: "/api/drugs/search", // 약품 키워드 검색
+    SEARCH: "/api/drugs/search",                    // 이름 검색
+    PILL_SEARCH: "/api/drugs/appearances/search",   // 낱알(모양) 검색
+    DETAIL: (itemSeq) => `/api/drugs/item/${itemSeq}`, // 약품 상세 정보
+}
+
+// Disease API 엔드포인트 
+export const DISEASE_ENDPOINTS = {
+    LIST: "/api/diseases",              // 목록 조회 (GET), 등록 (POST)
+    DETAIL: (id) => `/api/diseases/${id}`, // 상세 조회 (GET), 수정 (PUT), 삭제 (DELETE)
+    CATEGORIES: "/api/diseases/categories", // 카테고리 목록
 }
 
 // Q&A API 엔드포인트
