@@ -16,6 +16,8 @@ import PendingApprovalPage from "./components/auth/PendingApprovalPage"
 import AdminApprovalPage from "./components/admin/AdminApprovalPage"
 import HospitalReservationPage from "./pages/HospitalReservationPage"; 
 import HospitalReviewPage from "./pages/HospitalReviewPage";
+import DiseaseAdminList from "./pages/admin/DiseaseAdminList";
+import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm";
 import "./App.css"
 
 function App() {
@@ -46,6 +48,11 @@ function App() {
             <Route path="/admin/approval" element={<AdminApprovalPage />} />
             <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
             <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
+
+            {/* 관리자 질병백과 등록/수정 페이지 */}
+            <Route path="/admin/diseases" element={<DiseaseAdminList />} />
+            <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
+            <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
           </Routes>
         </main>
       </div>
