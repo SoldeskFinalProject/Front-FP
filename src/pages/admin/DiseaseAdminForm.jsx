@@ -88,6 +88,7 @@ export default function DiseaseAdminForm() {
         }
       }
     } catch (error) {
+      console.error("상세 조회 에러:", error);
       alert("데이터 로드 실패");
       navigate("/admin/diseases");
     }
