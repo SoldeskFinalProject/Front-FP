@@ -31,7 +31,7 @@ export default function SymptomResultPage() {
     <div className="result-page-container">
       <header className="result-header">
         <h2 className="result-title">증상 분석 결과</h2>
-        <button className="back-btn" onClick={() => navigate("/")}>
+        <button className="back-btn" onClick={() => navigate("/search")}>
           다시 검색하기
         </button>
       </header>

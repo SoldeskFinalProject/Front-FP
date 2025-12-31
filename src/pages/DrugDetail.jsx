@@ -1,5 +1,5 @@
 // src/pages/DrugDetail.jsx
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchDrugDetail } from '../api/drugAPI';
 import "./DrugDetail.css";
@@ -41,9 +41,6 @@ export default function DrugDetail() {
   // 목차(TOC) 관리를 위한 상태
   const [toc, setToc] = useState([]);
   const [activeId, setActiveId] = useState("");
-
-  // 각 섹션으로 이동하기 위한 Refs (지금은 필요 없어도 확장성 위해 남겨둠)
-  const sectionRefs = useRef({});
 
   useEffect(() => {
     const loadDetail = async () => {

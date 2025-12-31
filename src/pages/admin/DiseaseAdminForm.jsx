@@ -10,7 +10,7 @@ import "react-quill-new/dist/quill.snow.css";
 import DOMPurify from "dompurify";
 
 import "./DiseaseAdmin.css";
-
+// eslint-disable-next-line react-refresh/only-export-components
 export default function DiseaseAdminForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -87,6 +87,7 @@ export default function DiseaseAdminForm() {
           setFaqList([]);
         }
       }
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert("데이터 로드 실패");
       navigate("/admin/diseases");

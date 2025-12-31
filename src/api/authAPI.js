@@ -6,8 +6,7 @@ export const signup = async (formData) => {
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        // 필요한 경우 nickname, phoneNumber 등 추가
-        // address 정보는 이제 선택 사항이거나 회원정보 수정에서 처리
+        phoneNumber: formData.phoneNumber,
     };
 
     const response = await api.post(AUTH_ENDPOINTS.SIGNUP_USER, requestData);
@@ -21,12 +20,21 @@ export const login = async (credentials) => {
 };
 
 // 관리자 승인 대기 목록 조회
-export const getVerificationRequests = async (type, decision = "PENDING") => {
-    const response = await api.get(ADMIN_ENDPOINTS.REQUESTS, {
-        params: { type, decision },
-    });
-    return response.data;
-};
+// export const getVerificationRequests = async (type, decision = "PENDING") => {
+//     const response = await api.get(ADMIN_ENDPOINTS.REQUESTS, {
+//         params: { type, decision },
+//     });
+//     return response.data;
+// };
+
+export const getVerificationRequests = async (type, decision) => {
+    const params = {}
+    if (type) params.type = type
+    if (decision) params.decision = decision
+
+    const { data } = await api.get(ADMIN_ENDPOINTS.REQUESTS, { params })
+    return data
+}
 
 // 관리자 인증 요청 승인
 export const approveRequest = async (requestId) => {
@@ -40,10 +48,4 @@ export const rejectRequest = async (requestId, reason) => {
         adminReason: reason,
     })
     return response.data;
-}
-
-// 병원 목록 조회
-export const getAllHospitals = async () => {
-    const response = await api.get(AUTH_ENDPOINTS.HOSPITALS)
-    return response.data
 }

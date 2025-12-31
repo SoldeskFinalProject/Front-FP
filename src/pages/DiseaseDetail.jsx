@@ -53,7 +53,13 @@ export default function DiseaseDetail() {
   const getFaqList = (faqData) => {
     if (!faqData) return [];
     if (Array.isArray(faqData)) return faqData;
-    try { return JSON.parse(faqData); } catch (e) { return []; }
+    try {
+      return JSON.parse(faqData);
+    } catch (e) {
+      console.e("실패", e)
+      return [];
+    }
+    
   };
 
   if (loading) return <div style={{textAlign:'center', marginTop:'50px'}}>로딩 중...</div>;

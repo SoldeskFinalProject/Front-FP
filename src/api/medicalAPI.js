@@ -3,14 +3,8 @@ import { api, DOCTOR_ENDPOINTS, HOSPITAL_ENDPOINTS } from "../config.js"
 // 의사 정보 조회
 
 // 특정 병워 소속 의사 조회
-export const getDoctorByHospitall = async (hospitalId) => {
+export const getDoctorByHospital = async (hospitalId) => {
     const response = await api.get(DOCTOR_ENDPOINTS.BY_HOSPITAL(hospitalId));
-    return response.data;
-}
-
-// 특정 의사 상세 조회
-export const getDoctorDetail = async (doctorId) => {
-    const response = await api.get(DOCTOR_ENDPOINTS.DETAIL(doctorId));
     return response.data;
 }
 
