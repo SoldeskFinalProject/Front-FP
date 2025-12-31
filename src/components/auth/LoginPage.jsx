@@ -1,48 +1,50 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { login } from "../../api/authAPI"
-import "./LoginPage.css"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../../api/authAPI";
+import "./LoginPage.css";
 
 export default function LoginPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
+  });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const response = await login(formData)
+      const response = await login(formData);
 
-      // 로그인 성공 - 로컬 스토리지에 사용자 정보 저장
-      localStorage.setItem("user", JSON.stringify(response))
+      /**
+       * response 예시 (JWT 전)
+       * {
+       *   userId,
+       *   email,
+       *   name,
+       *   role: "USER" | "DOCTOR" | "HOSPITAL" | "ADMIN",
+       *   status: "ACTIVE" | "PENDING_DOCTOR" | "PENDING_HOSPITAL"
+       * }
+       */
 
-      if (response.status === "PENDING_DOCTOR" || response.status === "PENDING_HOSPITAL") {
-        alert("승인 대기 중입니다. 관리자 승인 후 이용 가능합니다.")
-        navigate("/pending")
-        return
-      }
+      // 🔑 로그인 성공 → 사용자 정보 저장
+      localStorage.setItem("user", JSON.stringify(response));
 
-      if (response.role === "ADMIN") {
-        navigate("/admin/approval")
-      } else {
-        navigate("/")
-      }
+      // ❗ 로그인은 무조건 메인으로
+      navigate("/");
     } catch (error) {
-      alert(error.response?.data?.message || "로그인에 실패했습니다.")
+      alert(error.response?.data?.message || "로그인에 실패했습니다.");
     }
-  }
+  };
 
   return (
     <div className="login-page">
@@ -80,9 +82,10 @@ export default function LoginPage() {
         </form>
 
         <div className="signup-link">
-          계정이 없으신가요? <button onClick={() => navigate("/signup")}>회원가입</button>
+          계정이 없으신가요?
+          <button onClick={() => navigate("/signup")}>회원가입</button>
         </div>
       </div>
     </div>
-  )
+  );
 }
