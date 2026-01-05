@@ -51,67 +51,128 @@ const VerificationRequestPage = () => {
 
     const handleDoctorSubmit = async (doctorForm) => {
         try {
-        setSubmitting(true)
-        const userId = user?.userId || 1
-        await requestDoctorVerification({
+            setSubmitting(true);
+            const userId = user?.userId || 1;
+
+            await requestDoctorVerification({
             userId,
             licenseNumber: doctorForm.licenseNumber,
             specialty: doctorForm.specialty,
-            hospitalName: doctorForm.hospitalName,
-        })
-        alert("의사 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.")
-        navigate("/")
-        } catch (error) {
-            console.error("", error)
-        alert("인증 요청 제출에 실패했습니다.")
-        } finally {
-        setSubmitting(false)
-        }
-    }
-
-    const handleHospitalSubmit = async (hospitalForm) => {
-        try {
-        setSubmitting(true)
-        const userId = user?.userId || 1
-        await requestHospitalVerification({
-            userId,
-            businessNumber: hospitalForm.businessNumber,
-            hospitalName: hospitalForm.hospitalName,
-            address: hospitalForm.address,
-            phoneNumber: hospitalForm.phoneNumber,
-            representativeName: hospitalForm.representativeName,
-        })
-        alert("병원 관계자 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.")
-        navigate("/")
-        } catch (error) {
-            console.error("", error)
-            alert("인증 요청 제출에 실패했습니다.")
-        } finally {
-            setSubmitting(false)
-        }
-    }
-
-    const handleVerifyBusiness = async (data) => {
-        try {
-            setSubmitting(true);
-
-            const response = await verifyBusinessLicense({
-            businessNumber: data.businessNumber.replace(/-/g, ""),
-            representativeName: data.representativeName,
+            requestedHospitalId: doctorForm.hospitalId, // ✅ 병원 PK
+            bio: doctorForm.bio || null,
+            profileImageUrl: doctorForm.profileImageUrl || null,
+            licenseFileUrl: doctorForm.licenseFileUrl || null,
             });
 
-            if (!response) {
-            throw new Error("INVALID");
-            }
-
-            alert("사업자 번호가 확인되었습니다.");
+            alert("의사 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.");
+            navigate("/");
         } catch (error) {
-            alert("유효하지 않은 사업자 번호입니다.");
-            throw error;
+            console.error(error);
+            alert("인증 요청 제출에 실패했습니다.");
         } finally {
             setSubmitting(false);
         }
-        };
+    };
+
+    const handleHospitalSubmit = async (hospitalForm) => {
+        try {
+            setSubmitting(true);
+            const userId = user?.userId || 1;
+
+            const payload = {
+            userId,
+            hospitalId: hospitalForm.hospitalId, // ✅ 필수: 병원 PK
+            requireValidate: true,               // 필요 없으면 false로
+            bNo: (hospitalForm.businessNumber || "").replace(/[^0-9]/g, ""), // ✅ 숫자만
+            startDt: hospitalForm.startDt,       // ✅ 필수: YYYYMMDD
+            pNm: hospitalForm.representativeName,// ✅ 필수
+
+            // optional (없으면 null 또는 빈 문자열)
+            pNm2: hospitalForm.pNm2 || null,
+            bNm: hospitalForm.bNm || null,
+            corpNo: hospitalForm.corpNo || null,
+            bSector: hospitalForm.bSector || null,
+            bType: hospitalForm.bType || null,
+            bAdr: hospitalForm.bAdr || null,
+            };
+
+            const res = await requestHospitalVerification(payload);
+
+            // ✅ created 체크 (PASS가 아니면 저장 안 하니까)
+            if (res?.created !== true) {
+                alert(res?.ntsResult?.message || "국세청 검증이 통과되지 않아 저장되지 않았습니다.");
+                return;
+            }
+
+            alert("병원 관계자 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.");
+            navigate("/");
+        } catch (error) {
+            console.error(error);
+            alert("인증 요청 제출에 실패했습니다.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+
+    // const handleVerifyBusiness = async (data) => {
+    //     try {
+    //         setSubmitting(true);
+
+    //         const response = await verifyBusinessLicense({
+    //         businessNumber: data.businessNumber.replace(/-/g, ""),
+    //         representativeName: data.representativeName,
+    //         });
+
+    //         if (!response) {
+    //         throw new Error("INVALID");
+    //         }
+
+    //         alert("사업자 번호가 확인되었습니다.");
+    //     } catch (error) {
+    //         alert("유효하지 않은 사업자 번호입니다.");
+    //         throw error;
+    //     } finally {
+    //         setSubmitting(false);
+    //     }
+    // };
+
+    const handleVerifyBusiness = async (data) => {
+
+    try {
+        setSubmitting(true);
+
+        const response = await verifyBusinessLicense({
+            bNo: (data.businessNumber || "").replace(/[^0-9]/g, ""),
+            startDt: data.startDt,
+            pNm: data.representativeName,
+            pNm2: null,
+            bNm: null,
+            corpNo: null,
+            bSector: null,
+            bType: null,
+            bAdr: null,
+        });
+
+        console.log("verify payload:", data);
+        console.log("NTS response:", response);
+
+        if (response?.outcome !== "PASS") {
+            alert(response?.message || "유효하지 않은 사업자 정보입니다.");
+            return false;
+        }
+
+        alert("사업자 번호가 확인되었습니다.");
+        return true;
+    } catch (e) {
+        console.error("NTS verify error:", e);
+        alert("사업자번호 확인 중 오류가 발생했습니다.");
+        return false;
+    } finally {
+        setSubmitting(false);
+    }
+    };
+
 
     if (loading) {
         return <div className="loading">로딩 중...</div>

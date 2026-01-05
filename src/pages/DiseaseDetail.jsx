@@ -55,8 +55,8 @@ export default function DiseaseDetail() {
     if (Array.isArray(faqData)) return faqData;
     try {
       return JSON.parse(faqData);
-    } catch (e) {
-      console.e("실패", e)
+    } catch (error) {
+      console.error("실패", error)
       return [];
     }
     

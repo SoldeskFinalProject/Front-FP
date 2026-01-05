@@ -76,10 +76,7 @@ export const USER_ENDPOINTS = {
 
 // 인증 요청 및 검증 (Verification)
 export const VERIFICATION_ENDPOINTS = {
-    // 사업자 진위 확인
-    NTS_STATUS: "/api/verification/nts/status",
-    NTS_VALIDATE: "/api/verification/nts/validate",
-    NTS_VERIFY: "/api/verification/nts/verify",
+    NTS_VERIFY: "/api/verification/nts/verify",             // 사업자 진위 확인
     REQUEST_DOCTOR: "/api/verification/doctor/requests",    // 의사 인증 요청 생성
     REQUEST_HOSPITAL: "/api/verification/hospital/requests", // 병원 인증 요청 생성
     MY_STATUS: "/api/verification/me",      // 공통. 내 인증 상태 조회
