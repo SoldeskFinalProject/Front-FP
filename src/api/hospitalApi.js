@@ -10,8 +10,8 @@ async function ensureOk(res, defaultErrorMessage) {
     // body 가 없을 수도 있어서 안전하게 처리
     try {
       return await res.json();
-    } catch (e) {
-      console.e("처리 실패", e)
+    } catch (error) {
+      console.error("처리 실패", error)
       return {};
     }
   }
@@ -131,33 +131,4 @@ export async function createHospitalReview(hospitalId, payload = {}) {
   return ensureOk(res, "병원 리뷰 작성 실패");
 }
 
-// 임시 더미 데이터
-export const getAllHospitals = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: 1,
-          name: "서울대학교병원",
-          businessNumber: "123-45-67890",
-          address: "서울특별시 종로구",
-          phone: "02-1234-5678",
-        },
-        {
-          id: 2,
-          name: "연세의료원 세브란스병원",
-          businessNumber: "234-56-78901",
-          address: "서울특별시 서대문구",
-          phone: "02-2345-6789",
-        },
-        {
-          id: 3,
-          name: "삼성서울병원",
-          businessNumber: "345-67-89012",
-          address: "서울특별시 강남구",
-          phone: "02-3456-7890",
-        },
-      ])
-    }, 500)
-  })
-}
+

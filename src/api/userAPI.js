@@ -1,4 +1,4 @@
-import { api, USER_ENDPOINTS, VERIFICATION_ENDPOINTS } from "../config";
+import { api, USER_ENDPOINTS, VERIFICATION_ENDPOINTS, HOSPITAL_ENDPOINTS } from "../config";
 
 // 내 정보 조회
 export const getMyInfo = async (userId) => {
@@ -38,5 +38,11 @@ export const requestHospitalVerification = async (data) => {
 // (의사) 인증 요청
 export const requestDoctorVerification = async (data) => {
     const response = await api.post(VERIFICATION_ENDPOINTS.REQUEST_DOCTOR, data);
+    return response.data;
+}
+
+// 병원 찾기(검색)
+export const searchHospitals = async (keyword, page = 0, size = 10) => {
+    const response = await api.get(HOSPITAL_ENDPOINTS.SEARCH_HOSPITAL, { params: { keyword, page, size } })
     return response.data;
 }
