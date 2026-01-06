@@ -102,6 +102,8 @@ export const DOCTOR_ENDPOINTS = {
 export const HOSPITAL_ENDPOINTS = {
     // 병원 관계자 전체 목록 (관리 / 테스트용)
     LIST: `/api/hospital-members`,
+    
+    SEARCH_HOSPITAL: "api/hospitals/search",
 
     // 병원 관계자 상세 조회
     DETAIL: (hospitalMemberId) => `/api/hospital-members/${hospitalMemberId}`,

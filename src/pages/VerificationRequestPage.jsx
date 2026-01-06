@@ -76,43 +76,46 @@ const VerificationRequestPage = () => {
 
     const handleHospitalSubmit = async (hospitalForm) => {
         try {
-            setSubmitting(true);
-            const userId = user?.userId || 1;
+            setSubmitting(true)
+            const userId = user?.userId || 1
 
             const payload = {
             userId,
-            hospitalId: hospitalForm.hospitalId, // ✅ 필수: 병원 PK
-            requireValidate: true,               // 필요 없으면 false로
-            bNo: (hospitalForm.businessNumber || "").replace(/[^0-9]/g, ""), // ✅ 숫자만
-            startDt: hospitalForm.startDt,       // ✅ 필수: YYYYMMDD
-            pNm: hospitalForm.representativeName,// ✅ 필수
+            hospitalId: hospitalForm.hospitalId,
+            requireValidate: true,
 
-            // optional (없으면 null 또는 빈 문자열)
-            pNm2: hospitalForm.pNm2 || null,
-            bNm: hospitalForm.bNm || null,
-            corpNo: hospitalForm.corpNo || null,
-            bSector: hospitalForm.bSector || null,
-            bType: hospitalForm.bType || null,
-            bAdr: hospitalForm.bAdr || null,
-            };
+            // ✅ DTO 필드명과 동일해야 함
+            bNo: hospitalForm.businessNumber,     // 이미 HospitalVerificationForm에서 숫자 10자리로 정규화해서 옴
+            startDt: hospitalForm.startDt,        // YYYYMMDD
+            pNm: hospitalForm.representativeName, // 정규화된 이름
 
-            const res = await requestHospitalVerification(payload);
-
-            // ✅ created 체크 (PASS가 아니면 저장 안 하니까)
-            if (res?.created !== true) {
-                alert(res?.ntsResult?.message || "국세청 검증이 통과되지 않아 저장되지 않았습니다.");
-                return;
+            // optional
+            pNm2: null,
+            bNm: "",
+            corpNo: "",
+            bSector: "",
+            bType: "",
+            bAdr: "",
             }
 
-            alert("병원 관계자 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.");
-            navigate("/");
+            const res = await requestHospitalVerification(payload)
+
+            // PASS만 저장하는 설계면 created로 분기
+            if (res?.created !== true) {
+            alert(res?.ntsResult?.message || "국세청 검증이 통과되지 않아 저장되지 않았습니다.")
+            return
+            }
+
+            alert("병원 관계자 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.")
+            navigate("/")
         } catch (error) {
-            console.error(error);
-            alert("인증 요청 제출에 실패했습니다.");
+            console.error(error)
+            alert("인증 요청 제출에 실패했습니다.")
         } finally {
-            setSubmitting(false);
+            setSubmitting(false)
         }
-    };
+    }
+
 
 
     // const handleVerifyBusiness = async (data) => {
@@ -137,41 +140,37 @@ const VerificationRequestPage = () => {
     //     }
     // };
 
-    const handleVerifyBusiness = async (data) => {
-
+    const handleVerifyBusiness = async ({ bNo, startDt, pNm }) => {
     try {
-        setSubmitting(true);
+        setSubmitting(true)
 
-        const response = await verifyBusinessLicense({
-            bNo: (data.businessNumber || "").replace(/[^0-9]/g, ""),
-            startDt: data.startDt,
-            pNm: data.representativeName,
-            pNm2: null,
-            bNm: null,
-            corpNo: null,
-            bSector: null,
-            bType: null,
-            bAdr: null,
-        });
+        const res = await verifyBusinessLicense({
+        bNo,      // ✅ HospitalVerificationCreateReqDTO와 동일한 이름
+        startDt,  // ✅
+        pNm,      // ✅
+        pNm2: null,
+        bNm: "",
+        corpNo: "",
+        bSector: "",
+        bType: "",
+        bAdr: "",
+        })
 
-        console.log("verify payload:", data);
-        console.log("NTS response:", response);
-
-        if (response?.outcome !== "PASS") {
-            alert(response?.message || "유효하지 않은 사업자 정보입니다.");
-            return false;
+        if (res?.outcome === "PASS") {
+        return { ok: true, message: res?.message || "진위확인 통과(Valid)입니다." }
         }
 
-        alert("사업자 번호가 확인되었습니다.");
-        return true;
-    } catch (e) {
-        console.error("NTS verify error:", e);
-        alert("사업자번호 확인 중 오류가 발생했습니다.");
-        return false;
+        // FAIL/ERROR 모두 여기로
+        return { ok: false, message: res?.message || "사업자 정보 확인 실패" }
+    } catch (error) {
+        console.error("", error)
+        return { ok: false, message: "국세청 API 호출 실패(네트워크/키/타임아웃) 가능" }
     } finally {
-        setSubmitting(false);
+        setSubmitting(false)
     }
-    };
+    }
+
+
 
 
     if (loading) {

@@ -4,10 +4,10 @@ import { useState } from "react"
 import HospitalSearchModal from "./HospitalSearchModal"
 import "./HospitalVerificationForm.css"
 
-// 숫자만 남기기
+// 숫자만
 const onlyDigits = (v = "") => v.replace(/[^0-9]/g, "")
 
-// 사업자번호 표시용 포맷: 123-45-67890
+// 사업자번호 표시: 123-45-67890
 const formatBizNo = (digits = "") => {
     const d = onlyDigits(digits).slice(0, 10)
     const a = d.slice(0, 3)
@@ -19,16 +19,16 @@ const formatBizNo = (digits = "") => {
 }
 
 // date input(YYYY-MM-DD) -> YYYYMMDD
-const toYYYYMMDD = (yyyyDashMmDashDd = "") => yyyyDashMmDashDd.replaceAll("-", "")
+const toYYYYMMDD = (yyyyDashMmDashDd = "") => (yyyyDashMmDashDd || "").replaceAll("-", "")
 
-// 대표자명 trim + 연속공백 정리
+// 대표자명 공백 정리
 const normalizeName = (v = "") => v.replace(/\s+/g, " ").trim()
 
 const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submitting }) => {
     const [hospitalForm, setHospitalForm] = useState({
-        businessNumber: "",
-        startDt: "",
-        startDtUi: "",
+        businessNumber: "",   // UI 표시용 (하이픈 포함 가능)
+        startDt: "",          // YYYYMMDD (서버로 보낼 값)
+        startDtUi: "",        // YYYY-MM-DD (date input용)
         hospitalName: "",
         hospitalId: null,
         address: "",
@@ -37,35 +37,53 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
     })
 
     const [businessVerified, setBusinessVerified] = useState(false)
+    const [verifyMsg, setVerifyMsg] = useState("")
+    const [verifyError, setVerifyError] = useState(false)
     const [showHospitalModal, setShowHospitalModal] = useState(false)
 
     const handleVerifyBusiness = async () => {
         const bNoDigits = onlyDigits(hospitalForm.businessNumber).slice(0, 10)
         const pNm = normalizeName(hospitalForm.representativeName)
-        const startDt = hospitalForm.startDt
+        const startDt = onlyDigits(hospitalForm.startDt).slice(0, 8)
 
-        if (!bNoDigits || bNoDigits.length !== 10 || !pNm || !startDt || startDt.length !== 8) {
-        alert("사업자번호(10자리), 대표자명, 개업일자를 입력해주세요.")
+        // 프론트 1차 검증
+        if (bNoDigits.length !== 10 || !pNm || startDt.length !== 8) {
         setBusinessVerified(false)
+        setVerifyError(true)
+        setVerifyMsg("사업자번호(10자리), 대표자명, 개업일자(8자리)를 올바르게 입력해주세요.")
+        alert("사업자번호(10자리), 대표자명, 개업일자를 입력해주세요.")
         return
         }
 
-        const ok = await onVerifyBusiness({
-        businessNumber: bNoDigits,   // ✅ 숫자 10자리로 전달
-        representativeName: pNm,     // ✅ trim된 값
-        startDt,                     // ✅ YYYYMMDD
+        setVerifyMsg("")
+        setVerifyError(false)
+
+        // ✅ verify는 딱 1번만 호출
+        const result = await onVerifyBusiness({
+        bNo: bNoDigits,
+        startDt,
+        pNm,
         })
 
-        setBusinessVerified(!!ok)
+        if (result?.ok) {
+        setBusinessVerified(true)
+        setVerifyError(false)
+        setVerifyMsg(result.message || "사업자번호 확인 완료")
+        } else {
+        setBusinessVerified(false)
+        setVerifyError(true)
+        setVerifyMsg(result?.message || "사업자 정보 확인에 실패했습니다.")
+        }
     }
 
     const handleHospitalSelect = (hospital) => {
+        // hospital entity 기준: hospitalId / dutyName / dutyAddr / dutyTel1
         setHospitalForm((prev) => ({
         ...prev,
         hospitalId: hospital.hospitalId,
-        hospitalName: hospital.name,
-        address: hospital.address,
-        phoneNumber: hospital.phone,
+        hospitalName: hospital.dutyName,
+        address: hospital.dutyAddr || "",
+        phoneNumber: hospital.dutyTel1 || "",
         }))
         setShowHospitalModal(false)
     }
@@ -74,16 +92,20 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
         e.preventDefault()
 
         if (!businessVerified) {
-        alert("사업자 번호 확인을 먼저 진행해주세요.")
-        return
+            alert("사업자 번호 확인을 먼저 진행해주세요.")
+            return
+        }
+        if (!hospitalForm.hospitalId) {
+            alert("관리할 병원을 선택해주세요.")
+            return
         }
 
-        // ✅ 최종 제출 시에도 안전하게 정규화해서 넘김
         onSubmit({
         ...hospitalForm,
+        // ✅ 서버로 보낼 값은 항상 정규화
         businessNumber: onlyDigits(hospitalForm.businessNumber).slice(0, 10),
+        startDt: onlyDigits(hospitalForm.startDt).slice(0, 8),
         representativeName: normalizeName(hospitalForm.representativeName),
-        startDt: hospitalForm.startDt, // YYYYMMDD
         })
     }
 
@@ -95,7 +117,7 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
         </div>
 
         <form className="verification-form" onSubmit={handleSubmit}>
-            {/* 사업자등록번호 */}
+            {/* 사업자번호 */}
             <div className="form-section">
             <label className="form-label">
                 사업자등록번호 <span className="required">*</span>
@@ -105,26 +127,29 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
                 type="text"
                 className="form-input"
                 placeholder="123-45-67890"
-                value={formatBizNo(hospitalForm.businessNumber)} // ✅ 화면엔 포맷
-                onChange={(e) => {
-                    const digits = onlyDigits(e.target.value).slice(0, 10)
-                    setHospitalForm((prev) => ({ ...prev, businessNumber: digits }))
-                    if (businessVerified) setBusinessVerified(false) // 값 바뀌면 재검증 필요
-                }}
-                disabled={businessVerified}
-                inputMode="numeric"
+                value={formatBizNo(hospitalForm.businessNumber)}
+                onChange={(e) =>
+                    setHospitalForm((prev) => ({ ...prev, businessNumber: e.target.value }))
+                }
+                disabled={submitting}
                 required
                 />
                 <button
                 type="button"
                 className="verify-btn"
                 onClick={handleVerifyBusiness}
-                disabled={businessVerified || submitting}
+                disabled={submitting}
                 >
-                {businessVerified ? "확인 완료" : "확인"}
+                {businessVerified ? "재확인" : "확인"}
                 </button>
             </div>
-            {businessVerified && <p className="verify-success">✓ 사업자번호가 확인되었습니다</p>}
+
+            {verifyMsg && (
+                <p className={verifyError ? "verify-fail" : "verify-success"}>
+                {verifyError ? "✗ " : "✓ "}
+                {verifyMsg}
+                </p>
+            )}
             </div>
 
             {/* 대표자명 */}
@@ -135,25 +160,17 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
             <input
                 type="text"
                 className="form-input"
-                placeholder="대표자명을 입력하세요"
+                placeholder="홍길동"
                 value={hospitalForm.representativeName}
-                onChange={(e) => {
+                onChange={(e) =>
                 setHospitalForm((prev) => ({ ...prev, representativeName: e.target.value }))
-                if (businessVerified) setBusinessVerified(false)
-                }}
-                onBlur={() => {
-                // ✅ 포커스 빠질 때 trim 반영
-                setHospitalForm((prev) => ({
-                    ...prev,
-                    representativeName: normalizeName(prev.representativeName),
-                }))
-                }}
-                disabled={businessVerified}
+                }
+                disabled={submitting}
                 required
             />
             </div>
 
-            {/* 개업일자: date picker */}
+            {/* 개업일자 */}
             <div className="form-section">
             <label className="form-label">
                 개업일자 <span className="required">*</span>
@@ -163,19 +180,19 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
                 className="form-input"
                 value={hospitalForm.startDtUi}
                 onChange={(e) => {
-                const ui = e.target.value // YYYY-MM-DD
-                const yyyymmdd = toYYYYMMDD(ui)
-                setHospitalForm((prev) => ({ ...prev, startDtUi: ui, startDt: yyyymmdd }))
-                if (businessVerified) setBusinessVerified(false)
+                const v = e.target.value
+                setHospitalForm((prev) => ({
+                    ...prev,
+                    startDtUi: v,
+                    startDt: toYYYYMMDD(v), // ✅ YYYYMMDD 저장
+                }))
                 }}
-                disabled={businessVerified}
+                disabled={submitting}
                 required
             />
-            {/* 필요하면 아래처럼 숨김 처리/디버그용으로 startDt 보여줘도 됨 */}
-            {/* <small>전송값: {hospitalForm.startDt}</small> */}
             </div>
 
-            {/* 병원명 */}
+            {/* 병원 선택 */}
             <div className="form-section">
             <label className="form-label">
                 병원명 <span className="required">*</span>
@@ -186,57 +203,49 @@ const HospitalVerificationForm = ({ onSubmit, onCancel, onVerifyBusiness, submit
                 className="form-input"
                 placeholder="병원명"
                 value={hospitalForm.hospitalName}
-                onChange={(e) => setHospitalForm((prev) => ({ ...prev, hospitalName: e.target.value }))}
+                readOnly
                 required
                 />
-                <button type="button" className="verify-btn" onClick={() => setShowHospitalModal(true)}>
+                <button
+                type="button"
+                className="verify-btn"
+                onClick={() => setShowHospitalModal(true)}
+                >
                 병원 검색
                 </button>
             </div>
             </div>
 
-            {/* 주소 */}
+            {/* 주소/전화 */}
             <div className="form-section">
-            <label className="form-label">
-                주소 <span className="required">*</span>
-            </label>
-            <input
-                type="text"
-                className="form-input"
-                placeholder="병원 주소"
-                value={hospitalForm.address}
-                onChange={(e) => setHospitalForm((prev) => ({ ...prev, address: e.target.value }))}
-                required
-            />
+            <label className="form-label">주소</label>
+            <input className="form-input" value={hospitalForm.address} readOnly />
             </div>
 
-            {/* 전화번호 */}
             <div className="form-section">
-            <label className="form-label">
-                전화번호 <span className="required">*</span>
-            </label>
-            <input
-                type="tel"
-                className="form-input"
-                placeholder="000-0000-0000"
-                value={hospitalForm.phoneNumber}
-                onChange={(e) => setHospitalForm((prev) => ({ ...prev, phoneNumber: e.target.value }))}
-                required
-            />
+            <label className="form-label">전화번호</label>
+            <input className="form-input" value={hospitalForm.phoneNumber} readOnly />
             </div>
 
             <div className="form-actions">
             <button type="button" className="cancel-btn" onClick={onCancel}>
                 취소
             </button>
-            <button type="submit" className="submit-btn" disabled={submitting || !businessVerified}>
+            <button
+                type="submit"
+                className="submit-btn"
+                disabled={submitting || !businessVerified || !hospitalForm.hospitalId}
+            >
                 {submitting ? "제출 중..." : "인증 신청"}
             </button>
             </div>
         </form>
 
         {showHospitalModal && (
-            <HospitalSearchModal onClose={() => setShowHospitalModal(false)} onSelect={handleHospitalSelect} />
+            <HospitalSearchModal
+            onClose={() => setShowHospitalModal(false)}
+            onSelect={handleHospitalSelect}
+            />
         )}
         </div>
     )

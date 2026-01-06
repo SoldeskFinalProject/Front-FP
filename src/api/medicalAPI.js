@@ -17,7 +17,7 @@ export const getMyDoctorProfile = async (userId) => {
 // 병원 검색
 
 // 병원 관계자 전체 조회
-export const searchHospitals = async (keyword, page = 0, size = 10) => {
+export const searchHospitalMember = async (keyword, page = 0, size = 10) => {
     const response = await api.get(`/api/hospitals`, {
         params: { keyword, page, size }
     });
