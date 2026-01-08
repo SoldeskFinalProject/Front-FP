@@ -54,6 +54,23 @@
   position: relative;
 }
 
+/* 팀원이 만든 드롭다운 메뉴 박스 클래스명 뒤에 ::before를 붙입니다 */
+.others-dropdown::before {
+  content: "";
+  display: block;
+  position: absolute;
+  
+  /* 박스 위쪽으로 투명 다리를 놓습니다 */
+  bottom: 100%; 
+  left: 0;
+  width: 100%;
+  
+  /* 마우스가 건너갈 수 있게 넉넉한 높이를 줍니다 */
+  height: 20px; 
+  
+  background-color: transparent; /* 눈에는 안 보임 */
+}
+
 .others-dropdown {
   position: absolute;
   top: 100%;
