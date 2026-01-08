@@ -11,6 +11,7 @@ async function ensureOk(res, defaultErrorMessage) {
     try {
       return await res.json();
     } catch (e) {
+      console.error("JSON 파싱 오류:", e);
       return {};
     }
   }
