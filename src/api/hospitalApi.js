@@ -10,8 +10,8 @@ async function ensureOk(res, defaultErrorMessage) {
     // body 가 없을 수도 있어서 안전하게 처리
     try {
       return await res.json();
-    } catch (error) {
-      console.error("처리 실패", error)
+    } catch (e) {
+      console.error("JSON 파싱 오류:", e);
       return {};
     }
   }
