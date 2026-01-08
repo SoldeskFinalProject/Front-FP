@@ -130,3 +130,5 @@ export async function createHospitalReview(hospitalId, payload = {}) {
 
   return ensureOk(res, "병원 리뷰 작성 실패");
 }
+
+

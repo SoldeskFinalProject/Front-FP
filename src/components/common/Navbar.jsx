@@ -22,7 +22,7 @@ const Navbar = () => {
 
         {/* 가운데 메뉴: 드롭다운 기능 포함 */}
         <div className="navbar-section navbar-center">
-          <Link to="/" className="nav-item">
+          <Link to="/search" className="nav-item">
             증상검색
           </Link>
 
@@ -72,7 +72,7 @@ const Navbar = () => {
               </button>
             </div>
             <nav className="sidebar-menu">
-              <Link to="/admin/approval" className="sidebar-item" onClick={toggleSidebar}>
+              <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
                 승인 요청 리스트
               </Link>
               {/* 필요한 경우 사이드바에 추가 메뉴를 여기에 넣으세요 */}

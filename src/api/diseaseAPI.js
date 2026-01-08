@@ -1,5 +1,5 @@
 // src/api/diseaseAPI.js
-import { api } from "../config";
+import { api, DISEASE_ENDPOINTS } from "../config"; // 상수 import
 
 // 1. 질병 목록 검색 (키워드 + 카테고리)
 export const fetchDiseases = async (keyword, category, page = 0, size = 10) => {
@@ -8,8 +8,9 @@ export const fetchDiseases = async (keyword, category, page = 0, size = 10) => {
     if (keyword) params.keyword = keyword;
     if (category && category !== "전체") params.category = category;
 
-    const response = await api.get("/api/diseases", { params });
-    return response.data; // PageResponseDto
+    // 변경: "/api/diseases" -> DISEASE_ENDPOINTS.LIST
+    const response = await api.get(DISEASE_ENDPOINTS.LIST, { params });
+    return response.data; 
   } catch (error) {
     console.error("질병 검색 실패:", error);
     throw error;
@@ -19,7 +20,8 @@ export const fetchDiseases = async (keyword, category, page = 0, size = 10) => {
 // 2. 질병 상세 정보 조회
 export const fetchDiseaseDetail = async (diseaseId) => {
   try {
-    const response = await api.get(`/api/diseases/${diseaseId}`);
+    // 변경: `/api/diseases/${diseaseId}` -> DISEASE_ENDPOINTS.DETAIL(diseaseId)
+    const response = await api.get(DISEASE_ENDPOINTS.DETAIL(diseaseId));
     return response.data;
   } catch (error) {
     console.error("질병 상세 조회 실패:", error);
@@ -30,8 +32,9 @@ export const fetchDiseaseDetail = async (diseaseId) => {
 // 3. 카테고리 목록 조회 (검색 필터용)
 export const fetchCategories = async () => {
   try {
-    const response = await api.get("/api/diseases/categories");
-    return response.data; // List<String>
+    // 변경: "/api/diseases/categories" -> DISEASE_ENDPOINTS.CATEGORIES
+    const response = await api.get(DISEASE_ENDPOINTS.CATEGORIES);
+    return response.data; 
   } catch (error) {
     console.error("카테고리 조회 실패:", error);
     return [];
