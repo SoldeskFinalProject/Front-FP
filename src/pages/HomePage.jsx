@@ -54,10 +54,9 @@ export default function HomePage() {
                     <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2c0 1.1.9 2 2 2h5v5c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z" />
                 </svg>
                 </div>
-                <h2 className="card-title">For Doctors</h2>
+                <h2 className="card-title">의사 인증</h2>
                 <p className="card-description">
-                Verify your medical license to access patient referrals, peer consultations, and exclusive medical
-                resources.
+                
                 </p>
                 <button className="btn-verify doctor-btn" onClick={handleDoctorVerify}>
                 Verify as Doctor
@@ -87,10 +86,8 @@ export default function HomePage() {
                     <path d="M9 18v.01" />
                 </svg>
                 </div>
-                <h2 className="card-title">For Hospitals</h2>
+                <h2 className="card-title">병원 관계자 인증</h2>
                 <p className="card-description">
-                Register your institution to manage staff, coordinate patient transfers, and streamline administrative
-                workflows.
                 </p>
                 <button className="btn-verify hospital-btn" onClick={handleHospitalVerify}>
                 Verify Institution

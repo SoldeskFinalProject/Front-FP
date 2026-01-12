@@ -1,26 +1,28 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { AuthProvider } from "./contexts/AuthContext"
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom"
+import "./App.css"
+import LoginPage from "./components/auth/LoginPage"
+import SignupPage from "./components/auth/SignupPage"
 import Navbar from "./components/common/Navbar"
-import HomePage from "./pages/HomePage"
-import SymptomPage from "./pages/SymptomPage"
-import SymptomResultPage from "./pages/SymptomResultPage"
-import Dictionary from "./pages/Dictionary"
-import Reserv from "./pages/Reserv"
-import DrugDetail from "./pages/DrugDetail"
-import QnaPage from "./pages/QnaPage"
 import QnaCreate from "./components/qna/QnaCreate"
 import QnaDetail from "./components/qna/QnaDetail"
-import DiseaseDictionary from "./pages/DiseaseDictionary"
+import { AuthProvider } from "./contexts/AuthContext"
+import Dictionary from "./pages/Dictionary"
 import DiseaseDetail from "./pages/DiseaseDetail"
-import SignupPage from "./components/auth/SignupPage"
-import LoginPage from "./components/auth/LoginPage"
+import DiseaseDictionary from "./pages/DiseaseDictionary"
+import DrugDetail from "./pages/DrugDetail"
+import HomePage from "./pages/HomePage"
 import HospitalReservationPage from "./pages/HospitalReservationPage"
 import HospitalReviewPage from "./pages/HospitalReviewPage"
-import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
-import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
+import QnaPage from "./pages/QnaPage"
+import Reserv from "./pages/Reserv"
+import SymptomPage from "./pages/SymptomPage"
+import SymptomResultPage from "./pages/SymptomResultPage"
 import VerificationRequestPage from "./pages/VerificationRequestPage"
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
-import "./App.css"
+import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
+import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
+import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
+import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
 
 function App() {
   return (
@@ -56,8 +58,9 @@ function App() {
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
-
               <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="admin/verification/doctor" element={<DoctorVerificationList />} />
+              <Route path="admin/verification/hospital" element={<HospitalVerificationList />} />
             </Routes>
           </main>
         </div>

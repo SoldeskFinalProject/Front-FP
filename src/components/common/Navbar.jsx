@@ -16,7 +16,7 @@ const Navbar = () => {
         {/* 왼쪽 로고 */}
         <div className="navbar-section navbar-left">
           <Link to="/" className="navbar-logo">
-            메디케어 AI
+            MERCI
           </Link>
         </div>
 
@@ -28,9 +28,7 @@ const Navbar = () => {
 
           {/* 의학 백과 드롭다운 */}
           <div className="nav-item dropdown-container">
-            <span className="dropdown-trigger">
-              의학 백과 ▾
-            </span>
+            <span className="dropdown-trigger">의학 백과 ▾</span>
             <div className="dropdown-menu">
               <Link to="/dictionary" className="dropdown-item">
                 의약품 백과

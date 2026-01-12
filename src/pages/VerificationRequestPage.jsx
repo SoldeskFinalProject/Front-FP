@@ -145,9 +145,9 @@ const VerificationRequestPage = () => {
         setSubmitting(true)
 
         const res = await verifyBusinessLicense({
-        bNo,      // ✅ HospitalVerificationCreateReqDTO와 동일한 이름
-        startDt,  // ✅
-        pNm,      // ✅
+        bNo,      // HospitalVerificationCreateReqDTO와 동일한 이름
+        startDt,
+        pNm,
         pNm2: null,
         bNm: "",
         corpNo: "",
@@ -157,7 +157,7 @@ const VerificationRequestPage = () => {
         })
 
         if (res?.outcome === "PASS") {
-        return { ok: true, message: res?.message || "진위확인 통과(Valid)입니다." }
+            return { ok: true, message: res?.message || "진위확인 통과(Valid)입니다." }
         }
 
         // FAIL/ERROR 모두 여기로
