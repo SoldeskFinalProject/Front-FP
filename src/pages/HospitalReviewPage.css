@@ -1,139 +1,258 @@
+/* 전체 레이아웃 */
 .review-page-container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 40px 20px 60px;
+  padding: 48px 16px 72px;
+  background: #f5f7fb;
+  min-height: 100vh;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
 }
 
-.review-header {
-  margin-bottom: 24px;
+/* 공통 섹션 */
+.review-section {
+  margin-bottom: 20px;
+}
+
+.review-section--card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px 22px 26px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+/* 병원 정보 */
+.review-hospital-name {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.review-hospital-addr {
+  text-align: center;
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.review-hospital-tel {
+  text-align: center;
+  font-size: 14px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* 증상 배너 */
+.review-symptom-banner {
+  background: #e0edff;
+  border-radius: 20px;
+  padding: 14px 16px;
   text-align: center;
 }
 
-.review-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.review-section {
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-  padding: 24px 24px 28px;
-}
-
-.review-hospital-info {
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-}
-
-.review-hospital-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 4px;
-}
-
-.review-hospital-addr,
-.review-hospital-tel {
+.review-symptom-title {
   font-size: 14px;
-  color: #4b5563;
-  margin: 2px 0;
-}
-
-.review-symptom-box {
-  background-color: #eff6ff;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 16px;
-}
-
-.review-symptom-label {
-  display: inline-block;
-  font-size: 12px;
   font-weight: 600;
-  color: #2563eb;
+  color: #1d4ed8;
   margin-bottom: 4px;
 }
 
 .review-symptom-text {
   font-size: 14px;
   color: #1f2937;
-  margin: 0;
 }
 
-.review-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* 필드 공통 */
 .review-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .review-label {
   font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
-
-.review-select {
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  padding: 8px 10px;
-  font-size: 14px;
-}
-
-.review-textarea {
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  padding: 10px 12px;
-  font-size: 14px;
-  resize: vertical;
-}
-
-.review-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.review-cancel-btn,
-.review-submit-btn {
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-size: 14px;
   font-weight: 600;
+  color: #111827;
+}
+
+/* 평점 요약 */
+.review-rating-summary {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.review-rating-summary strong {
+  color: #111827;
+}
+
+/* 평점 버튼 그리드 */
+.review-rating-grid {
+  margin-top: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.review-rating-btn {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid #d1d5db;
+  padding: 10px 10px 9px;
+  background: #ffffff;
   cursor: pointer;
-  border: 1px solid transparent;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.05s ease;
 }
 
-.review-cancel-btn {
-  background-color: #ffffff;
-  border-color: #d1d5db;
-  color: #374151;
+.review-rating-btn-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
 }
 
-.review-cancel-btn:hover {
-  background-color: #f3f4f6;
+.review-rating-btn-text {
+  font-size: 12px;
+  color: #6b7280;
 }
 
-.review-submit-btn {
-  background-color: #2563eb;
+.review-rating-btn::after {
+  content: "★";
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  font-size: 16px;
+  color: #e5e7eb;
+}
+
+.review-rating-btn:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+  transform: translateY(-1px);
+}
+
+.review-rating-btn--active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+}
+
+.review-rating-btn--active .review-rating-btn-score,
+.review-rating-btn--active .review-rating-btn-text {
   color: #ffffff;
 }
 
-.review-submit-btn:hover {
-  background-color: #1d4ed8;
+.review-rating-btn--active::after {
+  color: #facc15;
 }
 
-.review-submit-btn:disabled,
-.review-cancel-btn:disabled {
+/* 리뷰 본문 */
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #111827;
+  background: #f9fafb;
+  resize: vertical;
+  min-height: 130px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease;
+  box-sizing: border-box;
+}
+
+.review-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.12);
+  background: #ffffff;
+}
+
+/* 버튼 영역 */
+.review-button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.review-cancel-btn,
+.review-submit-btn,
+.review-back-btn {
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.1s ease, transform 0.05s ease, opacity 0.1s ease;
+}
+
+.review-cancel-btn {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.review-cancel-btn:hover {
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+}
+
+.review-submit-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.4);
+}
+
+.review-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.5);
+}
+
+.review-submit-btn:disabled {
   opacity: 0.6;
+  box-shadow: none;
   cursor: default;
+}
+
+.review-back-btn {
+  margin-top: 16px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.review-back-btn:hover {
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+}
+
+/* 반응형 */
+@media (max-width: 640px) {
+  .review-page-container {
+    padding-top: 32px;
+  }
+
+  .review-section--card {
+    padding: 20px 18px 22px;
+    border-radius: 20px;
+  }
+
+  .review-rating-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

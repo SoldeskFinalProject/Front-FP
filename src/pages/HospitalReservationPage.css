@@ -1,73 +1,93 @@
-/* src/pages/HospitalReservationPage.css */
-
+/* 전체 페이지 레이아웃 */
 .reservation-page-container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 40px 20px 60px;
+  padding: 48px 16px 72px;
+  background: #f5f7fb;
+  min-height: 100vh;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
 }
 
+/* 헤더 */
 .reservation-header {
-  margin-bottom: 24px;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
 }
 
 .reservation-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  color: #1f2937;
+  color: #111827;
+  letter-spacing: -0.02em;
 }
 
+.reservation-back-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.reservation-back-btn:hover {
+  background: #f3f4f6;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.reservation-back-btn:active {
+  transform: translateY(1px);
+}
+
+/* 카드 공통 */
 .reservation-section {
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-  padding: 24px 24px 28px;
+  margin-bottom: 20px;
 }
 
-/* 병원 정보 카드 */
-.reservation-hospital-info {
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+.reservation-section--card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px 22px 26px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
 }
 
+.reservation-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px;
+}
+
+/* 병원 정보 */
 .reservation-hospital-name {
   font-size: 18px;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 4px;
+  margin-bottom: 6px;
 }
 
-.reservation-hospital-addr,
-.reservation-hospital-tel {
+.reservation-hospital-addr {
   font-size: 14px;
   color: #4b5563;
-  margin: 2px 0;
+  margin-bottom: 6px;
+  line-height: 1.5;
 }
 
-/* 증상 정보 박스 (있다면) */
-.reservation-symptom-box {
-  background-color: #eff6ff;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 16px;
-}
-
-.reservation-symptom-label {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #2563eb;
-  margin-bottom: 4px;
-}
-
-.reservation-symptom-text {
+.reservation-hospital-tel {
   font-size: 14px;
-  color: #1f2937;
-  margin: 0;
+  color: #2563eb;
+  font-weight: 500;
 }
 
-/* 폼 공통 */
+/* 폼 */
 .reservation-form {
   display: flex;
   flex-direction: column;
@@ -77,78 +97,180 @@
 .reservation-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .reservation-label {
   font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
-
-.reservation-input,
-.reservation-select,
-.reservation-textarea {
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  padding: 8px 10px;
-  font-size: 14px;
-}
-
-.reservation-textarea {
-  padding: 10px 12px;
-  resize: vertical;
-}
-
-/* 버튼 영역 */
-.reservation-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.reservation-cancel-btn,
-.reservation-submit-btn {
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-size: 14px;
   font-weight: 600;
+  color: #111827;
+}
+
+/* 인풋 공통 */
+.reservation-input,
+.reservation-textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  background: #f9fafb;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;
+}
+
+.reservation-input:focus,
+.reservation-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.12);
+  background: #ffffff;
+}
+
+.reservation-textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+/* 시간 슬롯 그리드 */
+.time-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.time-slot-btn {
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  padding: 7px 0;
+  font-size: 13px;
+  background: #ffffff;
+  color: #111827;
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.05s ease, color 0.15s ease;
+}
+
+.time-slot-btn:hover:not(.time-slot-btn--disabled) {
+  background: #eff6ff;
+  border-color: #2563eb;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+}
+
+.time-slot-btn--selected {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.time-slot-btn--disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* 시간 슬롯 범례 */
+.time-slot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.legend-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
   border: 1px solid transparent;
 }
 
-.reservation-cancel-btn {
-  background-color: #ffffff;
+.legend-box--available {
+  background: #ffffff;
+  border-color: #2563eb;
+}
+
+.legend-box--disabled {
+  background: #e5e7eb;
   border-color: #d1d5db;
-  color: #374151;
 }
 
-.reservation-cancel-btn:hover {
-  background-color: #f3f4f6;
+.legend-box--selected {
+  background: #2563eb;
 }
 
+/* 버튼 / 텍스트 */
 .reservation-submit-btn {
-  background-color: #2563eb;
+  margin-top: 8px;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
   color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.15s ease;
 }
 
-.reservation-submit-btn:hover {
-  background-color: #1d4ed8;
+.reservation-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.45);
 }
 
-.reservation-submit-btn:disabled,
-.reservation-cancel-btn:disabled {
+.reservation-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+}
+
+.reservation-submit-btn:disabled {
   opacity: 0.6;
   cursor: default;
+  box-shadow: none;
 }
 
-@media (max-width: 768px) {
+.info-text {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.info-text--small {
+  font-size: 12px;
+}
+
+.error-text {
+  font-size: 13px;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+/* 반응형 */
+@media (max-width: 640px) {
   .reservation-page-container {
-    padding: 24px 16px 40px;
+    padding-top: 32px;
   }
 
-  .reservation-section {
-    padding: 20px 16px 24px;
+  .reservation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .reservation-title {
+    font-size: 24px;
+  }
+
+  .reservation-section--card {
+    padding: 20px 18px 22px;
+    border-radius: 20px;
   }
 }
