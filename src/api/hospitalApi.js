@@ -131,4 +131,27 @@ export async function createHospitalReview(hospitalId, payload = {}) {
   return ensureOk(res, "병원 리뷰 작성 실패");
 }
 
+/**
+ * 특정 병원 / 날짜의 예약 슬롯 조회
+ * GET /api/hospitals/{hospitalId}/reservations/slots?date=yyyy-MM-dd
+ */
+export async function getHospitalReservationSlots(hospitalId, date) {
+  const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations/slot?date=${date}`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `예약 슬롯 조회 실패: ${res.status} ${res.statusText} ${text}`,
+    );
+  }
+
+  // { date: "2025-01-01", slots: [{ time:"09:00", available:true }, ...] }
+  return res.json();
+}
+
 
