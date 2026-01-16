@@ -3,11 +3,12 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
+import KakaoLoginButton from "./KakaoLoginButton" // 카카오 버튼 추가
 import "./LoginPage.css"
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login } = useAuth() // Context에서 제공하는 login 함수 사용
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,6 +30,7 @@ export default function LoginPage() {
     setError("")
 
     try {
+      // Context의 login 함수가 내부적으로 API 호출 및 저장을 처리한다고 가정합니다.
       await login(formData)
       navigate("/")
     } catch (error) {
@@ -44,6 +46,7 @@ export default function LoginPage() {
         <h1>로그인</h1>
         <p className="login-subtitle">메디케어 AI에 다시 오신 것을 환영합니다</p>
 
+        {/* ✅ 로컬 로그인 폼 */}
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label>이메일</label>
@@ -78,6 +81,15 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* ✅ 구분선 */}
+        <div className="login-divider">
+          <span>또는</span>
+        </div>
+
+        {/* ✅ 카카오 로그인 버튼 */}
+        <KakaoLoginButton />
+
+        {/* ✅ 회원가입 링크 */}
         <div className="signup-link">
           계정이 없으신가요?
           <button onClick={() => navigate("/signup")}>회원가입</button>

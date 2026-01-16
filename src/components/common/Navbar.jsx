@@ -7,7 +7,7 @@ import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout, loading, isAdmin } = useAuth()
   const navigate = useNavigate()
 
   const toggleSidebar = () => {
@@ -24,6 +24,9 @@ const Navbar = () => {
     }
   }
 
+  // 로딩 중일 때는 내비바 렌더링을 잠시 유보하여 깜빡임 방지
+  if (loading) return null;
+
   return (
     <>
       <header className="navbar">
@@ -34,38 +37,28 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* 가운데 메뉴: 드롭다운 기능 포함 */}
+        {/* 가운데 메뉴 */}
         <div className="navbar-section navbar-center">
-          <Link to="/search" className="nav-item">
-            증상검색
-          </Link>
-
-          {/* 의학 백과 드롭다운 */}
+          <Link to="/search" className="nav-item">증상검색</Link>
           <div className="nav-item dropdown-container">
             <span className="dropdown-trigger">의학 백과 ▾</span>
             <div className="dropdown-menu">
-              <Link to="/dictionary" className="dropdown-item">
-                의약품 백과
-              </Link>
-              <Link to="/disease" className="dropdown-item">
-                질환 백과
-              </Link>
+              <Link to="/dictionary" className="dropdown-item">의약품 백과</Link>
+              <Link to="/disease" className="dropdown-item">질환 백과</Link>
             </div>
           </div>
-
-          <Link to="/qna" className="nav-item">
-            Q&A
-          </Link>
+          <Link to="/qna" className="nav-item">Q&A</Link>
         </div>
 
         {/* 오른쪽 버튼: 로그인 상태에 따라 다르게 표시 */}
         <div className="navbar-section navbar-right">
+          <button className="nav-btn" onClick={toggleSidebar}>
+            메뉴
+          </button>
+          
           {user ? (
             <>
-              <span className="user-info">{user.name}님</span>
-              <button className="nav-btn" onClick={toggleSidebar}>
-                메뉴
-              </button>
+              <span className="user-info"><strong>{user.name}</strong>님</span>
               <button className="nav-btn logout-btn" onClick={handleLogout}>
                 로그아웃
               </button>
@@ -90,15 +83,16 @@ const Navbar = () => {
           <div className="sidebar">
             <div className="sidebar-header">
               <h2>메뉴</h2>
-              <button className="sidebar-close" onClick={toggleSidebar}>
-                ✕
-              </button>
+              <button className="sidebar-close" onClick={toggleSidebar}>✕</button>
             </div>
             <nav className="sidebar-menu">
               {user && (
                 <>
                   <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>
                     인증 요청
+                  </Link>
+                  <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>
+                    마이페이지
                   </Link>
                   {isAdmin && (
                     <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>

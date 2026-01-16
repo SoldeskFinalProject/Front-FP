@@ -20,8 +20,10 @@ import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
 import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
 import VerificationRequestPage from "./pages/VerificationRequestPage"
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
+import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
+
 import "./App.css"
 
 function App() {
@@ -60,8 +62,13 @@ function App() {
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
+
+              <Route path="/verification" element={<VerificationRequestPage />} />  
+              <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+
               <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
+
             </Routes>
           </main>
         </div>
