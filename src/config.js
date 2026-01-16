@@ -11,6 +11,18 @@ export const api = axios.create({
     },
 })
 
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Category API 엔드포인트
 export const CATEGORY_ENDPOINTS = {
     LIST: "/category", // 전체 카테고리 조회
@@ -57,6 +69,7 @@ export const QNA_ENDPOINTS = {
 export const AUTH_ENDPOINTS = {
     SIGNUP_USER: "/api/auth/signup/general",
     LOGIN: "/api/auth/login",
+    KAKAO_LOGIN: "/api/social/kakao/login",
 }
 
 // 유저 공통 - 로그인 후 사용
@@ -103,7 +116,7 @@ export const HOSPITAL_ENDPOINTS = {
     // 병원 관계자 전체 목록 (관리 / 테스트용)
     LIST: `/api/hospital-members`,
     
-    SEARCH_HOSPITAL: "api/hospitals/search",
+    SEARCH_HOSPITAL: "/api/hospitals/search",
 
     // 병원 관계자 상세 조회
     DETAIL: (hospitalMemberId) => `/api/hospital-members/${hospitalMemberId}`,

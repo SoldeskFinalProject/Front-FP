@@ -20,6 +20,7 @@ import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
 import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
 import VerificationRequestPage from "./pages/VerificationRequestPage"
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
+import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import "./App.css"
 
 function App() {
@@ -57,7 +58,8 @@ function App() {
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
 
-              <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="/verification" element={<VerificationRequestPage />} />  
+              <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
             </Routes>
           </main>
         </div>

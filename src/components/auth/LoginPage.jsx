@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/authAPI";
+import { login } from "../../api/authAPI"; // ✅ 파일명 통일하면 ../../api/authApi 로 바꾸세요
 import "./LoginPage.css";
+import KakaoLoginButton from "./KakaoLoginButton";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -25,17 +26,6 @@ export default function LoginPage() {
     try {
       const response = await login(formData);
 
-      /**
-       * response 예시 (JWT 전)
-       * {
-       *   userId,
-       *   email,
-       *   name,
-       *   role: "USER" | "DOCTOR" | "HOSPITAL" | "ADMIN",
-       *   status: "ACTIVE" | "PENDING_DOCTOR" | "PENDING_HOSPITAL"
-       * }
-       */
-
       // 🔑 로그인 성공 → 사용자 정보 저장
       localStorage.setItem("user", JSON.stringify(response));
 
@@ -51,6 +41,7 @@ export default function LoginPage() {
       <div className="login-container">
         <h1>로그인</h1>
 
+        {/* ✅ 로컬 로그인 폼 */}
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label>이메일</label>
@@ -81,6 +72,15 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* ✅ 구분선 */}
+        <div className="login-divider">
+          <span>또는</span>
+        </div>
+
+        {/* ✅ 카카오 로그인 버튼 (리다이렉트 방식으로 통일) */}
+        <KakaoLoginButton />
+
+        {/* ✅ 회원가입 링크 */}
         <div className="signup-link">
           계정이 없으신가요?
           <button onClick={() => navigate("/signup")}>회원가입</button>
