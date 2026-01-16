@@ -1,0 +1,205 @@
+/* 전체 레이아웃 */
+.symptom-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.page-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* 탭 스타일 */
+.tabs-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #888;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px; /* 라인 맞추기 */
+}
+
+.tab-btn.active {
+  color: #228be6;
+  border-bottom: 2px solid #228be6;
+}
+
+/* 증상 그리드 */
+.symptom-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2열 배치 */
+  gap: 12px;
+  min-height: 300px; /* 탭 전환 시 높이 덜컹거림 방지 */
+}
+
+.symptom-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #fff;
+}
+
+.symptom-item:hover {
+  background-color: #f8f9fa;
+}
+
+.symptom-item.checked {
+  border-color: #228be6;
+  background-color: #e7f5ff;
+  color: #228be6;
+  font-weight: 600;
+}
+
+.symptom-item input {
+  margin-right: 10px;
+  transform: scale(1.2);
+  accent-color: #228be6;
+}
+
+/* 하단 액션바 */
+.action-area {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.selected-count {
+  text-align: center;
+  color: #555;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: #228be6;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #1c7ed6;
+}
+.submit-btn:disabled {
+  background-color: #a5d8ff;
+  cursor: not-allowed;
+}
+
+/* 결과 모달 */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-desc {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.result-card {
+  background: #f1f3f5;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rank-badge {
+  background: #228be6;
+  color: white;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.dept-name {
+  flex: 1;
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.find-hospital-btn {
+  background: none;
+  border: 1px solid #adb5bd;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #495057;
+}
+
+.find-hospital-btn:hover {
+  background: #fff;
+  border-color: #228be6;
+  color: #228be6;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  color: #868e96;
+  cursor: pointer;
+}
