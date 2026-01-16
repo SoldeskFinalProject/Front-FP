@@ -11,15 +11,6 @@ export const api = axios.create({
     },
 })
 
-<<<<<<< HEAD
-// Symptom API 엔드포인트
-export const CATEGORY_ENDPOINTS = {
-    LIST: "/category",              // 증상 카테고리 목록 조회 (GET)
-    RECOMMEND: "/category/recommend", // 진료과 추천 요청 (POST)
-    
-    // SEARCH: "/category/search", 
-    // CUSTOM_LOG: "/category/custom",
-=======
 // 요청 인터셉터: 모든 요청에 accessToken 자동 첨부
 api.interceptors.request.use(
     (config) => {
@@ -86,14 +77,14 @@ api.interceptors.response.use(
     },
 )
 
-// Category API 엔드포인트
+// Category API 엔드포인트 (통합 버전)
 export const CATEGORY_ENDPOINTS = {
     LIST: "/category",
+    RECOMMEND: "/category/recommend", // ✅ feature 브랜치 추가분 유지
     GROUPS: (categoryId) => `/category/${categoryId}/groups`,
     SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
     SEARCH: "/category/search",
     CUSTOM_LOG: "/category/custom",
->>>>>>> develop
 }
 
 // Drug API 엔드포인트
@@ -135,12 +126,12 @@ export const AUTH_ENDPOINTS = {
     VERIFY_EMAIL: "/api/auth/email/verify",
     SIGNUP_USER: "/api/auth/signup/general",
     LOGIN: "/api/auth/login",
-    KAKAO_LOGIN: "/api/social/kakao/login", // ✅ 카카오 추가
+    KAKAO_LOGIN: "/api/social/kakao/login", // ✅ 카카오 추가됨
     REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
 }
 
-// ... (이후 USER, VERIFICATION, ADMIN, DOCTOR, HOSPITAL 엔드포인트는 기존과 동일하게 유지)
+// 유저 관련
 export const USER_ENDPOINTS = {
     ME: "/api/users/me",
     DETAIL: (id) => `/api/users/${id}`,
@@ -148,6 +139,7 @@ export const USER_ENDPOINTS = {
     DELETE: (id) => `/api/users/${id}`,
 }
 
+// 인증/검증 관련
 export const VERIFICATION_ENDPOINTS = {
     NTS_VERIFY: "/api/verification/nts/verify",
     REQUEST_DOCTOR: "/api/verification/doctor/requests",
@@ -155,12 +147,14 @@ export const VERIFICATION_ENDPOINTS = {
     MY_STATUS: "/api/verification/me",
 }
 
+// 관리자 관련
 export const ADMIN_ENDPOINTS = {
     REQUESTS: "/api/admin/verification/requests",
     APPROVE: (requestId) => `/api/admin/verification/requests/${requestId}/approve`,
     REJECT: (requestId) => `/api/admin/verification/requests/${requestId}/reject`,
 }
 
+// 의사/병원 프로필 관련
 export const DOCTOR_ENDPOINTS = {
     BY_HOSPITAL: (hospitalId) => `/api/doctors/hospital/${hospitalId}`,
     PROFILE: (userId) => `/api/doctors/profile/${userId}`,
