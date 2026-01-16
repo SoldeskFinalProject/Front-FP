@@ -1,45 +1,50 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../api/authAPI"; // ✅ 파일명 통일하면 ../../api/authApi 로 바꾸세요
-import "./LoginPage.css";
-import KakaoLoginButton from "./KakaoLoginButton";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../contexts/AuthContext"
+import KakaoLoginButton from "./KakaoLoginButton" // 카카오 버튼 추가
+import "./LoginPage.css"
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const { login } = useAuth() // Context에서 제공하는 login 함수 사용
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  });
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
-  };
+    })
+    setError("")
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
 
     try {
-      const response = await login(formData);
-
-      // 🔑 로그인 성공 → 사용자 정보 저장
-      localStorage.setItem("user", JSON.stringify(response));
-
-      // ❗ 로그인은 무조건 메인으로
-      navigate("/");
+      // Context의 login 함수가 내부적으로 API 호출 및 저장을 처리한다고 가정합니다.
+      await login(formData)
+      navigate("/")
     } catch (error) {
-      alert(error.response?.data?.message || "로그인에 실패했습니다.");
+      setError(error.response?.data?.message || "로그인에 실패했습니다.")
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="login-page">
       <div className="login-container">
         <h1>로그인</h1>
+        <p className="login-subtitle">메디케어 AI에 다시 오신 것을 환영합니다</p>
 
         {/* ✅ 로컬 로그인 폼 */}
         <form onSubmit={handleSubmit} className="login-form">
@@ -52,6 +57,7 @@ export default function LoginPage() {
               onChange={handleChange}
               required
               placeholder="example@email.com"
+              disabled={isLoading}
             />
           </div>
 
@@ -64,11 +70,14 @@ export default function LoginPage() {
               onChange={handleChange}
               required
               placeholder="비밀번호 입력"
+              disabled={isLoading}
             />
           </div>
 
-          <button type="submit" className="login-button">
-            로그인
+          {error && <div className="error-message">{error}</div>}
+
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
@@ -77,7 +86,7 @@ export default function LoginPage() {
           <span>또는</span>
         </div>
 
-        {/* ✅ 카카오 로그인 버튼 (리다이렉트 방식으로 통일) */}
+        {/* ✅ 카카오 로그인 버튼 */}
         <KakaoLoginButton />
 
         {/* ✅ 회원가입 링크 */}
@@ -87,5 +96,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

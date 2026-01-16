@@ -1,18 +1,30 @@
 "use client"
-import { Link } from "react-router-dom"
+
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { useAuth } from "../../contexts/AuthContext" // 1. useAuth 임포트
+import { useAuth } from "../../contexts/AuthContext"
 import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, loading } = useAuth() // 2. 인증 상태와 로그아웃 함수 가져오기
+  const { user, logout, loading, isAdmin } = useAuth()
+  const navigate = useNavigate()
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
 
-  // 로딩 중일 때는 레이아웃 깨짐 방지를 위해 로딩 상태 처리 (선택사항)
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate("/")
+      alert("로그아웃되었습니다.")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
+  }
+
+  // 로딩 중일 때는 내비바 렌더링을 잠시 유보하여 깜빡임 방지
   if (loading) return null;
 
   return (
@@ -38,22 +50,20 @@ const Navbar = () => {
           <Link to="/qna" className="nav-item">Q&A</Link>
         </div>
 
-        {/* 3. 오른쪽 버튼 영역: 로그인 상태에 따른 조건부 렌더링 */}
+        {/* 오른쪽 버튼: 로그인 상태에 따라 다르게 표시 */}
         <div className="navbar-section navbar-right">
           <button className="nav-btn" onClick={toggleSidebar}>
             메뉴
           </button>
           
           {user ? (
-            // 로그인 상태일 때
             <>
-              <span className="user-name"><strong>{user.name}</strong>님</span>
-              <button onClick={logout} className="nav-btn logout-btn">
+              <span className="user-info"><strong>{user.name}</strong>님</span>
+              <button className="nav-btn logout-btn" onClick={handleLogout}>
                 로그아웃
               </button>
             </>
           ) : (
-            // 로그아웃 상태일 때
             <>
               <Link to="/login" className="nav-btn">
                 로그인
@@ -76,15 +86,21 @@ const Navbar = () => {
               <button className="sidebar-close" onClick={toggleSidebar}>✕</button>
             </div>
             <nav className="sidebar-menu">
-              {/* 관리자 권한일 때만 보이도록 설정 예시 */}
-              {user?.role === "ADMIN" && (
-                <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
-                  승인 요청 리스트
-                </Link>
+              {user && (
+                <>
+                  <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>
+                    인증 요청
+                  </Link>
+                  <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>
+                    마이페이지
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
+                      승인 요청 관리
+                    </Link>
+                  )}
+                </>
               )}
-              <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>
-                마이페이지
-              </Link>
             </nav>
           </div>
         </>

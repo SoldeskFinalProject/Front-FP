@@ -73,13 +73,13 @@
   content: "";
   display: block;
   position: absolute;
-  
+
   /* 박스 위쪽으로 투명 영역 확장 */
-  bottom: 100%; 
+  bottom: 100%;
   left: 0;
   width: 100%;
   height: 20px; /* 다리 높이 (여유 있게 20px 정도) */
-  
+
   background-color: transparent; /* 눈에는 안 보임 */
 }
 
@@ -128,6 +128,16 @@
   align-items: center;
 }
 
+/* 로그인된 사용자 정보 표시 스타일 추가 */
+.user-info {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+  padding: 6px 12px;
+  background: #f0f4ff;
+  border-radius: 6px;
+}
+
 .nav-btn {
   text-decoration: none;
   color: #2563eb;
@@ -155,6 +165,18 @@
   background-color: #1e4edb;
 }
 
+/* 로그아웃 버튼 스타일 추가 */
+.nav-btn.logout-btn {
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.nav-btn.logout-btn:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
 /* --- 사이드바 스타일 --- */
 .sidebar-overlay {
   position: fixed;
@@ -177,6 +199,16 @@
   z-index: 1000;
   display: flex;
   flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .sidebar-header {
@@ -241,6 +273,24 @@
     opacity: 1;
     transform: translate(-50%, 0);
   }
+}
 
-  
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .navbar-center {
+    display: none;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .navbar-right {
+    gap: 8px;
+  }
+
+  .nav-btn {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
 }
