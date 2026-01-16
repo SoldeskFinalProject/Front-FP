@@ -1,14 +1,31 @@
 "use client"
-import { Link } from "react-router-dom"
+
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
+import { useAuth } from "../../contexts/AuthContext"
 import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const { user, logout, loading, isAdmin } = useAuth()
+  const navigate = useNavigate()
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate("/")
+      alert("로그아웃되었습니다.")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
+  }
+
+  // 로딩 중일 때는 내비바 렌더링을 잠시 유보하여 깜빡임 방지
+  if (loading) return null;
 
   return (
     <>
@@ -20,43 +37,42 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* 가운데 메뉴: 드롭다운 기능 포함 */}
+        {/* 가운데 메뉴 */}
         <div className="navbar-section navbar-center">
-          <Link to="/search" className="nav-item">
-            증상검색
-          </Link>
-
-          {/* 의학 백과 드롭다운 */}
+          <Link to="/search" className="nav-item">증상검색</Link>
           <div className="nav-item dropdown-container">
-            <span className="dropdown-trigger">
-              의학 백과 ▾
-            </span>
+            <span className="dropdown-trigger">의학 백과 ▾</span>
             <div className="dropdown-menu">
-              <Link to="/dictionary" className="dropdown-item">
-                의약품 백과
-              </Link>
-              <Link to="/disease" className="dropdown-item">
-                질환 백과
-              </Link>
+              <Link to="/dictionary" className="dropdown-item">의약품 백과</Link>
+              <Link to="/disease" className="dropdown-item">질환 백과</Link>
             </div>
           </div>
-
-          <Link to="/qna" className="nav-item">
-            Q&A
-          </Link>
+          <Link to="/qna" className="nav-item">Q&A</Link>
         </div>
 
-        {/* 오른쪽 버튼: 메뉴(사이드바) 및 로그인/회원가입 */}
+        {/* 오른쪽 버튼: 로그인 상태에 따라 다르게 표시 */}
         <div className="navbar-section navbar-right">
           <button className="nav-btn" onClick={toggleSidebar}>
             메뉴
           </button>
-          <Link to="/login" className="nav-btn">
-            로그인
-          </Link>
-          <Link to="/signup" className="nav-btn primary">
-            회원가입
-          </Link>
+          
+          {user ? (
+            <>
+              <span className="user-info"><strong>{user.name}</strong>님</span>
+              <button className="nav-btn logout-btn" onClick={handleLogout}>
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-btn">
+                로그인
+              </Link>
+              <Link to="/signup" className="nav-btn primary">
+                회원가입
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
@@ -67,15 +83,24 @@ const Navbar = () => {
           <div className="sidebar">
             <div className="sidebar-header">
               <h2>메뉴</h2>
-              <button className="sidebar-close" onClick={toggleSidebar}>
-                ✕
-              </button>
+              <button className="sidebar-close" onClick={toggleSidebar}>✕</button>
             </div>
             <nav className="sidebar-menu">
-              <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
-                승인 요청 리스트
-              </Link>
-              {/* 필요한 경우 사이드바에 추가 메뉴를 여기에 넣으세요 */}
+              {user && (
+                <>
+                  <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>
+                    인증 요청
+                  </Link>
+                  <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>
+                    마이페이지
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
+                      승인 요청 관리
+                    </Link>
+                  )}
+                </>
+              )}
             </nav>
           </div>
         </>

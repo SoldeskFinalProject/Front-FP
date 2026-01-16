@@ -339,7 +339,7 @@ export default function HospitalRecommendSection({ resultData }) {
             h?.cnt ??
             0;
 
-          // ✅ ykiho 제거: key는 hospitalId/id/externalId 기반으로
+          // ✅ key는 hospitalId/id/externalId 기반으로
           const key = idStr ?? String(h?.externalId ?? `${getHospitalName(h)}-${getHospitalAddr(h)}`);
 
           return (
