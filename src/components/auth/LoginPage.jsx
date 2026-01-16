@@ -1,21 +1,14 @@
 "use client"
 
-<<<<<<< HEAD
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../api/authAPI"; // ✅ 파일명 통일하면 ../../api/authApi 로 바꾸세요
-import "./LoginPage.css";
-import KakaoLoginButton from "./KakaoLoginButton";
-=======
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
+import KakaoLoginButton from "./KakaoLoginButton"
 import "./LoginPage.css"
->>>>>>> 96b9df30b320512acab2458d87fa6cd0496381a4
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login } = useAuth() // Context에서 login 함수를 가져옵니다.
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -37,18 +30,10 @@ export default function LoginPage() {
     setError("")
 
     try {
-<<<<<<< HEAD
-      const response = await login(formData);
-
-      // 🔑 로그인 성공 → 사용자 정보 저장
-      localStorage.setItem("user", JSON.stringify(response));
-
-      // ❗ 로그인은 무조건 메인으로
-      navigate("/");
-=======
+      // AuthContext의 login 함수가 호출됩니다. 
+      // 이 함수 내부에서 API 호출과 localStorage 저장이 처리됩니다.
       await login(formData)
       navigate("/")
->>>>>>> 96b9df30b320512acab2458d87fa6cd0496381a4
     } catch (error) {
       setError(error.response?.data?.message || "로그인에 실패했습니다.")
     } finally {
@@ -102,7 +87,7 @@ export default function LoginPage() {
           <span>또는</span>
         </div>
 
-        {/* ✅ 카카오 로그인 버튼 (리다이렉트 방식으로 통일) */}
+        {/* ✅ 카카오 로그인 버튼 */}
         <KakaoLoginButton />
 
         {/* ✅ 회원가입 링크 */}

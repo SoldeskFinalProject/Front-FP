@@ -63,3 +63,16 @@ export const rejectRequest = async (requestId, reason) => {
     })
     return response.data;
 }
+
+/**
+ * ✅ 카카오 로그인 (최종형태)
+ * - KakaoCallbackPage에서 받은 "인가 코드(code)"를 백엔드로 전달
+ * - 백엔드가 code → 카카오 토큰 교환 + 사용자 조회/가입 + 우리 JWT 발급
+ */
+export const kakaoLogin = async (code) => {
+  console.log("KAKAO_LOGIN =", AUTH_ENDPOINTS.KAKAO_LOGIN);
+  if (!code) throw new Error("인가 코드(code)가 없습니다.");
+
+  const { data } = await api.post(AUTH_ENDPOINTS.KAKAO_LOGIN, { code });
+  return data;
+};

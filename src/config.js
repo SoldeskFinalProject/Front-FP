@@ -85,6 +85,7 @@ export const CATEGORY_ENDPOINTS = {
     SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
     SEARCH: "/category/search",
     CUSTOM_LOG: "/category/custom",
+    RECOMMEND: "/category/recommend"
 }
 
 // Drug API 엔드포인트
