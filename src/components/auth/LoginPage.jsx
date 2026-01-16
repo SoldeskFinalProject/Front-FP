@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
-import KakaoLoginButton from "./KakaoLoginButton"
+import KakaoLoginButton from "./KakaoLoginButton" // 카카오 로그인 버튼
 import "./LoginPage.css"
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth() // Context에서 login 함수를 가져옵니다.
+  const { login } = useAuth() // Context에서 제공하는 login 함수 사용
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,8 +31,7 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // AuthContext의 login 함수가 호출됩니다. 
-      // 이 함수 내부에서 API 호출과 localStorage 저장이 처리됩니다.
+      // Context의 login 함수가 내부적으로 API 호출 및 저장을 처리한다고 가정합니다.
       await login(formData)
       navigate("/")
     } catch (error) {

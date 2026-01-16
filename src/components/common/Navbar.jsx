@@ -11,7 +11,7 @@ const Navbar = () => {
   const navigate = useNavigate()
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
+    setIsSidebarOpen((prev) => !prev)
   }
 
   // 로그아웃 시 알림과 함께 메인으로 이동
@@ -25,8 +25,8 @@ const Navbar = () => {
     }
   }
 
-  // 인증 로딩 중일 때 레이아웃 깜빡임 방지
-  if (loading) return null;
+  // 로딩 중일 때는 내비바 렌더링을 잠시 유보하여 깜빡임 방지
+  if (loading) return null
 
   return (
     <>
@@ -41,6 +41,7 @@ const Navbar = () => {
         {/* 가운데 메뉴 */}
         <div className="navbar-section navbar-center">
           <Link to="/search" className="nav-item">증상검색</Link>
+
           <div className="nav-item dropdown-container">
             <span className="dropdown-trigger">의학 백과 ▾</span>
             <div className="dropdown-menu">
@@ -48,17 +49,19 @@ const Navbar = () => {
               <Link to="/disease" className="dropdown-item">질환 백과</Link>
             </div>
           </div>
+
           <Link to="/qna" className="nav-item">Q&A</Link>
         </div>
 
-        {/* 오른쪽 버튼 영역: 로그인 상태에 따른 조건부 렌더링 */}
+        {/* 오른쪽 버튼: 로그인 상태에 따라 다르게 표시 */}
         <div className="navbar-section navbar-right">
+          <button className="nav-btn" onClick={toggleSidebar}>
+            메뉴
+          </button>
+
           {user ? (
             <>
               <span className="user-info"><strong>{user.name}</strong>님</span>
-              <button className="nav-btn" onClick={toggleSidebar}>
-                메뉴
-              </button>
               <button className="nav-btn logout-btn" onClick={handleLogout}>
                 로그아웃
               </button>
@@ -85,6 +88,7 @@ const Navbar = () => {
               <h2>메뉴</h2>
               <button className="sidebar-close" onClick={toggleSidebar}>✕</button>
             </div>
+
             <nav className="sidebar-menu">
               {user && (
                 <>

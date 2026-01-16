@@ -19,7 +19,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // 앱 초기 로드 시 사용자 정보 복구
+
+    // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
     useEffect(() => {
         const accessToken = localStorage.getItem("accessToken");
         const storedUser = localStorage.getItem("user");
@@ -30,11 +31,11 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    // ✅ 로그인 및 소셜 로그인 성공 시 실행되는 공통 처리 함수
+    // ✅ 로그인/소셜로그인 성공 시 공통 처리 함수
     const handleLoginSuccess = (data) => {
         const { accessToken, refreshToken, ...userData } = data;
 
-        // 1. 토큰 및 유저 정보 로컬 저장
+        // 1. 토큰 및 유저 정보 저장
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("user", JSON.stringify(userData));
@@ -57,6 +58,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     // ✅ 카카오 전용 소셜 로그인 (CallbackPage에서 호출)
+
+    // ✅ 카카오 소셜 로그인 (CallbackPage에서 호출)
+
     const socialLogin = async (code) => {
         try {
             const response = await kakaoLoginAPI(code);
@@ -67,7 +71,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
+
     const logout = async () => {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
@@ -77,6 +83,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
+
             setUser(null);
             localStorage.removeItem("user");
             localStorage.removeItem("accessToken");
@@ -93,7 +100,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // 유저 정보 최신화 (API를 통해 현재 정보 다시 가져오기)
     const refreshUserInfo = async () => {
         if (user) {
             try {
@@ -113,10 +119,10 @@ export const AuthProvider = ({ children }) => {
         socialLogin,
         logout,
         loading,
-        updateUserRole,
         refreshUserInfo,
         isAuthenticated: !!user,
-        isAdmin: user?.role === "ADMIN"
+        isAdmin: user?.role === "ADMIN" // 관리자 여부 편의 기능
+
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

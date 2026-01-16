@@ -22,7 +22,7 @@ import VerificationRequestPage from "./pages/VerificationRequestPage"
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
-import KakaoCallbackPage from "./pages/KakaoCallbackPage" // 카카오 콜백 추가
+import KakaoCallbackPage from "./pages/KakaoCallbackPage"
 import "./App.css"
 
 function App() {
@@ -55,16 +55,28 @@ function App() {
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
 
               {/* 예약 및 리뷰 */}
-              <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
-              <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
+              <Route
+                path="/hospitals/:hospitalId/reservation"
+                element={<HospitalReservationPage />}
+              />
+              <Route
+                path="/hospitals/:hospitalId/review/new"
+                element={<HospitalReviewPage />}
+              />
 
               {/* 관리자(Admin) 관련 라우트 */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
-              <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
-              <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
+              <Route
+                path="/admin/verification/doctor"
+                element={<DoctorVerificationList />}
+              />
+              <Route
+                path="/admin/verification/hospital"
+                element={<HospitalVerificationList />}
+              />
             </Routes>
           </main>
         </div>
