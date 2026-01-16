@@ -20,7 +20,9 @@ import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
 import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
 import VerificationRequestPage from "./pages/VerificationRequestPage"
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
-import KakaoCallbackPage from "./pages/KakaoCallbackPage";
+import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
+import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
+import KakaoCallbackPage from "./pages/KakaoCallbackPage" // 카카오 콜백 추가
 import "./App.css"
 
 function App() {
@@ -46,20 +48,23 @@ function App() {
               <Route path="/disease" element={<DiseaseDictionary />} />
               <Route path="/disease/:diseaseId" element={<DiseaseDetail />} />
 
-              {/* 인증 및 관리자 관련 라우트 */}
+              {/* 인증 관련 라우트 */}
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
 
+              {/* 예약 및 리뷰 */}
               <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
               <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
 
+              {/* 관리자(Admin) 관련 라우트 */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
-
-              <Route path="/verification" element={<VerificationRequestPage />} />  
-              <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+              <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
+              <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
             </Routes>
           </main>
         </div>

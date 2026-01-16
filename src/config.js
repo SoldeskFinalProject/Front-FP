@@ -11,39 +11,94 @@ export const api = axios.create({
     },
 })
 
+// 요청 인터셉터: 모든 요청에 accessToken 자동 첨부
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+    (config) => {
+        const accessToken = localStorage.getItem("accessToken")
+        if (accessToken) {
+            // 헤더 객체가 없을 경우를 대비한 안전한 할당
+            config.headers = config.headers ?? {};
+            config.headers.Authorization = `Bearer ${accessToken}`
+        }
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    },
+)
+
+// 응답 인터셉터: 401 에러 시 자동 토큰 재발급, 403 에러 처리
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config
+
+        // 401 Unauthorized: 토큰 만료 -> refresh 시도
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true
+
+            try {
+                const refreshToken = localStorage.getItem("refreshToken")
+                if (!refreshToken) {
+                    throw new Error("No refresh token")
+                }
+
+                // 토큰 재발급 요청 (순환 참조 방지를 위해 기본 axios 사용)
+                const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {
+                    refreshToken,
+                })
+
+                const { accessToken, refreshToken: newRefreshToken } = response.data
+
+                // 새 토큰 저장
+                localStorage.setItem("accessToken", accessToken)
+                localStorage.setItem("refreshToken", newRefreshToken)
+
+                // 원래 요청 재시도
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`
+                return api(originalRequest)
+            } catch (refreshError) {
+                // refresh 실패 -> 로그아웃 처리
+                localStorage.removeItem("accessToken")
+                localStorage.removeItem("refreshToken")
+                localStorage.removeItem("user")
+                window.location.href = "/login"
+                return Promise.reject(refreshError)
+            }
+        }
+
+        // 403 Forbidden: 권한 없음 처리
+        if (error.response?.status === 403) {
+            alert("접근 권한이 없습니다.")
+            window.location.href = "/"
+            return Promise.reject(error)
+        }
+
+        return Promise.reject(error)
+    },
+)
 
 // Category API 엔드포인트
 export const CATEGORY_ENDPOINTS = {
-    LIST: "/category", // 전체 카테고리 조회
-    GROUPS: (categoryId) => `/category/${categoryId}/groups`, // 카테고리별 그룹 조회
-    SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`, // 그룹별 증상 조회
-    SEARCH: "/category/search", // 키워드로 증상 검색
-    CUSTOM_LOG: "/category/custom", // 사용자 증상 입력 (symptom_log)
+    LIST: "/category",
+    GROUPS: (categoryId) => `/category/${categoryId}/groups`,
+    SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
+    SEARCH: "/category/search",
+    CUSTOM_LOG: "/category/custom",
 }
 
 // Drug API 엔드포인트
 export const DRUG_ENDPOINTS = {
-    SEARCH: "/api/drugs/search",                    // 이름 검색
-    PILL_SEARCH: "/api/drugs/appearances/search",   // 낱알(모양) 검색
-    DETAIL: (itemSeq) => `/api/drugs/item/${itemSeq}`, // 약품 상세 정보
+    SEARCH: "/api/drugs/search",
+    PILL_SEARCH: "/api/drugs/appearances/search",
+    DETAIL: (itemSeq) => `/api/drugs/item/${itemSeq}`,
 }
 
 // Disease API 엔드포인트 
 export const DISEASE_ENDPOINTS = {
-    LIST: "/api/diseases",              // 목록 조회 (GET), 등록 (POST)
-    DETAIL: (id) => `/api/diseases/${id}`, // 상세 조회 (GET), 수정 (PUT), 삭제 (DELETE)
-    CATEGORIES: "/api/diseases/categories", // 카테고리 목록
+    LIST: "/api/diseases",
+    DETAIL: (id) => `/api/diseases/${id}`,
+    CATEGORIES: "/api/diseases/categories",
 }
 
 // Q&A API 엔드포인트
@@ -65,11 +120,15 @@ export const QNA_ENDPOINTS = {
     COMMENT_DELETE: (commentId) => `/api/comments/${commentId}`,
 }
 
-// 인증 관련 엔드포인트 추가
+// 인증 관련 엔드포인트
 export const AUTH_ENDPOINTS = {
+    SEND_EMAIL: "/api/auth/email/send",
+    VERIFY_EMAIL: "/api/auth/email/verify",
     SIGNUP_USER: "/api/auth/signup/general",
     LOGIN: "/api/auth/login",
-    KAKAO_LOGIN: "/api/social/kakao/login",
+    KAKAO_LOGIN: "/api/social/kakao/login", // ✅ 카카오 로그인 추가
+    REFRESH: "/api/auth/refresh",
+    LOGOUT: "/api/auth/logout",
 }
 
 // 유저 공통 - 로그인 후 사용

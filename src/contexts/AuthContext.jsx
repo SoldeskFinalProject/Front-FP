@@ -1,69 +1,122 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { login as loginAPI, kakaoLogin as kakaoLoginAPI } from "../api/authAPI";
+import { login as loginAPI, logout as logoutAPI, kakaoLogin as kakaoLoginAPI } from "../api/authAPI";
+import { api } from "../config";
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within AuthProvider");
+    }
+    return context;
+};
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // 앱 초기 로드 시 사용자 정보 복구
     useEffect(() => {
-        const storedUser = localStorage.getItem("loginUser");
-        const token = localStorage.getItem("accessToken");
-        if (storedUser && token) {
+        const accessToken = localStorage.getItem("accessToken");
+        const storedUser = localStorage.getItem("user");
+
+        if (accessToken && storedUser) {
             setUser(JSON.parse(storedUser));
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
         setLoading(false);
     }, []);
 
-    // 로그인 성공 시 상태와 로컬스토리지 모두 업데이트하는 공통 함수
+    // ✅ 로그인 및 소셜 로그인 성공 시 실행되는 공통 처리 함수
     const handleLoginSuccess = (data) => {
-        const userData = {
-            userId: data.userId,
-            name: data.name,
-            role: data.role,
-            email: data.email || (data.prefill && data.prefill.email)
-        };
-        // 1. 리액트 상태 업데이트 (이게 되어야 새로고침 없이 이름이 뜸)
+        const { accessToken, refreshToken, ...userData } = data;
+
+        // 1. 토큰 및 유저 정보 로컬 저장
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("user", JSON.stringify(userData));
+
+        // 2. 리액트 상태 업데이트
         setUser(userData);
-        // 2. 브라우저 저장
-        localStorage.setItem("loginUser", JSON.stringify(userData));
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
+        
         return userData;
     };
 
+    // 일반 로그인
     const login = async (credentials) => {
-        const response = await loginAPI(credentials);
-        return handleLoginSuccess(response);
+        try {
+            const response = await loginAPI(credentials);
+            return handleLoginSuccess(response);
+        } catch (error) {
+            console.error("Login failed:", error);
+            throw error;
+        }
     };
 
-    // ✅ 카카오 전용 (CallbackPage에서 호출할 함수)
+    // ✅ 카카오 전용 소셜 로그인 (CallbackPage에서 호출)
     const socialLogin = async (code) => {
-        const response = await kakaoLoginAPI(code);
-        return handleLoginSuccess(response);
+        try {
+            const response = await kakaoLoginAPI(code);
+            return handleLoginSuccess(response);
+        } catch (error) {
+            console.error("Social login failed:", error);
+            throw error;
+        }
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.clear();
-        delete axios.defaults.headers.common['Authorization'];
+    // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
+    const logout = async () => {
+        try {
+            const refreshToken = localStorage.getItem("refreshToken");
+            if (refreshToken) {
+                await logoutAPI(refreshToken);
+            }
+        } catch (error) {
+            console.error("Logout error:", error);
+        } finally {
+            setUser(null);
+            localStorage.removeItem("user");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
+    };
+
+    // 유저 역할 업데이트 (인증 성공 시 등)
+    const updateUserRole = (newRole) => {
+        if (user) {
+            const updatedUser = { ...user, role: newRole };
+            setUser(updatedUser);
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+        }
+    };
+
+    // 유저 정보 최신화 (API를 통해 현재 정보 다시 가져오기)
+    const refreshUserInfo = async () => {
+        if (user) {
+            try {
+                const userResponse = await api.get("/api/users/me");
+                const updatedUser = userResponse.data;
+                setUser(updatedUser);
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+            } catch (error) {
+                console.error("Failed to refresh user info:", error);
+            }
+        }
     };
 
     const value = {
         user,
         login,
-        socialLogin, // 👈 이게 있어야 CallbackPage에서 "is not a function" 에러가 안 납니다.
+        socialLogin,
         logout,
         loading,
-        isAuthenticated: !!user
+        updateUserRole,
+        refreshUserInfo,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === "ADMIN"
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -62,8 +62,8 @@
 }
 
 .popular-questions-section {
-  /* Ensure section doesn't affect parent layout */
-  min-height: 400px;
+  min-height: 400px;   /* 필요하면 450~520px로 올려서 더 안정화 */
+  width: 100%;
 }
 
 .qna-toolbar {
@@ -120,7 +120,7 @@
 .pagination-btn {
   padding: 8px 16px;
   border: 1px solid #ddd;
-  background-color: #fff;
+  background-color: #ddd;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -128,7 +128,9 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: #f0f0f0;
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
 }
 
 .pagination-btn:disabled {
