@@ -1,213 +1,146 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import CategorySelect from "../components/symptom/CategorySelect"
-import CategoryGroup from "../components/symptom/CategoryGroup"
-import SymptomSelect from "../components/symptom/SymptomSelect"
-import SelectedSymptoms from "../components/symptom/SelectedSymptoms"
-import RecommendationButton from "../components/symptom/RecommendationButton"
-import SymptomSearch from "../components/symptom/SymptomSearch"
-import CategoryDescription from "../components/symptom/CategoryDescription"
-import { getAllCategories, getSymptomsByGroup } from "../api/symptomAPI"
-import "./SymptomPage.css"
+import { useEffect, useState } from "react";
+// 👇 [1. 추가] 페이지 이동 훅(useNavigate) 불러오기
+import { useNavigate } from "react-router-dom"; 
+import { fetchCategories, getRecommendation } from "../api/symptomAPI"; 
+import "./SymptomPage.css"; 
 
 export default function SymptomPage() {
-  const [activeTab, setActiveTab] = useState("internal")
-  const [categories, setCategories] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [selectedGroup, setSelectedGroup] = useState(null)
-  const [symptoms, setSymptoms] = useState([])
-  const [selectedSymptoms, setSelectedSymptoms] = useState([])
-  const [uploadedImage, setUploadedImage] = useState(null)
-  const navigate = useNavigate()
+  // 👇 [2. 추가] navigate 함수 생성 (이 줄이 없어서 에러가 난 겁니다!)
+  const navigate = useNavigate();
+
+  const [categories, setCategories] = useState([]); 
+  const [activeTabId, setActiveTabId] = useState(null); 
+  const [selectedIds, setSelectedIds] = useState([]); 
+  // results 상태는 페이지 이동하므로 삭제해도 되지만, 남겨둬도 상관없습니다.
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const loadData = async () => {
       try {
-        const data = await getAllCategories()
-        setCategories(data)
-      } catch (err) {
-        console.error("카테고리 불러오기 실패:", err)
+        const data = await fetchCategories();
+        console.log("🔥 데이터 확인:", data);
+        setCategories(data);
+        
+        if (data && data.length > 0) {
+          setActiveTabId(data[0].categoryId);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("데이터 로드 실패");
       }
-    }
-    fetchCategories()
-  }, [])
+    };
+    loadData();
+  }, []);
 
-  useEffect(() => {
-    if (selectedGroup && selectedCategory) {
-      console.log("[v0] 증상 조회 시작:", {
-        categoryId: selectedCategory.categoryId,
-        groupId: selectedGroup.groupId,
-      })
+  const handleTabClick = (id) => setActiveTabId(id);
 
-      getSymptomsByGroup(selectedCategory.categoryId, selectedGroup.groupId)
-        .then((data) => {
-          console.log("📋 불러온 증상:", data)
-          setSymptoms(data)
-        })
-        .catch((err) => {
-          console.error("증상 불러오기 실패:", err)
-          setSymptoms([])
-        })
-    } else {
-      setSymptoms([])
-    }
-  }, [selectedGroup, selectedCategory])
+  const handleCheck = (symptomId) => {
+    setSelectedIds((prev) => 
+      prev.includes(symptomId) ? prev.filter(id => id !== symptomId) : [...prev, symptomId]
+    );
+  };
 
-  useEffect(() => {
-    setSelectedGroup(null)
-    setSymptoms([])
-  }, [selectedCategory])
+  const handleSubmit = async () => {
+    if (selectedIds.length === 0) return alert("증상을 선택해주세요.");
 
-  const handleSymptomToggle = (symptom) => {
-    setSelectedSymptoms((prev) => {
-      const alreadySelected = prev.some((s) => s.symptomId === symptom.symptomId)
+    setLoading(true);
+    try {
+      // 1. API 호출
+      const recommendedDepts = await getRecommendation(selectedIds);
+      console.log("🔥 추천 결과:", recommendedDepts);
 
-      if (alreadySelected) {
-        return prev.filter((s) => s.symptomId !== symptom.symptomId)
+      if (recommendedDepts && recommendedDepts.length > 0) {
+        
+        // 2. 결과 페이지로 넘길 데이터(증상 이름 등) 찾기
+        const selectedSymptomDetails = [];
+        categories.forEach(cat => {
+          (cat.symptoms || []).forEach(sym => {
+            if (selectedIds.includes(sym.symptomId)) {
+              selectedSymptomDetails.push({
+                symptomName: sym.symptomName,
+                categoryName: cat.categoryName 
+              });
+            }
+          });
+        });
+
+        // 3. 결과 페이지로 이동
+        navigate('/result', { 
+          state: { 
+            depts: recommendedDepts,          
+            selectedSymptoms: selectedSymptomDetails 
+          } 
+        });
+
       } else {
-        return [...prev, { ...symptom, categoryName: selectedCategory?.categoryName }]
+        alert("일치하는 진료과를 찾지 못했습니다.");
       }
-    })
-  }
-
-  const handleCustomSymptomAdd = (customSymptom) => {
-    setSelectedSymptoms((prev) => {
-      // 중복 체크 (같은 텍스트가 이미 있으면 추가하지 않음)
-      const alreadyExists = prev.some((s) => s.symptomName === customSymptom.symptomName)
-      if (alreadyExists) {
-        return prev
-      }
-      return [...prev, customSymptom]
-    })
-  }
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setUploadedImage(reader.result)
-      }
-      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error("분석 실패:", error);
+      alert("분석 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  const handleRecommend = () => {
-    if (activeTab === "internal" && selectedSymptoms.length === 0) {
-      alert("증상을 1개 이상 선택해주세요.")
-      return
-    }
-    if (activeTab === "external" && !uploadedImage) {
-      alert("외상 이미지를 업로드해주세요.")
-      return
-    }
-
-    const resultData = {
-      tabType: activeTab,
-      selectedSymptoms,
-      uploadedImage,
-      timestamp: new Date().toISOString(),
-    }
-
-    console.log("[v0] 결과 페이지로 이동:", resultData)
-    navigate("/result", { state: resultData })
-  }
+  const activeCategory = categories.find(c => c.categoryId === activeTabId);
 
   return (
-    <div className="page-container">
-      <div className="tab-container">
-        <button
-          className={`tab-btn ${activeTab === "internal" ? "active" : ""}`}
-          onClick={() => setActiveTab("internal")}
-        >
-          내상
-        </button>
-
-        <button
-          className={`tab-btn ${activeTab === "external" ? "active" : ""}`}
-          onClick={() => setActiveTab("external")}
-        >
-          외상
-        </button>
+    <div className="symptom-container">
+      <div className="page-header">
+        <h1 className="page-title">어디가 불편하신가요?</h1>
+        <p className="page-subtitle">
+          증상을 선택하면 <span className="highlight">AI 닥터</span>가<br/>
+          적합한 진료과를 추천해 드려요.
+        </p>
       </div>
 
-      {activeTab === "internal" && (
-        <div className="content-layout">
-          <div className="main-section">
-            <section className="section">
-              <h3 className="section-title">1. 증상 검색 (자연어 입력)</h3>
-              <SymptomSearch onSymptomAdd={handleCustomSymptomAdd} />
-            </section>
+      <div className="tabs-container">
+        {categories.map((cat) => (
+          <button
+            key={cat.categoryId}
+            className={`tab-btn ${activeTabId === cat.categoryId ? "active" : ""}`}
+            onClick={() => handleTabClick(cat.categoryId)}
+          >
+            {cat.categoryName}
+          </button>
+        ))}
+      </div>
 
-            <section className="section">
-              <h3 className="section-title">2. 카테고리 선택</h3>
-              <CategorySelect
-                categories={categories}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-              />
-            </section>
-
-            {selectedCategory && (
-              <section className="section">
-                <h3 className="section-title">3. 증상 그룹 선택</h3>
-                <CategoryGroup
-                  selectedCategory={selectedCategory}
-                  selectedGroup={selectedGroup}
-                  setSelectedGroup={setSelectedGroup}
-                />
-              </section>
-            )}
-
-            {selectedGroup && (
-              <section className="section">
-                <h3 className="section-title">4. 증상 선택 (중복 가능)</h3>
-                <SymptomSelect symptoms={symptoms} selectedSymptoms={selectedSymptoms} onToggle={handleSymptomToggle} />
-              </section>
-            )}
-
-            {selectedSymptoms.length > 0 && (
-              <section className="section">
-                <h3 className="section-title">5. 선택된 증상</h3>
-                <SelectedSymptoms selectedSymptoms={selectedSymptoms} setSelectedSymptoms={setSelectedSymptoms} />
-              </section>
-            )}
-          </div>
-
-          <aside className="side-section">
-            <CategoryDescription category={selectedCategory} />
-          </aside>
-        </div>
-      )}
-
-      {activeTab === "external" && (
-        <section className="section">
-          <h3 className="section-title">외상 이미지 업로드</h3>
-          <div className="image-upload-container">
-            <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" id="image-upload" />
-            <label htmlFor="image-upload" className="file-label">
-              이미지 선택
-            </label>
-
-            {uploadedImage && (
-              <div className="image-preview">
-                <img src={uploadedImage || "/placeholder.svg"} alt="업로드된 외상 이미지" />
+      <div className="symptom-list-area">
+        {activeCategory ? (
+          <div className="symptom-grid">
+            {(activeCategory.symptoms || []).length > 0 ? (
+              activeCategory.symptoms.map((symptom) => (
+                <div 
+                  key={symptom.symptomId} 
+                  className={`symptom-item ${selectedIds.includes(symptom.symptomId) ? "checked" : ""}`}
+                  onClick={() => handleCheck(symptom.symptomId)}
+                >
+                  <span className="symptom-name">{symptom.symptomName}</span>
+                  <input type="checkbox" checked={selectedIds.includes(symptom.symptomId)} readOnly />
+                </div>
+              ))
+            ) : (
+              <div className="no-symptom-text">
+                이 카테고리에는 등록된 증상이 없습니다.<br/>
+                관리자 페이지에서 증상을 추가해 주세요.
               </div>
             )}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="loading-area">로딩 중...</div>
+        )}
+      </div>
 
-      {((activeTab === "internal" && selectedSymptoms.length > 0) || (activeTab === "external" && uploadedImage)) && (
-        <section className="section">
-          <RecommendationButton
-            disabled={activeTab === "internal" ? selectedSymptoms.length === 0 : !uploadedImage}
-            onClick={handleRecommend}
-          />
-        </section>
-      )}
+      <div className="action-area">
+        {selectedIds.length > 0 && (
+          <span className="selected-count">{selectedIds.length}개의 증상이 선택됨</span>
+        )}
+        <button className="submit-btn" onClick={handleSubmit} disabled={loading || selectedIds.length === 0}>
+          {loading ? "분석 중..." : "결과 보기"}
+        </button>
+      </div>
     </div>
-  )
+  );
 }

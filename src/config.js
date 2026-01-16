@@ -11,6 +11,15 @@ export const api = axios.create({
     },
 })
 
+<<<<<<< HEAD
+// Symptom API 엔드포인트
+export const CATEGORY_ENDPOINTS = {
+    LIST: "/category",              // 증상 카테고리 목록 조회 (GET)
+    RECOMMEND: "/category/recommend", // 진료과 추천 요청 (POST)
+    
+    // SEARCH: "/category/search", 
+    // CUSTOM_LOG: "/category/custom",
+=======
 // 요청 인터셉터: 모든 요청에 accessToken 자동 첨부
 api.interceptors.request.use(
     (config) => {
@@ -84,6 +93,7 @@ export const CATEGORY_ENDPOINTS = {
     SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
     SEARCH: "/category/search",
     CUSTOM_LOG: "/category/custom",
+>>>>>>> develop
 }
 
 // Drug API 엔드포인트
