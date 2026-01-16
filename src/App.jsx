@@ -20,6 +20,8 @@ import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
 import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
 import VerificationRequestPage from "./pages/VerificationRequestPage"
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
+import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
+import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
 import "./App.css"
 
 function App() {
@@ -49,6 +51,8 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
 
+              <Route path="/verification" element={<VerificationRequestPage />} />
+
               <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
               <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
 
@@ -56,8 +60,8 @@ function App() {
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
-
-              <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
+              <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
             </Routes>
           </main>
         </div>

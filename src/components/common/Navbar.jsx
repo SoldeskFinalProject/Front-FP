@@ -1,13 +1,27 @@
 "use client"
-import { Link } from "react-router-dom"
+
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
+import { useAuth } from "../../contexts/AuthContext"
 import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const { user, logout, isAdmin } = useAuth()
+  const navigate = useNavigate()
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate("/")
+      alert("로그아웃되었습니다.")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   return (
@@ -28,9 +42,7 @@ const Navbar = () => {
 
           {/* 의학 백과 드롭다운 */}
           <div className="nav-item dropdown-container">
-            <span className="dropdown-trigger">
-              의학 백과 ▾
-            </span>
+            <span className="dropdown-trigger">의학 백과 ▾</span>
             <div className="dropdown-menu">
               <Link to="/dictionary" className="dropdown-item">
                 의약품 백과
@@ -46,17 +58,28 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* 오른쪽 버튼: 메뉴(사이드바) 및 로그인/회원가입 */}
+        {/* 오른쪽 버튼: 로그인 상태에 따라 다르게 표시 */}
         <div className="navbar-section navbar-right">
-          <button className="nav-btn" onClick={toggleSidebar}>
-            메뉴
-          </button>
-          <Link to="/login" className="nav-btn">
-            로그인
-          </Link>
-          <Link to="/signup" className="nav-btn primary">
-            회원가입
-          </Link>
+          {user ? (
+            <>
+              <span className="user-info">{user.name}님</span>
+              <button className="nav-btn" onClick={toggleSidebar}>
+                메뉴
+              </button>
+              <button className="nav-btn logout-btn" onClick={handleLogout}>
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-btn">
+                로그인
+              </Link>
+              <Link to="/signup" className="nav-btn primary">
+                회원가입
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
@@ -72,10 +95,18 @@ const Navbar = () => {
               </button>
             </div>
             <nav className="sidebar-menu">
-              <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
-                승인 요청 리스트
-              </Link>
-              {/* 필요한 경우 사이드바에 추가 메뉴를 여기에 넣으세요 */}
+              {user && (
+                <>
+                  <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>
+                    인증 요청
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
+                      승인 요청 관리
+                    </Link>
+                  )}
+                </>
+              )}
             </nav>
           </div>
         </>

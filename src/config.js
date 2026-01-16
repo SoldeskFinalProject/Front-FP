@@ -11,6 +11,71 @@ export const api = axios.create({
     },
 })
 
+// 요청 인터셉터: 모든 요청에 accessToken 자동 첨부
+api.interceptors.request.use(
+    (config) => {
+        const accessToken = localStorage.getItem("accessToken")
+        if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`
+        }
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    },
+)
+
+// 응답 인터셉터: 401 에러 시 자동 토큰 재발급, 403 에러 처리
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config
+
+        // 401 Unauthorized: 토큰 만료 -> refresh 시도
+        if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true
+
+        try {
+            const refreshToken = localStorage.getItem("refreshToken")
+            if (!refreshToken) {
+            throw new Error("No refresh token")
+            }
+
+            // 토큰 재발급 요청
+            const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {
+            refreshToken,
+            })
+
+            const { accessToken, refreshToken: newRefreshToken } = response.data
+
+            // 새 토큰 저장
+            localStorage.setItem("accessToken", accessToken)
+            localStorage.setItem("refreshToken", newRefreshToken)
+
+            // 원래 요청 재시도
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`
+            return api(originalRequest)
+        } catch (refreshError) {
+            // refresh 실패 -> 로그아웃 처리
+            localStorage.removeItem("accessToken")
+            localStorage.removeItem("refreshToken")
+            localStorage.removeItem("user")
+            window.location.href = "/login"
+            return Promise.reject(refreshError)
+        }
+        }
+
+        // 403 Forbidden: 권한 없음
+        if (error.response?.status === 403) {
+        alert("접근 권한이 없습니다.")
+        window.location.href = "/"
+        return Promise.reject(error)
+        }
+
+        return Promise.reject(error)
+    },
+)
+
 // Category API 엔드포인트
 export const CATEGORY_ENDPOINTS = {
     LIST: "/category", // 전체 카테고리 조회
@@ -55,8 +120,17 @@ export const QNA_ENDPOINTS = {
 
 // 인증 관련 엔드포인트 추가
 export const AUTH_ENDPOINTS = {
+    // 이메일 인증
+    SEND_EMAIL: "/api/auth/email/send",
+    VERIFY_EMAIL: "/api/auth/email/verify",
+
+    // 회원가입 및 로그인
     SIGNUP_USER: "/api/auth/signup/general",
     LOGIN: "/api/auth/login",
+
+    // 토큰 관리
+    REFRESH: "/api/auth/refresh",
+    LOGOUT: "/api/auth/logout",
 }
 
 // 유저 공통 - 로그인 후 사용
