@@ -79,13 +79,13 @@ api.interceptors.response.use(
 
 // Category API 엔드포인트 (통합 버전)
 export const CATEGORY_ENDPOINTS = {
-  LIST: "/category",
-  RECOMMEND: "/category/recommend", // ✅ feature 브랜치 추가분 유지
-  GROUPS: (categoryId) => `/category/${categoryId}/groups`,
-  SYMPTOMS_BY_GROUP: (categoryId, groupId) =>
-    `/category/${categoryId}/groups/${groupId}/symptoms`,
-  SEARCH: "/category/search",
-  CUSTOM_LOG: "/category/custom",
+    LIST: "/category",
+    RECOMMEND: "/category/recommend", // ✅ feature 브랜치 추가분 유지
+    GROUPS: (categoryId) => `/category/${categoryId}/groups`,
+    SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
+    SEARCH: "/category/search",
+    CUSTOM_LOG: "/category/custom",
+    RECOMMEND: "/category/recommend"
 }
 
 // Drug API 엔드포인트
