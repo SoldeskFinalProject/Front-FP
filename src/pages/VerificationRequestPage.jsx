@@ -20,11 +20,18 @@ const VerificationRequestPage = () => {
     const [searchParams] = useSearchParams()
     const typeFromUrl = searchParams.get("type")
 
-    const { user } = useAuth()
+    const { user, isAuthenticated } = useAuth()
     const [selectedType, setSelectedType] = useState(typeFromUrl?.toUpperCase() || null)
     const [verificationStatus, setVerificationStatus] = useState(null)
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+        alert("로그인이 필요한 서비스입니다.")
+        navigate("/login")
+        }
+    }, [isAuthenticated, navigate])
 
     useEffect(() => {
         if (typeFromUrl) {
@@ -33,148 +40,134 @@ const VerificationRequestPage = () => {
     }, [typeFromUrl])
 
     const fetchVerificationStatus = useCallback(async () => {
-    try {
-        const userId = user?.userId || 1
-        const status = await getMyVerificationInfo(userId)
+        try {
+        if (!user?.userId) {
+            setLoading(false)
+            return
+        }
+        const status = await getMyVerificationInfo(user.userId)
         setVerificationStatus(status)
-    } catch (e) {
+        } catch (e) {
         console.error("인증 상태 조회 실패:", e)
-    } finally {
+        } finally {
         setLoading(false)
-    }
-    }, [user?.userId]) // 또는 [user]
+        }
+    }, [user?.userId])
 
     useEffect(() => {
-    fetchVerificationStatus()
+        fetchVerificationStatus()
     }, [fetchVerificationStatus])
-
 
     const handleDoctorSubmit = async (doctorForm) => {
         try {
-            setSubmitting(true);
-            const userId = user?.userId || 1;
+        setSubmitting(true)
+        if (!user?.userId) {
+            alert("로그인이 필요합니다.")
+            navigate("/login")
+            return
+        }
 
-            await requestDoctorVerification({
-            userId,
+        await requestDoctorVerification({
+            userId: user.userId,
             licenseNumber: doctorForm.licenseNumber,
             specialty: doctorForm.specialty,
-            requestedHospitalId: doctorForm.hospitalId, // ✅ 병원 PK
+            requestedHospitalId: doctorForm.hospitalId,
             bio: doctorForm.bio || null,
             profileImageUrl: doctorForm.profileImageUrl || null,
             licenseFileUrl: doctorForm.licenseFileUrl || null,
-            });
+        })
 
-            alert("의사 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.");
-            navigate("/");
+        alert("의사 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.")
+        navigate("/")
         } catch (error) {
-            console.error(error);
-            alert("인증 요청 제출에 실패했습니다.");
+        console.error(error)
+        alert(error.response?.data?.message || "인증 요청 제출에 실패했습니다.")
         } finally {
-            setSubmitting(false);
+        setSubmitting(false)
         }
-    };
+    }
 
     const handleHospitalSubmit = async (hospitalForm) => {
         try {
-            setSubmitting(true)
-            const userId = user?.userId || 1
+        setSubmitting(true)
+        if (!user?.userId) {
+            alert("로그인이 필요합니다.")
+            navigate("/login")
+            return
+        }
 
-            const payload = {
-            userId,
+        const payload = {
+            userId: user.userId,
             hospitalId: hospitalForm.hospitalId,
             requireValidate: true,
-
-            // ✅ DTO 필드명과 동일해야 함
-            bNo: hospitalForm.businessNumber,     // 이미 HospitalVerificationForm에서 숫자 10자리로 정규화해서 옴
-            startDt: hospitalForm.startDt,        // YYYYMMDD
-            pNm: hospitalForm.representativeName, // 정규화된 이름
-
-            // optional
+            bNo: hospitalForm.businessNumber,
+            startDt: hospitalForm.startDt,
+            pNm: hospitalForm.representativeName,
             pNm2: null,
             bNm: "",
             corpNo: "",
             bSector: "",
             bType: "",
             bAdr: "",
-            }
+        }
 
-            const res = await requestHospitalVerification(payload)
+        const res = await requestHospitalVerification(payload)
 
-            // PASS만 저장하는 설계면 created로 분기
-            if (res?.created !== true) {
+        if (res?.created !== true) {
             alert(res?.ntsResult?.message || "국세청 검증이 통과되지 않아 저장되지 않았습니다.")
             return
-            }
+        }
 
-            alert("병원 관계자 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.")
-            navigate("/")
+        alert("병원 관계자 인증 요청이 제출되었습니다. 관리자 승인을 기다려주세요.")
+        navigate("/")
         } catch (error) {
-            console.error(error)
-            alert("인증 요청 제출에 실패했습니다.")
+        console.error(error)
+        alert(error.response?.data?.message || "인증 요청 제출에 실패했습니다.")
         } finally {
-            setSubmitting(false)
+        setSubmitting(false)
         }
     }
 
-
-
-    // const handleVerifyBusiness = async (data) => {
-    //     try {
-    //         setSubmitting(true);
-
-    //         const response = await verifyBusinessLicense({
-    //         businessNumber: data.businessNumber.replace(/-/g, ""),
-    //         representativeName: data.representativeName,
-    //         });
-
-    //         if (!response) {
-    //         throw new Error("INVALID");
-    //         }
-
-    //         alert("사업자 번호가 확인되었습니다.");
-    //     } catch (error) {
-    //         alert("유효하지 않은 사업자 번호입니다.");
-    //         throw error;
-    //     } finally {
-    //         setSubmitting(false);
-    //     }
-    // };
-
     const handleVerifyBusiness = async ({ bNo, startDt, pNm }) => {
-    try {
+        try {
         setSubmitting(true)
 
         const res = await verifyBusinessLicense({
-        bNo,      // HospitalVerificationCreateReqDTO와 동일한 이름
-        startDt,
-        pNm,
-        pNm2: null,
-        bNm: "",
-        corpNo: "",
-        bSector: "",
-        bType: "",
-        bAdr: "",
+            bNo,
+            startDt,
+            pNm,
+            pNm2: null,
+            bNm: "",
+            corpNo: "",
+            bSector: "",
+            bType: "",
+            bAdr: "",
         })
 
         if (res?.outcome === "PASS") {
             return { ok: true, message: res?.message || "진위확인 통과(Valid)입니다." }
         }
 
-        // FAIL/ERROR 모두 여기로
         return { ok: false, message: res?.message || "사업자 정보 확인 실패" }
-    } catch (error) {
-        console.error("", error)
-        return { ok: false, message: "국세청 API 호출 실패(네트워크/키/타임아웃) 가능" }
-    } finally {
+        } catch (error) {
+        console.error("사업자 검증 오류:", error)
+        return { ok: false, message: "국세청 API 호출 실패" }
+        } finally {
         setSubmitting(false)
+        }
     }
+
+    if (!isAuthenticated) {
+        return null
     }
-
-
-
 
     if (loading) {
-        return <div className="loading">로딩 중...</div>
+        return (
+        <div className="verification-loading">
+            <div className="loading-spinner"></div>
+            <p>로딩 중...</p>
+        </div>
+        )
     }
 
     if (!selectedType) {

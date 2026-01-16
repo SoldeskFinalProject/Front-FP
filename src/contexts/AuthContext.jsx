@@ -1,11 +1,11 @@
 "use client"
 
-// 사용자 정보를 공유하기 위한 전역 인증 상태 관리자
 import { createContext, useContext, useState, useEffect } from "react"
-import { login as loginAPI } from "../api/authAPI"
-import { getMyInfo } from "../api/userAPI"
+import { login as loginAPI, logout as logoutAPI } from "../api/authAPI"
+import { api } from "../config"
 
 const AuthContext = createContext()
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext)
@@ -13,16 +13,17 @@ export const useAuth = () => {
         throw new Error("useAuth must be used within AuthProvider")
     }
     return context
-}
+    }
 
-export const AuthProvider = ({ children }) => {
+    export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        // 페이지 로드 시 localStorage에서 사용자 정보 복원
+        const accessToken = localStorage.getItem("accessToken")
         const storedUser = localStorage.getItem("user")
-        if (storedUser) {
+
+        if (accessToken && storedUser) {
         setUser(JSON.parse(storedUser))
         }
         setLoading(false)
@@ -30,25 +31,37 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-        const response = await loginAPI(credentials)
-        const userData = {
-            userId: response.userId,
-            email: response.email,
-            name: response.name,
-            role: response.role,
-        }
-        setUser(userData)
-        localStorage.setItem("user", JSON.stringify(userData))
-        return userData
+            const response = await loginAPI(credentials)
+            const { accessToken, refreshToken, ...userData } = response;
+
+            // 토큰 저장
+            localStorage.setItem("accessToken", accessToken)
+            localStorage.setItem("refreshToken", refreshToken)
+
+            setUser(userData)
+            localStorage.setItem("user", JSON.stringify(userData))
+
+            return userData
         } catch (error) {
-        console.error("Login failed:", error)
-        throw error
+            console.error("Login failed:", error)
+            throw error
         }
     }
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+        const refreshToken = localStorage.getItem("refreshToken")
+        if (refreshToken) {
+            await logoutAPI(refreshToken)
+        }
+        } catch (error) {
+        console.error("Logout error:", error)
+        } finally {
         setUser(null)
         localStorage.removeItem("user")
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        }
     }
 
     const updateUserRole = (newRole) => {
@@ -62,11 +75,8 @@ export const AuthProvider = ({ children }) => {
     const refreshUserInfo = async () => {
         if (user) {
         try {
-            const userInfo = await getMyInfo(user.userId)
-            const updatedUser = {
-            ...user,
-            role: userInfo.role,
-            }
+            const userResponse = await api.get("/api/users/me")
+            const updatedUser = userResponse.data
             setUser(updatedUser)
             localStorage.setItem("user", JSON.stringify(updatedUser))
         } catch (error) {
