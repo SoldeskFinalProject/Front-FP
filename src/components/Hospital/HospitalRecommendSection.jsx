@@ -1,17 +1,17 @@
-// src/components/HospitalRecommendSection.jsx
+// src/components/Hospital/HospitalRecommendSection.jsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getRecommendedHospitals,
   addHospitalFavorite,
   removeHospitalFavorite,
 } from "../../api/hospitalApi";
-import "../../pages/SymptomResultPage.css"; // 카드 스타일 그대로 활용
+import "../../pages/SymptomResultPage.css"; 
 
 // ---------------------------
-// 공통 유틸
+// 공통 유틸 함수들 
 // ---------------------------
 function formatDistance(distance) {
   if (distance == null) return "-";
@@ -29,17 +29,14 @@ function formatRating(rating) {
 }
 
 function getHospitalId(h) {
-  // ✅ 이제 ykiho 제거: hospitalId / id / externalId 순으로 사용
   return h?.hospitalId ?? h?.id ?? h?.externalId ?? null;
 }
 
 function getHospitalName(h) {
-  // ✅ 백엔드 HospitalEntity: dutyName
   return h?.dutyName ?? h?.name ?? h?.yadmNm ?? "이름 정보 없음";
 }
 
 function getHospitalAddr(h) {
-  // ✅ 백엔드 HospitalEntity: dutyAddr
   return (
     h?.dutyAddr ??
     h?.roadAddress ??
@@ -50,56 +47,39 @@ function getHospitalAddr(h) {
 }
 
 function getHospitalTel(h) {
-  // ✅ 백엔드 HospitalEntity: dutyTel1
   return h?.dutyTel1 ?? h?.tel ?? h?.telno ?? "";
 }
 
 function getHospitalTypeName(h) {
-  // ✅ 백엔드 HospitalEntity: dutyDivNam
   return h?.dutyDivNam ?? h?.clCdNm ?? "";
 }
 
 function getLatLng(h) {
-  // ✅ 백엔드 HospitalEntity: wgs84Lat / wgs84Lon
-  const latRaw =
-    h?.wgs84Lat ??
-    h?.lat ??
-    h?.yPos ??
-    h?.y_pos ??
-    h?.latitude ??
-    null;
-
-  const lngRaw =
-    h?.wgs84Lon ??
-    h?.lng ??
-    h?.xPos ??
-    h?.x_pos ??
-    h?.longitude ??
-    null;
-
+  const latRaw = h?.wgs84Lat ?? h?.lat ?? h?.yPos ?? h?.y_pos ?? h?.latitude ?? null;
+  const lngRaw = h?.wgs84Lon ?? h?.lng ?? h?.xPos ?? h?.x_pos ?? h?.longitude ?? null;
   const lat = latRaw == null ? NaN : Number(latRaw);
   const lng = lngRaw == null ? NaN : Number(lngRaw);
   return { lat, lng };
 }
 
-// 즐겨찾기 우선 + 거리순 정렬
 function sortHospitalsByFavorite(hospitals, favoriteIds) {
   return [...hospitals].sort((a, b) => {
     const idA = String(getHospitalId(a) ?? "");
     const idB = String(getHospitalId(b) ?? "");
-
     const favA = favoriteIds.has(idA);
     const favB = favoriteIds.has(idB);
-
     if (favA !== favB) return favA ? -1 : 1;
-
     const dA = Number(a?.distanceKm ?? a?.distance ?? 0);
     const dB = Number(b?.distanceKm ?? b?.distance ?? 0);
     return dA - dB;
   });
 }
 
-export default function HospitalRecommendSection({ resultData }) {
+// ---------------------------
+// 메인 컴포넌트
+// ---------------------------
+// ✅ [수정] searchKeyword(단일) -> searchKeywords(배열) Props 변경
+export default function HospitalRecommendSection({ resultData, searchKeywords }) {
   const navigate = useNavigate();
 
   const [userPos, setUserPos] = useState({ lat: null, lng: null });
@@ -108,57 +88,40 @@ export default function HospitalRecommendSection({ resultData }) {
   const [hospitalsLoading, setHospitalsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  // ✅ Set 안에서 타입 섞이면 has가 안 먹을 수 있어서 String으로 통일
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [favoriteLoadingId, setFavoriteLoadingId] = useState(null);
 
-  const mainSymptom = useMemo(
-    () => resultData?.selectedSymptoms?.[0] ?? null,
-    [resultData],
-  );
-
-  // ✅ 지금 콘솔에 symptomId만 내려오므로 symptomId로 통일
-  const symptomId = mainSymptom?.symptomId ?? null;
-
-  /* ========= 네이버 길찾기 ========= */
+  /* ========= 네이버 길찾기  ========= */
   const handleOpenDirections = (hospital) => {
     if (userPos.lat == null || userPos.lng == null) {
       alert("현재 위치 정보가 없어 길찾기를 실행할 수 없습니다.");
       return;
     }
-
     const { lat: destLat, lng: destLng } = getLatLng(hospital);
-
     if (Number.isNaN(destLat) || Number.isNaN(destLng)) {
       alert("병원 좌표 정보가 없어 길찾기를 실행할 수 없습니다.");
       return;
     }
-
     const sName = "현재 위치";
     const dName = getHospitalName(hospital);
-
     const url = `https://map.naver.com/index.nhn?slng=${userPos.lng}&slat=${userPos.lat}&stext=${encodeURIComponent(
       sName,
     )}&elng=${destLng}&elat=${destLat}&etext=${encodeURIComponent(
       dName,
     )}&menu=route`;
-
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  /* ========= 즐겨찾기 토글 ========= */
+  /* ========= 즐겨찾기 토글  ========= */
   const handleToggleFavorite = async (hospital) => {
     const rawId = getHospitalId(hospital);
     if (!rawId) {
       alert("병원 ID 정보가 없습니다.");
       return;
     }
-
     const id = String(rawId);
-
     try {
       setFavoriteLoadingId(id);
-
       if (favoriteIds.has(id)) {
         await removeHospitalFavorite(rawId);
         setFavoriteIds((prev) => {
@@ -184,14 +147,10 @@ export default function HospitalRecommendSection({ resultData }) {
     }
   };
 
-  /* ========= 리뷰 페이지 이동 ========= */
+  /* ========= 리뷰/예약 페이지 이동  ========= */
   const handleOpenReviewPage = (hospital) => {
     const id = getHospitalId(hospital);
-    if (!id) {
-      alert("병원 ID 정보가 없습니다.");
-      return;
-    }
-
+    if (!id) return alert("병원 ID 정보가 없습니다.");
     navigate(`/hospitals/${id}/review/new`, {
       state: {
         hospital: {
@@ -205,14 +164,9 @@ export default function HospitalRecommendSection({ resultData }) {
     });
   };
 
-  /* ========= 예약 페이지 이동 ========= */
   const handleReserveHospital = (hospital) => {
     const id = getHospitalId(hospital);
-    if (!id) {
-      alert("병원 ID 정보가 없습니다.");
-      return;
-    }
-
+    if (!id) return alert("병원 ID 정보가 없습니다.");
     navigate(`/hospitals/${id}/reservation`, {
       state: {
         hospital,
@@ -221,18 +175,15 @@ export default function HospitalRecommendSection({ resultData }) {
     });
   };
 
-  /* ========= 1. 현재 위치 ========= */
+  /* ========= 1. 현재 위치 가져오기 (기존 유지) ========= */
   useEffect(() => {
     if (!resultData) return;
-
     if (!("geolocation" in navigator)) {
       setErrorMsg("브라우저에서 위치 정보를 지원하지 않습니다.");
       return;
     }
-
     setGeoLoading(true);
     setErrorMsg(null);
-
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserPos({
@@ -243,50 +194,55 @@ export default function HospitalRecommendSection({ resultData }) {
       },
       (err) => {
         console.error("[Geo] 실패:", err);
-
         let msg = "위치 정보를 가져오지 못했습니다.";
-        if (err.code === err.PERMISSION_DENIED) {
-          msg =
-            "위치 권한이 거부되었습니다. 브라우저 / OS 설정에서 위치 권한을 허용해 주세요.";
-        } else if (err.code === err.POSITION_UNAVAILABLE) {
-          msg =
-            "위치 정보를 사용할 수 없습니다. Wi-Fi 또는 GPS 상태를 확인해 주세요.";
-        } else if (err.code === err.TIMEOUT) {
-          msg = "위치 조회 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.";
-        }
+        if (err.code === err.PERMISSION_DENIED) msg = "위치 권한이 거부되었습니다.";
+        else if (err.code === err.POSITION_UNAVAILABLE) msg = "위치 정보를 사용할 수 없습니다.";
+        else if (err.code === err.TIMEOUT) msg = "위치 조회 시간이 초과되었습니다.";
         setErrorMsg(msg);
         setGeoLoading(false);
       },
-      {
-        enableHighAccuracy: false,
-        timeout: 20000,
-        maximumAge: 0,
-      },
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 },
     );
   }, [resultData]);
 
-  /* ========= 2. 추천 병원 조회 ========= */
+  /* ========= 2. 추천 병원 조회 (다중 검색 병합 수정) ========= */
   useEffect(() => {
-    if (!resultData) return;
-    if (userPos.lat == null || userPos.lng == null) return;
+    // 위치 정보나 결과 데이터가 없으면 중단
+    if (!resultData || userPos.lat == null || userPos.lng == null) return;
+    
+    // ✅ 배열이 비어있으면 목록 비우고 중단
+    if (!searchKeywords || searchKeywords.length === 0) {
+      setHospitals([]);
+      return;
+    }
 
     const fetchHospitals = async () => {
       try {
         setHospitalsLoading(true);
         setErrorMsg(null);
 
-        const data = await getRecommendedHospitals({
-          symptomId,
-          lat: userPos.lat,
-          lng: userPos.lng,
-          size: 20,
-          sort: "distance_rating",
-        });
+        console.log(`🏥 병원 다중 검색 요청: [${searchKeywords.join(", ")}], 좌표(${userPos.lat}, ${userPos.lng})`);
 
-        const list = Array.isArray(data) ? data : [];
+        // ✅ 선택된 진료과 개수만큼 병렬 API 호출 생성
+        const promises = searchKeywords.map(dept => 
+          getRecommendedHospitals({
+            deptName: dept,
+            lat: userPos.lat,
+            lng: userPos.lng,
+          })
+        );
+
+        // ✅ 모든 API 호출 병렬 실행
+        const results = await Promise.all(promises);
+        
+        // ✅ 결과 평탄화 및 중복 제거
+        const allHospitals = results.flat();
+        const uniqueHospitals = Array.from(
+          new Map(allHospitals.map(h => [getHospitalId(h), h])).values()
+        );
 
         const favSet = new Set();
-        list.forEach((h) => {
+        uniqueHospitals.forEach((h) => {
           const rawId = getHospitalId(h);
           if (h?.isFavorite && rawId != null) {
             favSet.add(String(rawId));
@@ -294,7 +250,7 @@ export default function HospitalRecommendSection({ resultData }) {
         });
 
         setFavoriteIds(favSet);
-        setHospitals(sortHospitalsByFavorite(list, favSet));
+        setHospitals(sortHospitalsByFavorite(uniqueHospitals, favSet));
       } catch (e) {
         console.error(e);
         setErrorMsg("병원 정보를 불러오는 중 오류가 발생했습니다.");
@@ -304,11 +260,15 @@ export default function HospitalRecommendSection({ resultData }) {
     };
 
     fetchHospitals();
-  }, [resultData, userPos.lat, userPos.lng, symptomId]);
+    // ✅ 의존성 배열에 searchKeywords의 변화 감지 (문자열 결합 방식)
+  }, [resultData, userPos.lat, userPos.lng, searchKeywords?.join(",")]);
 
   return (
     <section className="result-section">
-      <h3 className="result-section-title">추천 병원</h3>
+      {/* ✅ 제목에 선택된 모든 진료과 표시 */}
+      <h3 className="result-section-title">
+        내 주변 <span style={{ color: "#228be6" }}>{searchKeywords?.join(", ") || "추천"}</span> 병원
+      </h3>
 
       {geoLoading && <p className="info-text">내 위치를 불러오는 중입니다…</p>}
       {errorMsg && <p className="error-text">{errorMsg}</p>}
@@ -316,7 +276,9 @@ export default function HospitalRecommendSection({ resultData }) {
         <p className="info-text">병원 정보를 불러오는 중입니다…</p>
       )}
       {!hospitalsLoading && !geoLoading && !errorMsg && hospitals.length === 0 && (
-        <p className="no-data">조건에 맞는 병원을 찾지 못했습니다.</p>
+        <p className="no-data">
+          근처에 <b>{searchKeywords?.join(", ")}</b> 관련 병원이 없습니다.
+        </p>
       )}
 
       <div className="hospital-list">
@@ -324,27 +286,13 @@ export default function HospitalRecommendSection({ resultData }) {
           const rawId = getHospitalId(h);
           const idStr = rawId == null ? null : String(rawId);
           const isFav = idStr ? favoriteIds.has(idStr) : false;
-
-          // ✅ 여기서 rating / reviewCnt를 안전하게 계산해주셔야 합니다.
-          const rating =
-            h?.ratingAvg ??
-            h?.rating_avg ??
-            h?.avgRating ??
-            h?.avg_rating ??
-            0;
-
-          const reviewCnt =
-            h?.reviewCount ??
-            h?.review_count ??
-            h?.cnt ??
-            0;
-
-          // ✅ key는 hospitalId/id/externalId 기반으로
-          const key = idStr ?? String(h?.externalId ?? `${getHospitalName(h)}-${getHospitalAddr(h)}`);
+          
+          const rating = h?.ratingAvg ?? h?.rating_avg ?? h?.avgRating ?? 0;
+          const reviewCnt = h?.reviewCount ?? h?.review_count ?? h?.cnt ?? 0;
+          const key = idStr ?? String(h?.externalId ?? Math.random());
 
           return (
             <div key={key} className="hospital-card">
-              {/* 1. 상단: 이름 / 평점+거리 */}
               <div className="hospital-row-top">
                 <div className="hospital-top-left">
                   <h4 className="hospital-name">{getHospitalName(h)}</h4>
@@ -359,19 +307,14 @@ export default function HospitalRecommendSection({ resultData }) {
                     <span className="rating-value">{formatRating(rating)}</span>
                     <span className="rating-count">리뷰 {reviewCnt}개</span>
                   </div>
-
                   {(h?.distanceKm != null || h?.distance != null) && (
                     <div className="distance-pill">
-                      거리{" "}
-                      <span className="distance-value">
-                        {formatDistance(h?.distanceKm ?? h?.distance)}
-                      </span>
+                      거리 <span className="distance-value">{formatDistance(h?.distanceKm ?? h?.distance)}</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* 2. 주소 + 전화번호(오른쪽) */}
               <div className="hospital-row-middle">
                 <p className="hospital-address">{getHospitalAddr(h)}</p>
                 {getHospitalTel(h) && (
@@ -379,7 +322,6 @@ export default function HospitalRecommendSection({ resultData }) {
                 )}
               </div>
 
-              {/* 3. 버튼들만 한 줄 */}
               <div className="hospital-row-bottom">
                 <div className="hospital-bottom-right">
                   <button
@@ -390,7 +332,6 @@ export default function HospitalRecommendSection({ resultData }) {
                   >
                     {isFav ? "★ 즐겨찾기" : "☆ 즐겨찾기"}
                   </button>
-
                   <button
                     type="button"
                     className="reserve-button"
@@ -398,7 +339,6 @@ export default function HospitalRecommendSection({ resultData }) {
                   >
                     예약하기
                   </button>
-
                   <button
                     type="button"
                     className="review-button"
@@ -406,7 +346,6 @@ export default function HospitalRecommendSection({ resultData }) {
                   >
                     리뷰 쓰기
                   </button>
-
                   <button
                     type="button"
                     className="naver-route-button"
