@@ -77,14 +77,14 @@ api.interceptors.response.use(
     },
 )
 
-// Category API 엔드포인트
+// Category API 엔드포인트 (통합 버전)
 export const CATEGORY_ENDPOINTS = {
     LIST: "/category",
+    RECOMMEND: "/category/recommend", // ✅ feature 브랜치 추가분 유지
     GROUPS: (categoryId) => `/category/${categoryId}/groups`,
     SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
     SEARCH: "/category/search",
     CUSTOM_LOG: "/category/custom",
-    RECOMMEND: "/category/recommend"
 }
 
 // Drug API 엔드포인트
@@ -94,7 +94,7 @@ export const DRUG_ENDPOINTS = {
     DETAIL: (itemSeq) => `/api/drugs/item/${itemSeq}`,
 }
 
-// Disease API 엔드포인트 
+// Disease API 엔드포인트
 export const DISEASE_ENDPOINTS = {
     LIST: "/api/diseases",
     DETAIL: (id) => `/api/diseases/${id}`,
@@ -132,7 +132,7 @@ export const AUTH_ENDPOINTS = {
     LOGOUT: "/api/auth/logout",
 }
 
-// ... (이후 USER, VERIFICATION, ADMIN, DOCTOR, HOSPITAL 엔드포인트는 기존과 동일하게 유지)
+// 유저 관련
 export const USER_ENDPOINTS = {
     ME: "/api/users/me",
     DETAIL: (id) => `/api/users/${id}`,
@@ -140,6 +140,7 @@ export const USER_ENDPOINTS = {
     DELETE: (id) => `/api/users/${id}`,
 }
 
+// 인증/검증 관련
 export const VERIFICATION_ENDPOINTS = {
     NTS_VERIFY: "/api/verification/nts/verify",
     REQUEST_DOCTOR: "/api/verification/doctor/requests",
@@ -147,12 +148,14 @@ export const VERIFICATION_ENDPOINTS = {
     MY_STATUS: "/api/verification/me",
 }
 
+// 관리자 관련
 export const ADMIN_ENDPOINTS = {
     REQUESTS: "/api/admin/verification/requests",
     APPROVE: (requestId) => `/api/admin/verification/requests/${requestId}/approve`,
     REJECT: (requestId) => `/api/admin/verification/requests/${requestId}/reject`,
 }
 
+// 의사/병원 프로필 관련
 export const DOCTOR_ENDPOINTS = {
     BY_HOSPITAL: (hospitalId) => `/api/doctors/hospital/${hospitalId}`,
     PROFILE: (userId) => `/api/doctors/profile/${userId}`,
