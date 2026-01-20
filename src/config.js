@@ -26,53 +26,29 @@ api.interceptors.request.use(
     },
 )
 
-// 응답 인터셉터: 401 에러 시 자동 토큰 재발급, 403 에러 처리
+// 응답 인터셉터: 401 에러 시 자동 토큰 재발급 등
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config
-
-        // 401 Unauthorized: 토큰 만료 -> refresh 시도
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true
-
             try {
                 const refreshToken = localStorage.getItem("refreshToken")
-                if (!refreshToken) {
-                    throw new Error("No refresh token")
-                }
-
-                // 토큰 재발급 요청 (인스턴스가 아닌 생 axios 사용으로 무한 루프 방지)
-                const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {
-                    refreshToken,
-                })
-
+                if (!refreshToken) throw new Error("No refresh token")
+                const response = await axios.post(`${BASE_URL}/api/auth/refresh`, { refreshToken })
                 const { accessToken, refreshToken: newRefreshToken } = response.data
-
-                // 새 토큰 저장
                 localStorage.setItem("accessToken", accessToken)
                 localStorage.setItem("refreshToken", newRefreshToken)
-
-                // 원래 요청 재시도
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`
                 return api(originalRequest)
             } catch (refreshError) {
-                // refresh 실패 -> 로그아웃 처리
                 localStorage.removeItem("accessToken")
                 localStorage.removeItem("refreshToken")
-                localStorage.removeItem("user")
                 window.location.href = "/login"
                 return Promise.reject(refreshError)
             }
         }
-
-        // 403 Forbidden: 권한 없음
-        if (error.response?.status === 403) {
-            alert("접근 권한이 없습니다.")
-            window.location.href = "/"
-            return Promise.reject(error)
-        }
-
         return Promise.reject(error)
     },
 )
@@ -80,7 +56,7 @@ api.interceptors.response.use(
 // Category API 엔드포인트 (통합 버전)
 export const CATEGORY_ENDPOINTS = {
     LIST: "/category",
-    RECOMMEND: "/category/recommend", // ✅ feature 브랜치 추가분 유지
+    RECOMMEND: "/category/recommend", 
     GROUPS: (categoryId) => `/category/${categoryId}/groups`,
     SYMPTOMS_BY_GROUP: (categoryId, groupId) => `/category/${categoryId}/groups/${groupId}/symptoms`,
     SEARCH: "/category/search",
@@ -126,8 +102,10 @@ export const AUTH_ENDPOINTS = {
     VERIFY_EMAIL: "/api/auth/email/verify",
     SIGNUP_USER: "/api/auth/signup/general",
     LOGIN: "/api/auth/login",
+
     KAKAO_LOGIN: "/api/social/kakao", // ✅ 카카오 추가
     NAVER_LOGIN: "/api/social/naver",
+
     REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
 }
