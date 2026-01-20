@@ -102,7 +102,8 @@ export const AUTH_ENDPOINTS = {
     VERIFY_EMAIL: "/api/auth/email/verify",
     SIGNUP_USER: "/api/auth/signup/general",
     LOGIN: "/api/auth/login",
-    KAKAO_LOGIN: "/api/social/kakao/login", 
+    KAKAO_LOGIN: "/api/social/kakao", // ✅ 카카오 추가
+    NAVER_LOGIN: "/api/social/naver",
     REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
 }

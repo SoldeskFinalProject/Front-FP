@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
 import KakaoLoginButton from "./KakaoLoginButton" // 카카오 버튼 추가
+import NaverLoginButton from "./NaverLoginButton"
 import "./LoginPage.css"
 
 export default function LoginPage() {
@@ -86,8 +87,11 @@ export default function LoginPage() {
           <span>또는</span>
         </div>
 
-        {/* ✅ 카카오 로그인 버튼 */}
-        <KakaoLoginButton />
+        <div className="social-login-container">
+            <KakaoLoginButton />
+            <div style={{ height: "10px" }}></div> {/* 버튼 사이 간격 */}
+            <NaverLoginButton /> {/* ✅ 네이버 버튼 추가 */}
+        </div>
 
         {/* ✅ 회원가입 링크 */}
         <div className="signup-link">

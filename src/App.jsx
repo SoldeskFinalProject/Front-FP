@@ -23,6 +23,7 @@ import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
+import NaverCallback from "./components/auth/NaverCallback"
 
 import "./App.css"
 
@@ -63,8 +64,9 @@ function App() {
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
 
-              <Route path="/verification" element={<VerificationRequestPage />} />  
+              <Route path="/verification" element={<VerificationRequestPage />} />
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+              <Route path="/auth/naver/callback" element={<NaverCallback />} />
 
               <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
