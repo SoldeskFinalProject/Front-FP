@@ -25,16 +25,21 @@ async function ensureOk(res, defaultErrorMessage) {
 /**
  * 추천 병원 조회 API
  *
- * @param {{ lat?: number, lng?: number, symptomCode?: string }} params
+ * @param {{ lat?: number, lng?: number, deptName?: string }} params
  * @returns {Promise<Array>}
  */
 export async function getRecommendedHospitals(params = {}) {
   const searchParams = new URLSearchParams();
 
+  // 1. 위경도 필수
   if (params.lat != null) searchParams.append("lat", params.lat);
   if (params.lng != null) searchParams.append("lng", params.lng);
-  if (params.symptomCode)
-    searchParams.append("symptomCode", params.symptomCode);
+
+  // 2. [핵심 수정] 진료과 이름(deptName) 추가
+  // 백엔드: @RequestParam(required = false) String deptName
+  if (params.deptName) {
+    searchParams.append("deptName", params.deptName);
+  }
 
   const url = `${BASE_URL}/api/hospitals/recommend?${searchParams.toString()}`;
 
