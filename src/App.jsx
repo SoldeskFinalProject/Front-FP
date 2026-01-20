@@ -23,6 +23,9 @@ import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
 import KakaoCallbackPage from "./pages/KakaoCallbackPage"
+import MyPage from "./pages/MyPage"
+import MyReservationPage from "./pages/MyReservationPage";
+import MyReviewPage from "./pages/MyReviewPage";
 import "./App.css"
 
 function App() {
@@ -53,6 +56,11 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verification" element={<VerificationRequestPage />} />
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+
+              {/* 마이페이지 라우트 */}
+              <Route path="/mypage/reservations" element={<MyReservationPage />} />
+              <Route path="/mypage/reviews" element={<MyReviewPage />} />
+              <Route path="/mypage" element={<MyPage />} />
 
               {/* 예약 및 리뷰 */}
               <Route

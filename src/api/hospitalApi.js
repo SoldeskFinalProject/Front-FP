@@ -1,13 +1,22 @@
 // src/api/hospitalApi.js
 
 // 백엔드 기본 URL
-const BASE_URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
+// 로컬 스토리지에 저장된 토큰 키 이름 (실제 저장되는 키 이름으로 확인 필요)
+const TOKEN_KEY = "accessToken";
+
+/** * 인증 헤더를 생성하는 헬퍼 함수 
+ * 토큰이 있으면 Authorization 헤더를 반환합니다.
+ */
+const getAuthHeaders = () => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  return token ? { "Authorization": `Bearer ${token}` } : {};
+};
 
 /** 공통 에러 처리 헬퍼 */
 async function ensureOk(res, defaultErrorMessage) {
   if (res.ok) {
-    // body 가 없을 수도 있어서 안전하게 처리
     try {
       return await res.json();
     } catch (e) {
@@ -24,23 +33,22 @@ async function ensureOk(res, defaultErrorMessage) {
 
 /**
  * 추천 병원 조회 API
- *
- * @param {{ lat?: number, lng?: number, symptomCode?: string }} params
- * @returns {Promise<Array>}
  */
 export async function getRecommendedHospitals(params = {}) {
   const searchParams = new URLSearchParams();
 
   if (params.lat != null) searchParams.append("lat", params.lat);
   if (params.lng != null) searchParams.append("lng", params.lng);
-  if (params.symptomCode)
-    searchParams.append("symptomCode", params.symptomCode);
+  if (params.symptomCode) searchParams.append("symptomCode", params.symptomCode);
 
   const url = `${BASE_URL}/api/hospitals/recommend?${searchParams.toString()}`;
 
   const res = await fetch(url, {
     method: "GET",
     credentials: "include",
+    headers: {
+      ...getAuthHeaders(), // 토큰 추가
+    },
   });
 
   return ensureOk(res, "추천 병원 조회 실패");
@@ -57,6 +65,7 @@ export async function addHospitalFavorite(hospitalId) {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(), // 토큰 추가
     },
   });
 
@@ -72,6 +81,9 @@ export async function removeHospitalFavorite(hospitalId) {
   const res = await fetch(url, {
     method: "DELETE",
     credentials: "include",
+    headers: {
+      ...getAuthHeaders(), // 토큰 추가
+    },
   });
 
   return ensureOk(res, "병원 즐겨찾기 해제 실패");
@@ -79,17 +91,6 @@ export async function removeHospitalFavorite(hospitalId) {
 
 /**
  * 병원 예약 생성
- *
- * @param {number|string} hospitalId
- * @param {{
- *   userId?: number,
- *   patientName?: string,
- *   phone?: string,
- *   memo?: string,
- *   reservedAt?: string,
- *   symptomCodes?: string[],
- *   symptomNames?: string[]
- * }} payload
  */
 export async function createHospitalReservation(hospitalId, payload = {}) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations`;
@@ -99,6 +100,7 @@ export async function createHospitalReservation(hospitalId, payload = {}) {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(), // 토큰 추가
     },
     body: JSON.stringify(payload),
   });
@@ -108,13 +110,6 @@ export async function createHospitalReservation(hospitalId, payload = {}) {
 
 /**
  * 병원 리뷰 작성
- *
- * @param {number|string} hospitalId
- * @param {{
- *   rating: number,
- *   content: string,
- *   userId?: number
- * }} payload
  */
 export async function createHospitalReview(hospitalId, payload = {}) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reviews`;
@@ -124,6 +119,7 @@ export async function createHospitalReview(hospitalId, payload = {}) {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(), // 토큰 추가
     },
     body: JSON.stringify(payload),
   });
@@ -133,7 +129,6 @@ export async function createHospitalReview(hospitalId, payload = {}) {
 
 /**
  * 특정 병원 / 날짜의 예약 슬롯 조회
- * GET /api/hospitals/{hospitalId}/reservations/slots?date=yyyy-MM-dd
  */
 export async function getHospitalReservationSlots(hospitalId, date) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations/slot?date=${date}`;
@@ -141,6 +136,9 @@ export async function getHospitalReservationSlots(hospitalId, date) {
   const res = await fetch(url, {
     method: "GET",
     credentials: "include",
+    headers: {
+      ...getAuthHeaders(), // 토큰 추가
+    },
   });
 
   if (!res.ok) {
@@ -150,8 +148,5 @@ export async function getHospitalReservationSlots(hospitalId, date) {
     );
   }
 
-  // { date: "2025-01-01", slots: [{ time:"09:00", available:true }, ...] }
   return res.json();
 }
-
-

@@ -73,23 +73,30 @@ export const AuthProvider = ({ children }) => {
 
 
     // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
-
     const logout = async () => {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
             if (refreshToken) {
-                await logoutAPI(refreshToken);
+                // 서버에 알리되, 에러가 나더라도 사용자에게는 알리지 않고 무시함
+                await logoutAPI(refreshToken).catch(err => {
+                    console.warn("서버 세션은 이미 만료되었거나 찾을 수 없습니다.");
+                });
             }
         } catch (error) {
-            console.error("Logout error:", error);
+            // 네트워크 에러 등 발생 시 로그만 출력
+            console.error("Logout process error:", error);
         } finally {
-
+            // 💡 실제 로그아웃 성공은 여기서 결정됩니다.
             setUser(null);
             localStorage.removeItem("user");
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
+        
+            // alert("로그아웃 되었습니다."); // 필요하다면 추가
+            window.location.href = "/login"; 
         }
     };
+    
 
     // 유저 역할 업데이트 (인증 성공 시 등)
     const updateUserRole = (newRole) => {

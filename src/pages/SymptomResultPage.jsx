@@ -19,7 +19,7 @@ export default function SymptomResultPage() {
       console.log("[SymptomResultPage] 받은 데이터:", location.state);
     } else {
       alert("잘못된 접근입니다. 증상 선택 페이지로 이동합니다.");
-      navigate("/symptom"); // 증상 선택 페이지 경로로 수정 필요
+      navigate("/search"); // 증상 선택 페이지 경로로 수정 필요
     }
   }, [location, navigate]);
 
