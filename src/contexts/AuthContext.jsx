@@ -1,9 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { login as loginAPI, logout as logoutAPI, kakaoLogin as kakaoLoginAPI } from "../api/authAPI";
+import { login as loginAPI,
+        logout as logoutAPI,
+        kakaoLogin as kakaoLoginAPI,
+        naverLogin as naverLoginAPI } from "../api/authAPI";
 import { api } from "../config";
 
+// 사용자의 로그인 상태(인증 정보)를 전역적으로 관리
 const AuthContext = createContext();
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -16,7 +20,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);     // 로그인한 유저 정보 객체
     const [loading, setLoading] = useState(true);
 
     // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
@@ -34,12 +38,12 @@ export const AuthProvider = ({ children }) => {
     const handleLoginSuccess = (data) => {
         const { accessToken, refreshToken, ...userData } = data;
 
-        // 1. 토큰 및 유저 정보 저장
+        // 토큰 및 유저 정보 저장
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("user", JSON.stringify(userData));
 
-        // 2. 리액트 상태 업데이트
+        // 상태 업데이트
         setUser(userData);
         
         return userData;
@@ -62,10 +66,20 @@ export const AuthProvider = ({ children }) => {
             const response = await kakaoLoginAPI(code);
             return handleLoginSuccess(response);
         } catch (error) {
-            console.error("Social login failed:", error);
+            console.error("Social login failed: ", error);
             throw error;
         }
     };
+
+    const naverLogin = async (code, state) => {
+        try {
+            const response = await naverLoginAPI(code, state);
+            return handleLoginSuccess(response);
+        } catch (error) {
+            console.error("Naver Login failed: ", error);
+            throw error;
+        }
+    }
 
     // 로그아웃
     const logout = async () => {
@@ -103,6 +117,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         socialLogin,
+        naverLogin,
         logout,
         loading,
         refreshUserInfo,
