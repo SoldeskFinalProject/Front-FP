@@ -11,30 +11,47 @@ export default function SymptomResultPage() {
   const navigate = useNavigate();
 
   const [resultData, setResultData] = useState(null);
+  const [selectedDepts, setSelectedDepts] = useState([]);
 
-  // 0. SymptomPage 에서 넘어온 데이터 세팅
   useEffect(() => {
     if (location.state) {
       setResultData(location.state);
-      console.log("[SymptomResultPage] 받은 데이터:", location.state);
+      
+      // 초기값: 1순위 진료과 자동 선택
+      if (location.state.depts && location.state.depts.length > 0) {
+        setSelectedDepts([location.state.depts[0]]); 
+      }
     } else {
-      alert("잘못된 접근입니다. 증상 선택 페이지로 이동합니다.");
-      navigate("/symptom"); // 증상 선택 페이지 경로로 수정 필요
+      alert("잘못된 접근입니다.");
+      navigate("/symptom");
     }
   }, [location, navigate]);
 
-  if (!resultData) {
-    return <div className="loading">결과를 불러오는 중...</div>;
-  }
+  // ✅ [공통] 진료과 토글 핸들러
+  const handleDeptToggle = (deptName) => {
+    setSelectedDepts((prev) => {
+      if (prev.includes(deptName)) {
+        return prev.filter(d => d !== deptName);
+      } else {
+        return [...prev, deptName];
+      }
+    });
+  };
 
-  // 데이터 구조 분해 할당 (편의성)
+  if (!resultData) return <div className="loading">로딩 중...</div>;
+
   const { depts, selectedSymptoms } = resultData;
+  const isPediatricsChecked = selectedDepts.includes("소아청소년과");
+
+  const visibleDepts = depts
+    .filter(dept => dept !== "소아청소년과")
+    .slice(0, 3);
 
   return (
     <div className="result-page-container">
       <header className="result-header">
         <h2 className="result-title">증상 분석 결과</h2>
-        <button className="back-btn" onClick={() => navigate(-1)}> {/* 뒤로가기 */}
+        <button className="back-btn" onClick={() => navigate(-1)}>
           다시 선택하기
         </button>
       </header>
@@ -46,12 +63,8 @@ export default function SymptomResultPage() {
           {selectedSymptoms && selectedSymptoms.length > 0 ? (
             selectedSymptoms.map((symptom, index) => (
               <div key={index} className="symptom-item">
-                <span className="symptom-name">
-                  {symptom.symptomName}
-                </span>
-                <span className="symptom-category">
-                  {symptom.categoryName}
-                </span>
+                <span className="symptom-name">{symptom.symptomName}</span>
+                <span className="symptom-category">{symptom.categoryName}</span>
               </div>
             ))
           ) : (
@@ -60,25 +73,76 @@ export default function SymptomResultPage() {
         </div>
       </section>
 
-      {/* 2. 추천 진료과 리스트 (수정된 부분) */}
+      {/* 2. 추천 진료과 리스트 */}
       <section className="result-section">
-        <h3 className="result-section-title">추천 진료과 (AI 분석)</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h3 className="result-section-title" style={{ marginBottom: 0 }}>추천 진료과 (AI 분석)</h3>
+          
+          {/* ✅ [추가] 소아청소년과 포함 필터 (우측 상단 배치) */}
+          <label style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            cursor: 'pointer',
+            padding: '8px 12px',
+            backgroundColor: isPediatricsChecked ? '#e7f5ff' : '#f8f9fa',
+            borderRadius: '20px',
+            border: isPediatricsChecked ? '1px solid #228be6' : '1px solid #e5e7eb',
+            transition: 'all 0.2s',
+            fontWeight: '600',
+            fontSize: '14px',
+            color: isPediatricsChecked ? '#228be6' : '#495057'
+          }}>
+            <input 
+              type="checkbox" 
+              checked={isPediatricsChecked}
+              onChange={() => handleDeptToggle("소아청소년과")}
+              style={{ accentColor: '#228be6', transform: 'scale(1.1)' }}
+            />
+            🧸 소아청소년과 포함
+          </label>
+        </div>
+
+        <p style={{fontSize: '14px', color: '#666', marginBottom: '15px'}}>
+          * 병원을 찾고 싶은 진료과를 선택해주세요 (다중 선택 가능)
+        </p>
         
-        {/* 데이터가 있을 때만 렌더링 */}
-        {depts && depts.length > 0 ? (
+        {visibleDepts && visibleDepts.length > 0 ? (
           <div className="recommendation-list">
-            {depts.map((deptName, index) => (
-              <div key={index} className="hospital-card" style={{borderColor: index === 0 ? '#228be6' : '#e5e7eb', borderWidth: index === 0 ? '2px' : '1px'}}>
-                <div className="hospital-row-top">
-                  <div className="hospital-top-left">
-                    <h4 className="hospital-name" style={{fontSize: '1.2rem'}}>
-                      {index + 1}순위: <span style={{color: '#228be6'}}>{deptName}</span>
-                    </h4>
-                    <p className="hospital-type">회원님의 증상에 가장 적합한 진료과입니다.</p>
+            {visibleDepts.map((deptName, index) => {
+              const isChecked = selectedDepts.includes(deptName);
+              
+              return (
+                <div 
+                  key={index} 
+                  className="hospital-card" 
+                  onClick={() => handleDeptToggle(deptName)}
+                  style={{
+                    borderColor: isChecked ? '#228be6' : '#e5e7eb', 
+                    borderWidth: isChecked ? '2px' : '1px',
+                    cursor: 'pointer',
+                    backgroundColor: isChecked ? '#f8f9fa' : '#fff'
+                  }}
+                >
+                  <div className="hospital-row-top" style={{ alignItems: 'center' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={isChecked} 
+                      readOnly
+                      style={{ transform: 'scale(1.5)', marginRight: '15px', accentColor: '#228be6' }}
+                    />
+                    <div className="hospital-top-left">
+                      <h4 className="hospital-name" style={{fontSize: '1.2rem'}}>
+                        {index + 1}순위: <span style={{color: '#228be6'}}>{deptName}</span>
+                      </h4>
+                      <p className="hospital-type">
+                        {index === 0 ? "가장 권장하는 진료과입니다." : "이 진료과에서도 진료 가능합니다."}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="recommendation-placeholder">
@@ -87,13 +151,10 @@ export default function SymptomResultPage() {
         )}
       </section>
 
-      {/* 3. 병원 추천 컴포넌트 연동 */}
-      {/* HospitalRecommendSection 컴포넌트가 '검색어(dept)'를 받아서 
-         지도를 띄우도록 설계되어 있다고 가정하고, 1순위 진료과를 넘겨줍니다. 
-      */}
-      {depts && depts.length > 0 && (
+      {/* 3. 병원 추천 컴포넌트 */}
+      {selectedDepts.length > 0 && (
         <HospitalRecommendSection 
-          searchKeyword={depts[0]} // 가장 추천하는(0번) 진료과 전달
+          searchKeywords={selectedDepts} 
           resultData={resultData} 
         />
       )}
