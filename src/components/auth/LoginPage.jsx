@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
-import KakaoLoginButton from "./KakaoLoginButton" // 카카오 로그인 버튼
+import KakaoLoginButton from "./KakaoLoginButton"
+import NaverLoginButton from "./NaverLoginButton"
 import "./LoginPage.css"
 
 export default function LoginPage() {
@@ -31,10 +32,11 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Context의 login 함수가 내부적으로 API 호출 및 저장을 처리한다고 가정합니다.
+      // AuthContext의 login 함수를 호출하여 로그인을 진행합니다.
       await login(formData)
       navigate("/")
     } catch (error) {
+      // 에러 메시지 처리 (서버 에러 응답이 있을 경우 해당 메시지 출력)
       setError(error.response?.data?.message || "로그인에 실패했습니다.")
     } finally {
       setIsLoading(false)
@@ -87,13 +89,20 @@ export default function LoginPage() {
           <span>또는</span>
         </div>
 
-        {/* ✅ 카카오 로그인 버튼 */}
-        <KakaoLoginButton />
+        {/* ✅ 소셜 로그인 버튼 영역 */}
+        <div className="social-login-container">
+          <KakaoLoginButton />
+          {/* 버튼 사이 간격을 위한 여백 */}
+          <div style={{ height: "12px" }}></div> 
+          <NaverLoginButton />
+        </div>
 
         {/* ✅ 회원가입 링크 */}
         <div className="signup-link">
           계정이 없으신가요?
-          <button onClick={() => navigate("/signup")}>회원가입</button>
+          <button type="button" onClick={() => navigate("/signup")}>
+            회원가입
+          </button>
         </div>
       </div>
     </div>

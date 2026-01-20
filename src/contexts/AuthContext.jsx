@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { login as loginAPI, logout as logoutAPI, kakaoLogin as kakaoLoginAPI } from "../api/authAPI";
+import { 
+    login as loginAPI, 
+    logout as logoutAPI, 
+    kakaoLogin as kakaoLoginAPI, 
+    naverLogin as naverLoginAPI 
+} from "../api/authAPI";
 import { api } from "../config";
 
 const AuthContext = createContext();
@@ -19,14 +24,18 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
     // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
     useEffect(() => {
         const accessToken = localStorage.getItem("accessToken");
         const storedUser = localStorage.getItem("user");
 
         if (accessToken && storedUser) {
-            setUser(JSON.parse(storedUser));
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (error) {
+                console.error("유저 정보 파싱 에러:", error);
+                localStorage.removeItem("user");
+            }
         }
         setLoading(false);
     }, []);
@@ -57,33 +66,39 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ✅ 카카오 전용 소셜 로그인 (CallbackPage에서 호출)
-
-    // ✅ 카카오 소셜 로그인 (CallbackPage에서 호출)
-
+    // ✅ 카카오 소셜 로그인
     const socialLogin = async (code) => {
         try {
             const response = await kakaoLoginAPI(code);
             return handleLoginSuccess(response);
         } catch (error) {
-            console.error("Social login failed:", error);
+            console.error("Kakao Login failed:", error);
             throw error;
         }
     };
 
+    // ✅ 네이버 소셜 로그인
+    const naverLogin = async (code, state) => {
+        try {
+            const response = await naverLoginAPI(code, state);
+            return handleLoginSuccess(response);
+        } catch (error) {
+            console.error("Naver Login failed:", error);
+            throw error;
+        }
+    };
 
     // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
     const logout = async () => {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
             if (refreshToken) {
-                // 서버에 알리되, 에러가 나더라도 사용자에게는 알리지 않고 무시함
+                // 서버에 알리되, 이미 만료된 경우 등을 위해 catch 처리
                 await logoutAPI(refreshToken).catch(err => {
                     console.warn("서버 세션은 이미 만료되었거나 찾을 수 없습니다.");
                 });
             }
         } catch (error) {
-            // 네트워크 에러 등 발생 시 로그만 출력
             console.error("Logout process error:", error);
         } finally {
             // 💡 실제 로그아웃 성공은 여기서 결정됩니다.
@@ -92,21 +107,12 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
         
-            // alert("로그아웃 되었습니다."); // 필요하다면 추가
+            // 로그아웃 후 로그인 페이지로 이동
             window.location.href = "/login"; 
         }
     };
-    
 
-    // 유저 역할 업데이트 (인증 성공 시 등)
-    const updateUserRole = (newRole) => {
-        if (user) {
-            const updatedUser = { ...user, role: newRole };
-            setUser(updatedUser);
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-        }
-    };
-
+    // 유저 정보 최신화 (관리자 승인 등 변경사항 반영용)
     const refreshUserInfo = async () => {
         if (user) {
             try {
@@ -124,12 +130,12 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         socialLogin,
+        naverLogin, // 네이버 기능 추가
         logout,
         loading,
         refreshUserInfo,
         isAuthenticated: !!user,
-        isAdmin: user?.role === "ADMIN" // 관리자 여부 편의 기능
-
+        isAdmin: user?.role === "ADMIN" || user?.role === "ROLE_ADMIN" // 관리자 여부 체크
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
