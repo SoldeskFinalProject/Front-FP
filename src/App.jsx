@@ -26,6 +26,7 @@ import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
 import NaverCallback from "./components/auth/NaverCallback"
 
 import "./App.css"
+import ProtectedRoute from "./components/auth/ProtectedRoute"
 
 function App() {
   return (

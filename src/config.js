@@ -28,27 +28,65 @@ api.interceptors.request.use(
 
 // 응답 인터셉터: 401 에러 시 자동 토큰 재발급 등
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // 정상 응답이면 그대로 통과
+        return response
+    },
     async (error) => {
         const originalRequest = error.config
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true
-            try {
-                const refreshToken = localStorage.getItem("refreshToken")
-                if (!refreshToken) throw new Error("No refresh token")
-                const response = await axios.post(`${BASE_URL}/api/auth/refresh`, { refreshToken })
-                const { accessToken, refreshToken: newRefreshToken } = response.data
-                localStorage.setItem("accessToken", accessToken)
-                localStorage.setItem("refreshToken", newRefreshToken)
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`
-                return api(originalRequest)
-            } catch (refreshError) {
-                localStorage.removeItem("accessToken")
-                localStorage.removeItem("refreshToken")
-                window.location.href = "/login"
-                return Promise.reject(refreshError)
+
+        // 401 에러(토큰 만료)이고, 아직 재시도하지 않은 요청이라면
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true // 무한 루프 방지용 플래그 설정
+
+        try {
+            const refreshToken = localStorage.getItem("refreshToken")
+
+            if (!refreshToken) {
+                // 리프레시 토큰도 없으면 진짜 로그아웃
+                throw new Error("No refresh token available")
             }
+
+            // 🔥 [중요] 백엔드에 토큰 재발급 요청 (URL 확인 필요!)
+            // 백엔드 컨트롤러에 만들어둔 토큰 재발급 주소를 적어야 합니다.
+            // 예: /api/auth/reissue 또는 /api/auth/refresh
+            const { data } = await axios.post("http://localhost:8080/api/auth/reissue", {
+                accessToken: localStorage.getItem("accessToken"),
+                refreshToken: refreshToken
+            })
+
+            // 백엔드 응답 구조에 맞춰 수정 필요 (예: data.accessToken)
+            const newAccessToken = data.accessToken
+            const newRefreshToken = data.refreshToken
+
+            // 1. 새 토큰 저장
+            localStorage.setItem("accessToken", newAccessToken)
+            if (newRefreshToken) {
+                localStorage.setItem("refreshToken", newRefreshToken)
+            }
+
+            // 2. 실패했던 요청의 헤더를 새 토큰으로 교체
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+            
+            // 3. api 인스턴스의 기본 헤더도 변경 (이후 요청을 위해)
+            api.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
+
+            // 4. 실패했던 요청 재전송 (사용자는 에러 났는지도 모르게 처리됨)
+            return api(originalRequest)
+
+        } catch (refreshError) {
+            // 재발급 실패 (리프레시 토큰도 만료됨) -> 강제 로그아웃
+            console.error("토큰 갱신 실패:", refreshError)
+            localStorage.removeItem("accessToken")
+            localStorage.removeItem("refreshToken")
+            
+            // 로그인 페이지로 튕겨내기
+            window.location.href = "/login"
+            
+            return Promise.reject(refreshError)
         }
+        }
+
         return Promise.reject(error)
     },
 )
@@ -82,14 +120,16 @@ export const QNA_ENDPOINTS = {
     QUESTIONS: "/api/question",
     QUESTION_DETAIL: (id) => `/api/question/${id}`,
     QUESTION_CREATE: "/api/question/create",
-    Question_UPDATE: (questionId) => `/api/question/${questionId}/update`,
+    QUESTION_UPDATE: (questionId) => `/api/question/${questionId}/update`, // 대소문자 통일
     QUESTION_DELETE: (id) => `/api/question/${id}`,
     QUESTION_STATUS: (id) => `/api/question/${id}/status`,
     QUESTION_ACCEPT: (questionId, answerId) => `/api/question/${questionId}/accept/${answerId}`,
+    
     ANSWERS: "/api/answer",
     ANSWER_CREATE: (questionId) => `/api/answer?questionId=${questionId}`,
     ANSWER_UPDATE: (answerId) => `/api/answer/${answerId}`,
     ANSWER_DELETE: (answerId) => `/api/answer/${answerId}`,
+    
     COMMENTS: "/api/comments",
     COMMENTS_BY_ANSWER: (answerId) => `/api/comments/answer/${answerId}`,
     COMMENT_UPDATE: (commentId) => `/api/comments/${commentId}`,
