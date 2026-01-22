@@ -8,22 +8,20 @@ import {
   getHospitalReservationSlots,
 } from "../api/hospitalApi";
 import "./HospitalReservationPage.css";
+import { useAuth } from "../contexts/AuthContext";
 
 function getTodayDate() {
   const d = new Date();
-  return d.toISOString().slice(0, 10); // yyyy-MM-dd
+  return d.toISOString().slice(0, 10);
 }
 
-// 오늘 & 현재 시간 기준으로 이미 지난 슬롯인지 체크
 function isPastTimeSlot(slotTime, selectedDate) {
   const todayStr = getTodayDate();
   if (selectedDate !== todayStr) return false;
-
   const now = new Date();
   const [h, m] = slotTime.split(":").map(Number);
   const slotMinutes = h * 60 + m;
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
-
   return slotMinutes <= nowMinutes;
 }
 
@@ -31,6 +29,9 @@ export default function HospitalReservationPage() {
   const { hospitalId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // ✅ 1. AuthContext에서 user와 loading 상태 가져오기
+  const { user, loading } = useAuth();
 
   const { hospital, selectedSymptoms = [] } = location.state || {};
 
@@ -41,258 +42,166 @@ export default function HospitalReservationPage() {
   const [memo, setMemo] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // 슬롯 상태
   const [slots, setSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
-  const [slotsError, setSlotsError] = useState(null);
 
-  // 날짜 변경 시 슬롯 조회
   useEffect(() => {
     if (!hospitalId) return;
-
     const fetchSlots = async () => {
       try {
         setSlotsLoading(true);
-        setSlotsError(null);
-
         const data = await getHospitalReservationSlots(hospitalId, date);
         const list = Array.isArray(data.slots) ? data.slots : [];
         setSlots(list);
-
-        // 기본 선택값: 예약 가능 & (오늘이면) 현재 시간 이후인 첫 슬롯
-        const firstReservable = list.find(
-          (s) => s.reservable && !isPastTimeSlot(s.time, date),
-        );
-        if (firstReservable) {
-          setTime(firstReservable.time);
-        } else {
-          setTime("");
-        }
+        const firstReservable = list.find(s => s.reservable && !isPastTimeSlot(s.time, date));
+        if (firstReservable) setTime(firstReservable.time);
       } catch (e) {
-        console.error(e);
-        setSlots([]);
-        setTime("");
-        setSlotsError("예약 가능 시간을 불러오는 중 오류가 발생했습니다.");
+        console.error("슬롯 로딩 실패", e);
       } finally {
         setSlotsLoading(false);
       }
     };
-
     fetchSlots();
   }, [hospitalId, date]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!hospitalId) {
-      alert("병원 정보가 없습니다. 다시 시도해 주세요.");
+    // 🔍 디버깅: 현재 user 객체의 전체 구조를 콘솔에서 확인하세요.
+    console.log("현재 로그인된 user 객체:", user);
+
+    if (loading) return;
+
+    // ✅ 2. [로그인 체크] user 객체가 아예 없으면 로그인 페이지로
+    if (!user) {
+      alert("로그인 세션이 만료되었습니다. 다시 로그인해 주세요.");
+      navigate("/login");
       return;
     }
+
+    // ✅ 3. [ID 추출] .id 외에 다른 필드명일 가능성 대비 (안전장치)
+    const idToSubmit = user.id || user.userId || user.memberId;
+
+    if (!idToSubmit) {
+      console.error("유저 객체는 있으나 ID 값을 찾을 수 없습니다. 필드명을 확인하세요.");
+      alert("사용자 정보 오류가 발생했습니다.");
+      return;
+    }
+
     if (!time) {
       alert("예약 시간을 선택해 주세요.");
       return;
     }
 
-    const reservedAt = `${date}T${time}`;
-
     const payload = {
-      userId: 1, // 로그인 붙기 전까지 임시
+      userId: idToSubmit, // ✅ 백엔드 DTO의 private Long userId와 매칭
       patientName,
       phone,
-      memo:
-        memo ||
-        (selectedSymptoms.length
-          ? `선택 증상: ${selectedSymptoms
-              .map((s) => s.symptomName)
-              .join(", ")}`
-          : ""),
-      reservedAt,
+      memo: memo || (selectedSymptoms.length ? `선택 증상: ${selectedSymptoms.map(s => s.symptomName).join(", ")}` : ""),
+      reservedAt: `${date}T${time}:00`,
     };
+
+    console.log("서버 전송 최종 데이터:", payload);
 
     try {
       setSubmitting(true);
       await createHospitalReservation(hospitalId, payload);
-      alert("예약이 완료되었습니다.");
-      navigate("/result", { replace: true });
+      alert("예약이 성공적으로 완료되었습니다!");
+      
+      // ✅ 수정 전: navigate("/mypage", { replace: true }); 
+      // ✅ 수정 후: 새로 만든 예약 내역 확인 페이지 경로로 변경
+      navigate("/mypage", { replace: true }); 
+      
     } catch (err) {
-      console.error(err);
-      alert(err.message || "예약 중 오류가 발생했습니다.");
+      console.error("API 응답 에러:", err.response?.data);
+      alert(err.response?.data?.message || "예약 중 오류가 발생했습니다.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // ✅ 4. 데이터 로드 중일 때 처리 (중요)
+  if (loading) {
+    return <div className="reservation-page-container">사용자 정보를 확인 중입니다...</div>;
+  }
+
   if (!hospital) {
     return (
       <div className="reservation-page-container">
-        <p>병원 정보가 없습니다. 증상 분석 결과 페이지에서 다시 시도해 주세요.</p>
-        <button className="reservation-back-btn" onClick={() => navigate("/result")}>
-          결과 페이지로 이동
-        </button>
+        <p>병원 정보가 없습니다.</p>
+        <button onClick={() => navigate(-1)}>뒤로가기</button>
       </div>
     );
   }
-
-  const hasReservableSlot = slots.some(
-    (s) => s.reservable && !isPastTimeSlot(s.time, date),
-  );
 
   return (
     <div className="reservation-page-container">
       <header className="reservation-header">
         <h2 className="reservation-title">병원 예약</h2>
-        <button className="reservation-back-btn" onClick={() => navigate(-1)}>
-          뒤로가기
-        </button>
+        <button className="reservation-back-btn" onClick={() => navigate(-1)}>뒤로가기</button>
       </header>
 
-      {/* 병원 정보 카드 */}
       <section className="reservation-section reservation-section--card">
         <h3 className="reservation-section-title">병원 정보</h3>
-        <p className="reservation-hospital-name">
-          {hospital.name || hospital.yadmNm || "병원 이름 없음"}
-        </p>
-        <p className="reservation-hospital-addr">
-          {hospital.roadAddress ||
-            hospital.jibunAddress ||
-            hospital.addr ||
-            hospital.address ||
-            ""}
-        </p>
-        {(hospital.tel || hospital.telno) && (
-          <p className="reservation-hospital-tel">
-            ☎ {hospital.tel || hospital.telno}
-          </p>
-        )}
+        <p className="reservation-hospital-name">{hospital.name || hospital.yadmNm}</p>
+        <p className="reservation-hospital-addr">{hospital.roadAddress || hospital.addr}</p>
       </section>
 
-      {/* 예약 입력 카드 */}
       <section className="reservation-section reservation-section--card">
         <h3 className="reservation-section-title">예약 정보 입력</h3>
-
-        {slotsError && <p className="error-text">{slotsError}</p>}
-
         <form className="reservation-form" onSubmit={handleSubmit}>
-          {/* 날짜 */}
           <label className="reservation-field">
             <span className="reservation-label">예약 날짜</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="reservation-input"
-              required
-            />
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="reservation-input" required />
           </label>
 
-          {/* 시간 – 버튼 그리드 */}
           <div className="reservation-field">
             <span className="reservation-label">예약 시간</span>
-
-            {slotsLoading && <p className="info-text">예약 가능 시간을 불러오는 중…</p>}
-
-            {!slotsLoading && slots.length === 0 && (
-              <p className="info-text">해당 날짜에는 예약 가능한 시간이 없습니다.</p>
-            )}
-
-            {!slotsLoading && slots.length > 0 && (
-              <>
-                <div className="time-slot-grid">
-                  {slots.map((slot) => {
-                    const disabled =
-                      !slot.reservable || isPastTimeSlot(slot.time, date);
-                    const selected = time === slot.time;
-
-                    return (
-                      <button
-                        key={slot.time}
-                        type="button"
-                        className={[
-                          "time-slot-btn",
-                          selected ? "time-slot-btn--selected" : "",
-                          disabled ? "time-slot-btn--disabled" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                        disabled={disabled}
-                        onClick={() => {
-                          if (!disabled) setTime(slot.time);
-                        }}
-                      >
-                        {slot.time}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {!hasReservableSlot && (
-                  <p className="info-text info-text--small">
-                    선택 가능한 시간이 없습니다. 다른 날짜를 선택해 주세요.
-                  </p>
-                )}
-
-                <div className="time-slot-legend">
-                  <span className="legend-box legend-box--available" />
-                  <span>예약 가능</span>
-                  <span className="legend-box legend-box--disabled" />
-                  <span>이미 예약되었거나 현재 시간 이전</span>
-                  <span className="legend-box legend-box--selected" />
-                  <span>선택한 시간</span>
-                </div>
-              </>
+            {slotsLoading ? <p>로딩 중...</p> : (
+              <div className="time-slot-grid">
+                {slots.map((slot) => {
+                  const disabled = !slot.reservable || isPastTimeSlot(slot.time, date);
+                  return (
+                    <button
+                      key={slot.time}
+                      type="button"
+                      className={`time-slot-btn ${time === slot.time ? "time-slot-btn--selected" : ""} ${disabled ? "time-slot-btn--disabled" : ""}`}
+                      disabled={disabled}
+                      onClick={() => setTime(slot.time)}
+                    >
+                      {slot.time}
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
 
-          {/* 이름 */}
           <label className="reservation-field">
-            <span className="reservation-label">예약자 이름</span>
-            <input
-              type="text"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              className="reservation-input"
-              placeholder="실제 진료 받으실 분 성함"
-              required
-            />
+            <span className="reservation-label">예약자 성함</span>
+            <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="reservation-input" required />
           </label>
 
-          {/* 연락처 */}
           <label className="reservation-field">
             <span className="reservation-label">연락처</span>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="reservation-input"
-              placeholder="예) 010-1234-5678"
-              required
+            <input 
+              type="tel" 
+              value={phone} 
+              maxLength={15}
+              onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))} 
+              className="reservation-input" 
+              placeholder="숫자만 입력"
+              required 
             />
           </label>
 
-          {/* 메모 */}
           <label className="reservation-field">
-            <span className="reservation-label">증상 / 메모</span>
-            <textarea
-              rows={4}
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              className="reservation-textarea"
-              placeholder={
-                selectedSymptoms.length
-                  ? `예) ${selectedSymptoms
-                      .map((s) => s.symptomName)
-                      .join(", ")} 등`
-                  : "증상이나 요청사항을 자유롭게 적어 주세요."
-              }
-            />
+            <span className="reservation-label">증상/메모</span>
+            <textarea rows={3} value={memo} onChange={(e) => setMemo(e.target.value)} className="reservation-textarea" />
           </label>
 
-          <button
-            type="submit"
-            className="reservation-submit-btn"
-            disabled={submitting || !time}
-          >
-            {submitting ? "예약 처리 중..." : "예약 확정하기"}
+          <button type="submit" className="reservation-submit-btn" disabled={submitting || !time || loading}>
+            {submitting ? "처리 중..." : "예약 확정하기"}
           </button>
         </form>
       </section>
