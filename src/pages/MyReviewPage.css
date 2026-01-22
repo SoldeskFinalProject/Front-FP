@@ -46,3 +46,30 @@
   border-radius: 15px;
   color: #adb5bd;
 }
+
+.review-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.review-tab {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.review-tab.active {
+  border-color: #6b6bff;
+  background: #f3f3ff;
+}
+
+.review-preview {
+  margin-top: 6px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}

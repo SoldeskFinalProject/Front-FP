@@ -69,43 +69,25 @@ const Navbar = () => {
           <div className="sidebar-overlay" onClick={toggleSidebar}></div>
           <div className="sidebar">
             <div className="sidebar-header">
-              <h2>메뉴</h2>
+              <h2>전체 메뉴</h2>
               <button className="sidebar-close" onClick={toggleSidebar}>✕</button>
             </div>
 
             <nav className="sidebar-menu">
-              <Link to="/search" className="sidebar-item" onClick={toggleSidebar}>증상검색</Link>
+              {/* 일반 메뉴 */}
+              <Link to="/search" className="sidebar-item" onClick={toggleSidebar}>🔍 증상검색</Link>
+              <Link to="/dictionary" className="sidebar-item" onClick={toggleSidebar}>💊 의약품 백과</Link>
               
               {user && (
                 <>
                   <hr className="sidebar-divider" />
-                  <div className="sidebar-group-title">마이페이지 관리</div>
+                  <div className="sidebar-group-title">마이페이지</div>
                   
-                  {/* ✅ 대시보드 메인 */}
-                  <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>
-                    마이 대시보드
-                  </Link>
+                  <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>👤 마이 대시보드</Link>
+                  <Link to="/mypage/reservations" className="sidebar-item" onClick={toggleSidebar}>📅 진료 예약 현황</Link>
+                  <Link to="/mypage/reviews" className="sidebar-item" onClick={toggleSidebar}>✍️ 리뷰 작성/관리</Link>
+                  <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>🏥 의사/병원 인증</Link>
 
-                  {/* ✅ 예약 내역 페이지로 직접 이동 */}
-                  <Link to="/mypage/reservations" className="sidebar-item" onClick={toggleSidebar}>
-                    📅 진료 예약 현황
-                  </Link>
-
-                  {/* ✅ 리뷰 관리 페이지로 직접 이동 */}
-                  <Link to="/mypage/reviews" className="sidebar-item" onClick={toggleSidebar}>
-                    ✍️ 리뷰 작성/관리
-                  </Link>
-
-                  <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>
-                    인증 요청
-                  </Link>
-                  
-                  {isAdmin && (
-                    <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
-                      승인 요청 관리 (관리자)
-                    </Link>
-                  )}
-                  
                   <div className="sidebar-footer">
                     <button className="sidebar-logout" onClick={handleLogout}>로그아웃</button>
                   </div>

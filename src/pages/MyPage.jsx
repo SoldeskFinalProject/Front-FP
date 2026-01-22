@@ -1,46 +1,61 @@
-import React, { useEffect, useState } from "react";
-import { api } from "../config"; 
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { api } from "../config";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import "./MyPage.css"; 
+import "./MyPage.css";
 
 export default function MyPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); // ✅ logout이 AuthContext에 있으면 사용
   const navigate = useNavigate();
-  
-  const [reservationCount, setReservationCount] = useState(0); 
-  const [reviewableCount, setReviewableCount] = useState(0);          
+
+  const userId = useMemo(() => user?.userId || user?.id, [user]);
+
+  const [reservationCount, setReservationCount] = useState(0);
+  const [reviewableCount, setReviewableCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const currentUserId = user?.userId || user?.id;
-
-    if (!currentUserId) {
+  const fetchSummaryData = useCallback(async () => {
+    if (!userId) {
+      setReservationCount(0);
+      setReviewableCount(0);
       setLoading(false);
       return;
     }
 
-    const fetchSummaryData = async () => {
-      setLoading(true);
-      try {
-        const [reviewRes, activeRes] = await Promise.all([
-          api.get(`/api/hospitals/my/reviewable`, { params: { userId: currentUserId } }),
-          api.get(`/api/hospitals/my/reservations`, { params: { userId: currentUserId } })
-        ]);
+    setLoading(true);
+    try {
+      const [reviewRes, reservRes] = await Promise.all([
+        api.get(`/api/hospitals/my/reviewable`, { params: { userId } }),
+        api.get(`/api/hospitals/my/reservations`, { params: { userId } }),
+      ]);
 
-        // 개수만 파악하여 요약 정보 제공
-        setReviewableCount(Array.isArray(reviewRes.data) ? reviewRes.data.length : 0);
-        setReservationCount(Array.isArray(activeRes.data) ? activeRes.data.length : 0);
+      setReviewableCount(Array.isArray(reviewRes.data) ? reviewRes.data.length : 0);
+      setReservationCount(Array.isArray(reservRes.data) ? reservRes.data.length : 0);
+    } catch (error) {
+      console.error("데이터 로딩 중 에러 발생:", error);
+      // 실패 시에도 화면은 뜨게 (0으로)
+      setReviewableCount(0);
+      setReservationCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
 
-      } catch (error) {
-        console.error("데이터 로딩 중 에러 발생:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchSummaryData();
-  }, [user]);
+  }, [fetchSummaryData]);
+
+  const handleLogout = useCallback(() => {
+    // ✅ AuthContext에 logout()이 구현돼 있으면 그걸 호출
+    if (typeof logout === "function") {
+      logout();
+    } else {
+      // ✅ 없으면 최소 동작: 토큰 제거 + 홈 이동
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    }
+    navigate("/login", { replace: true });
+  }, [logout, navigate]);
 
   if (loading) return <div className="mypage-loading">정보를 불러오는 중입니다...</div>;
   if (!user) return <div className="mypage-error">로그인이 필요한 페이지입니다.</div>;
@@ -49,7 +64,9 @@ export default function MyPage() {
     <div className="mypage-container">
       <header className="mypage-header">
         <h1>마이페이지</h1>
-        <p className="user-info"><strong>{user.name || "사용자"}</strong>님, 반갑습니다!</p>
+        <p className="user-info">
+          <strong>{user.name || "사용자"}</strong>님, 반갑습니다!
+        </p>
       </header>
 
       <div className="mypage-dashboard">
@@ -58,7 +75,9 @@ export default function MyPage() {
           <div className="card-icon">📅</div>
           <div className="card-content">
             <h3>나의 예약 현황</h3>
-            <p className="count-text">현재 <strong>{reservationCount}</strong>건의 예약이 있습니다.</p>
+            <p className="count-text">
+              현재 <strong>{reservationCount}</strong>건의 예약이 있습니다.
+            </p>
             <span className="go-detail">예약 확인 및 취소하기 &gt;</span>
           </div>
         </div>
@@ -68,8 +87,10 @@ export default function MyPage() {
           <div className="card-icon">✍️</div>
           <div className="card-content">
             <h3>리뷰 관리</h3>
-            <p className="count-text">작성 가능한 리뷰가 <strong>{reviewableCount}</strong>건 있습니다.</p>
-            <span className="go-detail">리뷰 작성하러 가기 &gt;</span>
+            <p className="count-text">
+              작성 가능한 리뷰가 <strong>{reviewableCount}</strong>건 있습니다.
+            </p>
+            <span className="go-detail">리뷰 작성/관리 하러가기 &gt;</span>
           </div>
         </div>
 
@@ -85,7 +106,9 @@ export default function MyPage() {
       </div>
 
       <footer className="mypage-footer">
-        <button className="logout-btn" onClick={() => {/* 로그아웃 로직 */}}>로그아웃</button>
+        <button className="logout-btn" onClick={handleLogout}>
+          로그아웃
+        </button>
       </footer>
     </div>
   );

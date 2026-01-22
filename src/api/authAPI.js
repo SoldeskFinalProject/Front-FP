@@ -103,3 +103,29 @@ export const rejectRequest = async (requestId, reason) => {
     });
     return response.data;
 };
+
+/**
+ * 6. 계정 찾기 및 보안 발송 (보안 강화 버전)
+ */
+// 서버에서 해당 이메일의 provider(local, kakao, naver 등)를 응답해줘야 합니다.
+// 전화번호로 계정 찾기 (서버에서 마스킹된 이메일과 가입 수단을 SMS로 발송)
+// 아이디 찾기 (전화번호 입력 -> 서버가 SMS 발송)
+export const findAccountByPhone = async (phoneNumber) => {
+    const response = await api.post(AUTH_ENDPOINTS.FIND_ACCOUNT_SMS, { phoneNumber });
+    return response.data; 
+};
+
+// 비밀번호 찾기 (이메일 입력 -> 서버가 임시 비번 Email 발송)
+export const sendTempPasswordEmail = async (email) => {
+    const response = await api.post(AUTH_ENDPOINTS.SEND_TEMP_PW, { email });
+    return response.data;
+};
+
+// 비밀번호 재설정 실행
+export const resetPassword = async (token, newPassword) => {
+    const response = await api.post(AUTH_ENDPOINTS.RESET_PASSWORD, { 
+        token, 
+        newPassword 
+    });
+    return response.data;
+  };
