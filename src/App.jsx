@@ -21,15 +21,19 @@ import LoginPage from "./components/auth/LoginPage";
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import NaverCallback from "./components/auth/NaverCallback";
 import VerificationRequestPage from "./pages/VerificationRequestPage";
+import FindAccount from "./components/auth/FindAccount";
 
 // 마이페이지 관련
 import MyPage from "./pages/MyPage";
 import MyReservationPage from "./pages/MyReservationPage";
 import MyReviewPage from "./pages/MyReviewPage";
 
-// 병원 예약 및 리뷰
+// ✅ 병원 예약 페이지 (hospitalId 기반)
 import HospitalReservationPage from "./pages/HospitalReservationPage";
+
+// ✅ B 방식 리뷰 작성 페이지(예약ID 기반)
 import HospitalReviewPage from "./pages/HospitalReviewPage";
+
 
 // 관리자(Admin) 페이지
 import DiseaseAdminList from "./pages/admin/DiseaseAdminList";
@@ -47,6 +51,7 @@ function App() {
         <div className="layout">
           <h1 className="text1">증상 분석 및 병원 추천 서비스</h1>
           <Navbar />
+
           <main className="content">
             <Routes>
               {/* 메인 및 증상 분석 */}
@@ -72,15 +77,25 @@ function App() {
               <Route path="/verification" element={<VerificationRequestPage />} />
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
               <Route path="/auth/naver/callback" element={<NaverCallback />} />
+              <Route path="/find-account" element={<FindAccount />} />
 
               {/* 마이페이지 관련 라우트 */}
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/reservations" element={<MyReservationPage />} />
               <Route path="/mypage/reviews" element={<MyReviewPage />} />
 
-              {/* 병원 예약 및 리뷰 작성 */}
-              <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
-              <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
+              {/* ✅ 병원 예약 (hospitalId 기반) */}
+              <Route
+                path="/hospitals/:hospitalId/reservation"
+                element={<HospitalReservationPage />}
+              />
+
+              {/* ✅ 리뷰 작성/조회/수정 (한 페이지로 통합) */}
+              <Route
+                path="/reservations/:reservationId/review/new"
+                element={<HospitalReviewPage />}
+              />
+
 
               {/* 관리자(Admin) 관련 라우트 */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />

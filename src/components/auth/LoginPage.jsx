@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
 import KakaoLoginButton from "./KakaoLoginButton"
 import NaverLoginButton from "./NaverLoginButton"
@@ -103,6 +103,10 @@ export default function LoginPage() {
           <button type="button" onClick={() => navigate("/signup")}>
             회원가입
           </button>
+        </div>
+        <div className="login-helper">
+          <Link to="/find-account">아이디 찾기 / 비밀번호 찾기 </Link>
+          <span className="divider">|</span>
         </div>
       </div>
     </div>
