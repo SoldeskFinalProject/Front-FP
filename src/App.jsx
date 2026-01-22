@@ -1,32 +1,48 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { AuthProvider } from "./contexts/AuthContext"
-import Navbar from "./components/common/Navbar"
-import HomePage from "./pages/HomePage"
-import SymptomPage from "./pages/SymptomPage"
-import SymptomResultPage from "./pages/SymptomResultPage"
-import Dictionary from "./pages/Dictionary"
-import Reserv from "./pages/Reserv"
-import DrugDetail from "./pages/DrugDetail"
-import QnaPage from "./pages/QnaPage"
-import QnaCreate from "./components/qna/QnaCreate"
-import QnaDetail from "./components/qna/QnaDetail"
-import DiseaseDictionary from "./pages/DiseaseDictionary"
-import DiseaseDetail from "./pages/DiseaseDetail"
-import SignupPage from "./components/auth/SignupPage"
-import LoginPage from "./components/auth/LoginPage"
-import HospitalReservationPage from "./pages/HospitalReservationPage"
-import HospitalReviewPage from "./pages/HospitalReviewPage"
-import DiseaseAdminList from "./pages/admin/DiseaseAdminList"
-import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm"
-import VerificationRequestPage from "./pages/VerificationRequestPage"
-import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
-import KakaoCallbackPage from "./pages/KakaoCallbackPage";
-import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
-import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
-import NaverCallback from "./components/auth/NaverCallback"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import Navbar from "./components/common/Navbar";
 
-import "./App.css"
-import ProtectedRoute from "./components/auth/ProtectedRoute"
+// 일반 페이지
+import HomePage from "./pages/HomePage";
+import SymptomPage from "./pages/SymptomPage";
+import SymptomResultPage from "./pages/SymptomResultPage";
+import Dictionary from "./pages/Dictionary";
+import DrugDetail from "./pages/DrugDetail";
+import Reserv from "./pages/Reserv";
+import QnaPage from "./pages/QnaPage";
+import QnaCreate from "./components/qna/QnaCreate";
+import QnaDetail from "./components/qna/QnaDetail";
+import DiseaseDictionary from "./pages/DiseaseDictionary";
+import DiseaseDetail from "./pages/DiseaseDetail";
+
+// 인증 및 소셜 로그인
+import SignupPage from "./components/auth/SignupPage";
+import LoginPage from "./components/auth/LoginPage";
+import KakaoCallbackPage from "./pages/KakaoCallbackPage";
+import NaverCallback from "./components/auth/NaverCallback";
+import VerificationRequestPage from "./pages/VerificationRequestPage";
+import FindAccount from "./components/auth/FindAccount";
+
+// 마이페이지 관련
+import MyPage from "./pages/MyPage";
+import MyReservationPage from "./pages/MyReservationPage";
+import MyReviewPage from "./pages/MyReviewPage";
+
+// ✅ 병원 예약 페이지 (hospitalId 기반)
+import HospitalReservationPage from "./pages/HospitalReservationPage";
+
+// ✅ B 방식 리뷰 작성 페이지(예약ID 기반)
+import HospitalReviewPage from "./pages/HospitalReviewPage";
+
+
+// 관리자(Admin) 페이지
+import DiseaseAdminList from "./pages/admin/DiseaseAdminList";
+import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm";
+import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
+import DoctorVerificationList from "./pages/admin/DoctorVerificationList";
+import HospitalVerificationList from "./pages/admin/HospitalVerificationList";
+
+import "./App.css";
 
 function App() {
   return (
@@ -35,49 +51,65 @@ function App() {
         <div className="layout">
           <h1 className="text1">증상 분석 및 병원 추천 서비스</h1>
           <Navbar />
+
           <main className="content">
             <Routes>
+              {/* 메인 및 증상 분석 */}
               <Route path="/" element={<HomePage />} />
               <Route path="/search" element={<SymptomPage />} />
               <Route path="/result" element={<SymptomResultPage />} />
+
+              {/* 의약품 및 질병 사전 */}
               <Route path="/dictionary" element={<Dictionary />} />
               <Route path="/dictionary/detail/:itemSeq" element={<DrugDetail />} />
+              <Route path="/disease" element={<DiseaseDictionary />} />
+              <Route path="/disease/:diseaseId" element={<DiseaseDetail />} />
+
+              {/* 커뮤니티 및 예약 메인 */}
               <Route path="/reserv" element={<Reserv />} />
               <Route path="/qna" element={<QnaPage />} />
               <Route path="/qna/create" element={<QnaCreate />} />
               <Route path="/qna/:questionId" element={<QnaDetail />} />
 
-              {/* 질병 사전 관련 라우트 */}
-              <Route path="/disease" element={<DiseaseDictionary />} />
-              <Route path="/disease/:diseaseId" element={<DiseaseDetail />} />
-
-              {/* 인증 및 관리자 관련 라우트 */}
+              {/* 인증 관련 라우트 */}
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
-
               <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+              <Route path="/auth/naver/callback" element={<NaverCallback />} />
+              <Route path="/find-account" element={<FindAccount />} />
 
-              <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
-              <Route path="/hospitals/:hospitalId/review/new" element={<HospitalReviewPage />} />
+              {/* 마이페이지 관련 라우트 */}
+              <Route path="/mypage" element={<MyPage />} />
+              <Route path="/mypage/reservations" element={<MyReservationPage />} />
+              <Route path="/mypage/reviews" element={<MyReviewPage />} />
 
+              {/* ✅ 병원 예약 (hospitalId 기반) */}
+              <Route
+                path="/hospitals/:hospitalId/reservation"
+                element={<HospitalReservationPage />}
+              />
+
+              {/* ✅ 리뷰 작성/조회/수정 (한 페이지로 통합) */}
+              <Route
+                path="/reservations/:reservationId/review/new"
+                element={<HospitalReviewPage />}
+              />
+
+
+              {/* 관리자(Admin) 관련 라우트 */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
-
-              <Route path="/verification" element={<VerificationRequestPage />} />
-              <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
-              <Route path="/auth/naver/callback" element={<NaverCallback />} />
-
               <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
-
             </Routes>
           </main>
         </div>
       </Router>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -177,17 +177,18 @@
   color: #212529;
 }
 
-/* --- 사이드바 스타일 --- */
+/* 사이드바 오버레이 */
 .sidebar-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999; /* 네비바(100)보다 높게 */
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
 }
 
+/* 사이드바 본체 - 위치를 우측 끝으로 확실히 고정 */
 .sidebar {
   position: fixed;
   top: 0;
@@ -195,72 +196,86 @@
   width: 300px;
   height: 100%;
   background-color: #ffffff;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   animation: slideIn 0.3s ease-out;
+  text-align: left; /* 텍스트 중앙 정렬 방지 */
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
+/* 사이드바 상단 */
 .sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e6e6e6;
+  padding: 24px 20px;
+  border-bottom: 1px solid #eee;
 }
 
 .sidebar-header h2 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #2563eb;
   margin: 0;
 }
 
-.sidebar-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar-close:hover {
-  color: #2563eb;
-}
-
+/* 메뉴 리스트 - 사진처럼 텍스트가 중앙으로 쏠리지 않게 설정 */
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
+  padding: 15px 0;
+  flex: 1;
 }
 
 .sidebar-item {
-  padding: 15px 20px;
+  padding: 14px 25px;
   color: #333;
   text-decoration: none;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
-  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
 }
 
 .sidebar-item:hover {
-  background-color: #f0f4ff;
+  background-color: #f0f7ff;
   color: #2563eb;
+  padding-left: 30px; /* 살짝 오른쪽으로 밀리는 느낌 */
+}
+
+/* 그룹 제목 */
+.sidebar-group-title {
+  padding: 20px 25px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.sidebar-divider {
+  border: 0;
+  border-top: 1px solid #f0f0f0;
+  margin: 10px 0;
+}
+
+/* 하단 로그아웃 버튼 영역 */
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.sidebar-logout {
+  width: 100%;
+  padding: 12px;
+  background-color: #fff0f0;
+  color: #ff4d4f;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 /* 애니메이션 효과 */

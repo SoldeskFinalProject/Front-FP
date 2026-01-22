@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { login as loginAPI,
-        logout as logoutAPI,
-        kakaoLogin as kakaoLoginAPI,
-        naverLogin as naverLoginAPI } from "../api/authAPI";
+import { 
+    login as loginAPI, 
+    logout as logoutAPI, 
+    kakaoLogin as kakaoLoginAPI, 
+    naverLogin as naverLoginAPI 
+} from "../api/authAPI";
 import { api } from "../config";
 
-// 사용자의 로그인 상태(인증 정보)를 전역적으로 관리
 const AuthContext = createContext();
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -20,7 +21,11 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+<<<<<<< HEAD
     const [user, setUser] = useState(null);     // 로그인한 유저 정보 객체 (userId, email, name, role 등)
+=======
+    const [user, setUser] = useState(null);
+>>>>>>> develop
     const [loading, setLoading] = useState(true);
 
     // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
@@ -31,9 +36,15 @@ export const AuthProvider = ({ children }) => {
         if (accessToken && storedUser) {
             try {
                 setUser(JSON.parse(storedUser));
+<<<<<<< HEAD
             } catch (e) {
                 console.error("Failed to parse user data:", e);
                 localStorage.removeItem("user"); // 잘못된 데이터면 삭제
+=======
+            } catch (error) {
+                console.error("유저 정보 파싱 에러:", error);
+                localStorage.removeItem("user");
+>>>>>>> develop
             }
         }
         setLoading(false);
@@ -44,7 +55,11 @@ export const AuthProvider = ({ children }) => {
         // 백엔드 응답 구조: { accessToken, refreshToken, userId, email, name, role, ... }
         const { accessToken, refreshToken, ...userData } = data;
 
+<<<<<<< HEAD
         // 1. 토큰 저장
+=======
+        // 1. 토큰 및 유저 정보 저장
+>>>>>>> develop
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         
@@ -52,7 +67,11 @@ export const AuthProvider = ({ children }) => {
         // userData 안에 userId가 반드시 포함되어 있어야 합니다!
         localStorage.setItem("user", JSON.stringify(userData));
 
+<<<<<<< HEAD
         // 3. 상태 업데이트
+=======
+        // 2. 리액트 상태 업데이트
+>>>>>>> develop
         setUser(userData);
         
         return userData;
@@ -69,13 +88,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ✅ 카카오 소셜 로그인 (CallbackPage에서 호출)
+    // ✅ 카카오 소셜 로그인
     const socialLogin = async (code) => {
         try {
             const response = await kakaoLoginAPI(code);
             return handleLoginSuccess(response);
         } catch (error) {
-            console.error("Social login failed: ", error);
+            console.error("Kakao Login failed:", error);
             throw error;
         }
     };
@@ -86,27 +105,39 @@ export const AuthProvider = ({ children }) => {
             const response = await naverLoginAPI(code, state);
             return handleLoginSuccess(response);
         } catch (error) {
-            console.error("Naver Login failed: ", error);
+            console.error("Naver Login failed:", error);
             throw error;
         }
-    }
+    };
 
-    // 로그아웃
+    // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
     const logout = async () => {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
             if (refreshToken) {
+<<<<<<< HEAD
                 // 백엔드에 로그아웃 요청 (리프레시 토큰 삭제 등)
                 await logoutAPI(refreshToken);
+=======
+                // 서버에 알리되, 이미 만료된 경우 등을 위해 catch 처리
+                await logoutAPI(refreshToken).catch(err => {
+                    console.warn("서버 세션은 이미 만료되었거나 찾을 수 없습니다.");
+                });
+>>>>>>> develop
             }
         } catch (error) {
-            console.error("Logout error:", error);
+            console.error("Logout process error:", error);
         } finally {
+<<<<<<< HEAD
             // 서버 실패 여부와 상관없이 클라이언트 상태는 무조건 클리어
+=======
+            // 💡 실제 로그아웃 성공은 여기서 결정됩니다.
+>>>>>>> develop
             setUser(null);
             localStorage.removeItem("user");
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
+<<<<<<< HEAD
             
             // 로그인 페이지로 이동 (선택사항)
             window.location.href = "/login";
@@ -114,6 +145,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     // 사용자 정보 최신화 (프로필 수정, 등급 변경 등 반영용)
+=======
+        
+            // 로그아웃 후 로그인 페이지로 이동
+            window.location.href = "/login"; 
+        }
+    };
+
+    // 유저 정보 최신화 (관리자 승인 등 변경사항 반영용)
+>>>>>>> develop
     const refreshUserInfo = async () => {
         const accessToken = localStorage.getItem("accessToken");
         if (user && accessToken) {
@@ -133,6 +173,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const value = {
+<<<<<<< HEAD
         user,             // 현재 로그인한 유저 객체
         login,            // 일반 로그인 함수
         socialLogin,      // 카카오 로그인 함수
@@ -142,6 +183,17 @@ export const AuthProvider = ({ children }) => {
         refreshUserInfo,  // 유저 정보 갱신 함수
         isAuthenticated: !!user,       // 로그인 여부 (boolean)
         isAdmin: user?.role === "ADMIN" // 관리자 여부 (boolean)
+=======
+        user,
+        login,
+        socialLogin,
+        naverLogin, // 네이버 기능 추가
+        logout,
+        loading,
+        refreshUserInfo,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === "ADMIN" || user?.role === "ROLE_ADMIN" // 관리자 여부 체크
+>>>>>>> develop
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
