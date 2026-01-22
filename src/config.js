@@ -145,7 +145,6 @@ export const AUTH_ENDPOINTS = {
 
     KAKAO_LOGIN: "/api/social/kakao", // ✅ 카카오 추가
     NAVER_LOGIN: "/api/social/naver",
-
     REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
 }
