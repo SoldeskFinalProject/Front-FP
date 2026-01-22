@@ -30,37 +30,53 @@ api.interceptors.request.use(
  * 응답 인터셉터: 401(토큰 만료), 403(권한 없음) 처리
  */
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // 정상 응답이면 그대로 통과
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
 
         // 1. 401 Unauthorized: 액세스 토큰 만료 시 재발급 시도
         if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+            originalRequest._retry = true; // 무한 루프 방지
 
             try {
                 const refreshToken = localStorage.getItem("refreshToken");
                 if (!refreshToken) throw new Error("No refresh token available");
 
-                // 토큰 재발급은 순수 axios를 사용하여 무한 루프 방지
+                // 토큰 재발급 요청 (순수 axios 사용)
+                // 백엔드 엔드포인트: /api/auth/refresh (AUTH_ENDPOINTS 참고)
                 const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {
                     refreshToken,
                 });
 
+                // 백엔드 응답 구조에 맞춰 디스트럭처링 (data 내부 확인 필요)
                 const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-                // 새 토큰 저장
+                // 1. 새 토큰 저장
                 localStorage.setItem("accessToken", accessToken);
-                localStorage.setItem("refreshToken", newRefreshToken);
+                if (newRefreshToken) {
+                    localStorage.setItem("refreshToken", newRefreshToken);
+                }
 
-                // 실패했던 원래 요청 재시도
+                // 2. 실패했던 요청의 헤더를 새 토큰으로 교체
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+                // 3. api 인스턴스의 기본 헤더도 변경 (이후 요청을 위해)
+                api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+                // 4. 실패했던 요청 재전송
                 return api(originalRequest);
+
             } catch (refreshError) {
                 // Refresh 실패 시 로그아웃 처리 및 이동
+                console.error("토큰 갱신 실패:", refreshError);
+                
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
                 localStorage.removeItem("user");
+                
                 window.location.href = "/login";
                 return Promise.reject(refreshError);
             }
@@ -110,14 +126,16 @@ export const QNA_ENDPOINTS = {
     QUESTIONS: "/api/question",
     QUESTION_DETAIL: (id) => `/api/question/${id}`,
     QUESTION_CREATE: "/api/question/create",
-    Question_UPDATE: (questionId) => `/api/question/${questionId}/update`,
+    QUESTION_UPDATE: (questionId) => `/api/question/${questionId}/update`,
     QUESTION_DELETE: (id) => `/api/question/${id}`,
     QUESTION_STATUS: (id) => `/api/question/${id}/status`,
     QUESTION_ACCEPT: (questionId, answerId) => `/api/question/${questionId}/accept/${answerId}`,
+    
     ANSWERS: "/api/answer",
     ANSWER_CREATE: (questionId) => `/api/answer?questionId=${questionId}`,
     ANSWER_UPDATE: (answerId) => `/api/answer/${answerId}`,
     ANSWER_DELETE: (answerId) => `/api/answer/${answerId}`,
+    
     COMMENTS: "/api/comments",
     COMMENTS_BY_ANSWER: (answerId) => `/api/comments/answer/${answerId}`,
     COMMENT_UPDATE: (commentId) => `/api/comments/${commentId}`,

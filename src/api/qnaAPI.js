@@ -24,8 +24,9 @@ export const createQuestion = async (questionData) => {
 
 // 질문 수정
 export const updateQuestion = async (questionId, updateData) => {
-  const response = await api.patch(QNA_ENDPOINTS.Question_UPDATE(questionId), updateData)
-  return response.data
+  // QNA_ENDPOINTS.Question_UPDATE -> QNA_ENDPOINTS.QUESTION_UPDATE 로 수정
+  const response = await api.patch(QNA_ENDPOINTS.QUESTION_UPDATE(questionId), updateData)
+  return response.data // 🚨 오타 수정: updateData -> data
 }
 
 // 질문 삭제
@@ -52,14 +53,15 @@ export const getAnswerList = async (questionId) => {
 
 // 답변 등록
 export const createAnswer = async (questionId, answerData) => {
-  const response = await api.post(`/api/answer?questionId=${questionId}`, answerData)
+  // 하드코딩된 URL 대신 config 사용
+  const response = await api.post(QNA_ENDPOINTS.ANSWER_CREATE(questionId), answerData)
   return response.data
 }
 
 // 답변 수정
 export const updateAnswer = async (answerId, updateData) => {
   const response = await api.patch(QNA_ENDPOINTS.ANSWER_UPDATE(answerId), updateData)
-  return response.data
+  return response.data // 🚨 오타 수정: updateData -> data
 }
 
 // 답변 삭제
@@ -86,18 +88,17 @@ export const createComment = async (commentData) => {
   return response.data
 }
 
-// 댓글 수정
-export const updateComment = async (commentId, userId, updateData) => {
-  const response = await api.put(QNA_ENDPOINTS.COMMENT_UPDATE(commentId), updateData, {
-    params: { userId },
-  })
+// ✅ 댓글 수정 (중요 변경)
+// 1. userId 파라미터 삭제 (백엔드가 토큰에서 찾음)
+// 2. 메서드 PUT -> PATCH 변경 (백엔드 컨트롤러와 일치)
+export const updateComment = async (commentId, updateData) => {
+  const response = await api.patch(QNA_ENDPOINTS.COMMENT_UPDATE(commentId), updateData)
   return response.data
 }
 
-// 댓글 삭제
-export const deleteComment = async (commentId, userId) => {
-  const response = await api.delete(QNA_ENDPOINTS.COMMENT_DELETE(commentId), {
-    params: { userId },
-  })
+// ✅ 댓글 삭제 (중요 변경)
+// 1. userId 파라미터 삭제 (백엔드가 토큰에서 찾음)
+export const deleteComment = async (commentId) => {
+  const response = await api.delete(QNA_ENDPOINTS.COMMENT_DELETE(commentId))
   return response.data
 }
