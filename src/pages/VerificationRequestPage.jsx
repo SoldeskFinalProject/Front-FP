@@ -28,8 +28,8 @@ const VerificationRequestPage = () => {
 
     useEffect(() => {
         if (!isAuthenticated) {
-        alert("로그인이 필요한 서비스입니다.")
-        navigate("/login")
+            alert("로그인이 필요한 서비스입니다.")
+            navigate("/login")
         }
     }, [isAuthenticated, navigate])
 
@@ -48,9 +48,9 @@ const VerificationRequestPage = () => {
         const status = await getMyVerificationInfo(user.userId)
         setVerificationStatus(status)
         } catch (e) {
-        console.error("인증 상태 조회 실패:", e)
+            console.error("인증 상태 조회 실패:", e)
         } finally {
-        setLoading(false)
+            setLoading(false)
         }
     }, [user?.userId])
 

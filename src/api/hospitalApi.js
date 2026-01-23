@@ -96,6 +96,8 @@ export async function getRecommendedHospitals(params = {}) {
 
 /**
  * 병원 즐겨찾기 추가
+ * POST /api/hospitals/{hospitalId}/favorite?userId=
+ * (현재 백엔드가 @RequestParam userId 요구)
  */
 export async function addHospitalFavorite(hospitalId, userId) {
   const url = new URL(`${BASE_URL}/api/hospitals/${hospitalId}/favorite`);
@@ -114,6 +116,7 @@ export async function addHospitalFavorite(hospitalId, userId) {
 
 /**
  * 병원 즐겨찾기 해제
+ * DELETE /api/hospitals/{hospitalId}/favorite?userId=
  */
 export async function removeHospitalFavorite(hospitalId, userId) {
   const url = new URL(`${BASE_URL}/api/hospitals/${hospitalId}/favorite`);
@@ -129,6 +132,10 @@ export async function removeHospitalFavorite(hospitalId, userId) {
 
   return ensureOk(res, "병원 즐겨찾기 해제 실패");
 }
+
+/* =========================================================================
+ * ✅ 2) 예약
+ * ========================================================================= */
 
 /**
  * 내가 즐겨찾기한 병원 목록 조회
@@ -230,3 +237,4 @@ export async function createReviewByReservation(payload = {}) {
 
   return ensureOk(res, "리뷰 작성 실패");
 }
+

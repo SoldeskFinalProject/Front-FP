@@ -98,6 +98,17 @@ function App() {
                 element={<HospitalReviewPage />}
               />
 
+              {/* ✅ 병원 예약 (hospitalId 기반) */}
+              <Route
+                path="/hospitals/:hospitalId/reservation"
+                element={<HospitalReservationPage />}
+              />
+
+              {/* ✅ 리뷰 작성/조회/수정 (한 페이지로 통합) */}
+              <Route
+                path="/reservations/:reservationId/review/new"
+                element={<HospitalReviewPage />}
+              />
 
               {/* 관리자(Admin) 관련 라우트 */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
