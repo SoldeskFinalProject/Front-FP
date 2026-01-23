@@ -67,7 +67,7 @@ export default function SignupPage() {
                 alert(errorMsg)
                 
                 // 에러 메시지를 폼 하단에 보여주고 싶다면 errors 상태에 추가 가능
-                // setErrors(prev => ({ ...prev, email: errorMsg }))
+                setErrors(prev => ({ ...prev, email: errorMsg }))
             }
         }
     }
