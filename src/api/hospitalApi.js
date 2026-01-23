@@ -10,14 +10,18 @@ const TOKEN_KEY = "accessToken";
  * 인증 헤더 생성
  */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const token = localStorage.getItem("accessToken"); 
+  
+  return token 
+    ? { 
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json" 
+      } 
+    : { "Content-Type": "application/json" };
 };
 
 /**
  * 공통 응답 처리
- * - JSON이든 빈 바디든 안전하게 처리
- * - 에러 시 body(message/json/text) 최대한 보여주기
  */
 async function ensureOk(res, defaultErrorMessage) {
   const text = await res.text().catch(() => "");
@@ -27,12 +31,10 @@ async function ensureOk(res, defaultErrorMessage) {
     try {
       return JSON.parse(text);
     } catch (e) {
-      // 서버가 JSON이 아닌 text를 줄 수도 있으니 그대로 반환
       return text;
     }
   }
 
-  // 에러 본문 파싱(가능하면 message 추출)
   let detail = text;
   try {
     const parsed = text ? JSON.parse(text) : null;
@@ -51,18 +53,32 @@ async function ensureOk(res, defaultErrorMessage) {
  * ========================================================================= */
 
 /**
- * 추천 병원 조회
- * GET /api/hospitals/recommend?lat=&lng=&deptName=&symptomCode=
+ * 추천 병원 조회 (수정됨)
+ * GET /api/hospitals/search?lat=&lng=&keyword=&userId=
+ * - 기존 /recommend 대신 즐겨찾기 로직이 포함된 /search 를 사용합니다.
  */
 export async function getRecommendedHospitals(params = {}) {
   const searchParams = new URLSearchParams();
 
+  // 1. 위치 정보
   if (params.lat != null) searchParams.append("lat", params.lat);
   if (params.lng != null) searchParams.append("lng", params.lng);
-  if (params.deptName) searchParams.append("deptName", params.deptName);
-  if (params.symptomCode) searchParams.append("symptomCode", params.symptomCode);
+  
+  // 2. 검색어 (백엔드 HospitalSearchController의 @RequestParam "keyword"에 맞춤)
+  const keyword = params.deptName || params.symptomCode || "";
+  searchParams.append("keyword", keyword);
+  
+  // 3. ✅ 핵심: 즐겨찾기 상태 유지를 위해 userId 추가 (백엔드 파라미터명 userId)
+  if (params.userId) {
+    searchParams.append("userId", String(params.userId));
+  }
 
-  const url = `${BASE_URL}/api/hospitals/recommend?${searchParams.toString()}`;
+  // 4. 페이징 (SearchController는 Page 객체를 반환하므로 기본값 설정)
+  searchParams.append("page", params.page || 0);
+  searchParams.append("size", params.size || 20);
+
+  // ✅ 엔드포인트를 /recommend 에서 /search 로 변경
+  const url = `${BASE_URL}/api/hospitals/search?${searchParams.toString()}`;
 
   const res = await fetch(url, {
     method: "GET",
@@ -72,13 +88,14 @@ export async function getRecommendedHospitals(params = {}) {
     },
   });
 
-  return ensureOk(res, "추천 병원 조회 실패");
+  const data = await ensureOk(res, "추천 병원 조회 실패");
+  
+  // ✅ Page 객체의 content 배열을 반환하거나 데이터 그대로 반환
+  return data.content || data;
 }
 
 /**
  * 병원 즐겨찾기 추가
- * POST /api/hospitals/{hospitalId}/favorite?userId=
- * (현재 백엔드가 @RequestParam userId 요구)
  */
 export async function addHospitalFavorite(hospitalId, userId) {
   const url = new URL(`${BASE_URL}/api/hospitals/${hospitalId}/favorite`);
@@ -97,7 +114,6 @@ export async function addHospitalFavorite(hospitalId, userId) {
 
 /**
  * 병원 즐겨찾기 해제
- * DELETE /api/hospitals/{hospitalId}/favorite?userId=
  */
 export async function removeHospitalFavorite(hospitalId, userId) {
   const url = new URL(`${BASE_URL}/api/hospitals/${hospitalId}/favorite`);
@@ -114,15 +130,22 @@ export async function removeHospitalFavorite(hospitalId, userId) {
   return ensureOk(res, "병원 즐겨찾기 해제 실패");
 }
 
+/**
+ * 내가 즐겨찾기한 병원 목록 조회
+ */
+export async function getMyFavoriteHospitals(userId) {
+  const url = `${BASE_URL}/api/hospitals/user/${userId}`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: { ...getAuthHeaders() },
+  });
+  return ensureOk(res, "즐겨찾기 목록 조회 실패");
+}
+
 /* =========================================================================
  * ✅ 2) 예약
  * ========================================================================= */
 
-/**
- * 병원 예약 생성
- * POST /api/hospitals/{hospitalId}/reservations
- * body: { userId, patientName, phone, memo, reservedAt }
- */
 export async function createHospitalReservation(hospitalId, payload = {}) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations`;
 
@@ -139,10 +162,6 @@ export async function createHospitalReservation(hospitalId, payload = {}) {
   return ensureOk(res, "병원 예약 실패");
 }
 
-/**
- * 예약 슬롯 조회
- * GET /api/hospitals/{hospitalId}/reservations/slot?date=YYYY-MM-DD
- */
 export async function getHospitalReservationSlots(hospitalId, date) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations/slot?date=${date}`;
 
@@ -158,26 +177,9 @@ export async function getHospitalReservationSlots(hospitalId, date) {
 }
 
 /* =========================================================================
- * ✅ 3) (표시용) 병원 요약 조회
+ * ✅ 3) 병원 요약 조회
  * ========================================================================= */
 
-/**
- * 병원 요약 정보 조회 (예약 페이지 상단 표시용)
- * GET /api/hospitals/{hospitalId}/summary
- *
- * ⚠️ 지금 백엔드에 이 API가 없으면 404가 납니다.
- *    → 백엔드에 컨트롤러/서비스/DTO 추가해야 합니다.
- *
- * Response 권장:
- * {
- *   hospitalId,
- *   dutyName,
- *   dutyAddr,
- *   dutyTel1,
- *   ratingAvg,
- *   reviewCount
- * }
- */
 export async function getHospitalSummary(hospitalId) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/summary`;
 
@@ -193,20 +195,9 @@ export async function getHospitalSummary(hospitalId) {
 }
 
 /* =========================================================================
- * ✅ 4) B 방식: 리뷰 컨텍스트 + 예약ID 기반 리뷰 작성
+ * ✅ 4) 리뷰 관리
  * ========================================================================= */
 
-/**
- * 리뷰 컨텍스트 조회
- * GET /api/hospitals/reservations/{reservationId}/review-context?userId=xx
- *
- * Response 예시:
- * {
- *   reservationId, status, reviewed,
- *   hospitalId, hospitalName,
- *   reservedAt, patientName
- * }
- */
 export async function getReviewContext(reservationId, userId) {
   const url = new URL(
     `${BASE_URL}/api/hospitals/reservations/${reservationId}/review-context`
@@ -224,11 +215,6 @@ export async function getReviewContext(reservationId, userId) {
   return ensureOk(res, "리뷰 컨텍스트 조회 실패");
 }
 
-/**
- * 리뷰 작성 (예약ID 기반, B 방식)
- * POST /api/hospitals/reviews
- * payload: { userId, reservationId, rating, content }
- */
 export async function createReviewByReservation(payload = {}) {
   const url = `${BASE_URL}/api/hospitals/reviews`;
 

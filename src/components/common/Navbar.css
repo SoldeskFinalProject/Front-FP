@@ -229,6 +229,7 @@
 }
 
 .sidebar-item {
+  display: flex;
   padding: 14px 25px;
   color: #333;
   text-decoration: none;

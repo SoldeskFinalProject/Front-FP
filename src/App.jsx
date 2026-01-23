@@ -27,6 +27,7 @@ import FindAccount from "./components/auth/FindAccount";
 import MyPage from "./pages/MyPage";
 import MyReservationPage from "./pages/MyReservationPage";
 import MyReviewPage from "./pages/MyReviewPage";
+import MyFavoritePage from "./pages/MyFavoritesPage";
 
 // ✅ 병원 예약 페이지 (hospitalId 기반)
 import HospitalReservationPage from "./pages/HospitalReservationPage";
@@ -83,6 +84,7 @@ function App() {
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/reservations" element={<MyReservationPage />} />
               <Route path="/mypage/reviews" element={<MyReviewPage />} />
+              <Route path="/mypage/favorites" element={<MyFavoritePage />} />
 
               {/* ✅ 병원 예약 (hospitalId 기반) */}
               <Route

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react"; // useMemo 임포트 추가
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getRecommendedHospitals,
@@ -54,8 +54,8 @@ function getHospitalTypeName(h) {
 }
 
 function getLatLng(h) {
-  const latRaw = h?.wgs84Lat ?? h?.lat ?? h?.yPos ?? h?.y_pos ?? h?.latitude ?? null;
-  const lngRaw = h?.wgs84Lon ?? h?.lng ?? h?.xPos ?? h?.x_pos ?? h?.longitude ?? null;
+  const latRaw = h?.wgs84Lat ?? h?.wgs84_lat ?? h?.lat ?? h?.yPos ?? h?.y_pos ?? h?.latitude ?? null;
+  const lngRaw = h?.wgs84Lon ?? h?.wgs84_lon ?? h?.lng ?? h?.xPos ?? h?.x_pos ?? h?.longitude ?? null;
   const lat = latRaw == null ? NaN : Number(latRaw);
   const lng = lngRaw == null ? NaN : Number(lngRaw);
   return { lat, lng };
@@ -79,6 +79,11 @@ function sortHospitalsByFavorite(hospitals, favoriteIds) {
 // ---------------------------
 export default function HospitalRecommendSection({ resultData, searchKeywords }) {
   const navigate = useNavigate();
+  
+  // ✅ 1. 로그인 유저 ID 추출 (userId 또는 id 필드 대응)
+  const userJson = localStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
+  const currentUserId = user?.userId || user?.id;
 
   const [userPos, setUserPos] = useState({ lat: null, lng: null });
   const [hospitals, setHospitals] = useState([]);
@@ -89,7 +94,7 @@ export default function HospitalRecommendSection({ resultData, searchKeywords })
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [favoriteLoadingId, setFavoriteLoadingId] = useState(null);
 
-  // 증상 ID 추출 (useMemo 사용)
+  // 증상 ID 추출
   const symptomId = useMemo(
     () => resultData?.selectedSymptoms?.[0]?.symptomId ?? null,
     [resultData]
@@ -97,58 +102,79 @@ export default function HospitalRecommendSection({ resultData, searchKeywords })
 
   /* ========= 네이버 길찾기 ========= */
   const handleOpenDirections = (hospital) => {
+    // 1. 사용자 위치 확인
     if (userPos.lat == null || userPos.lng == null) {
       alert("현재 위치 정보가 없어 길찾기를 실행할 수 없습니다.");
       return;
     }
+
+    // 2. 병원 목적지 좌표 확인 (getLatLng 유틸 사용)
     const { lat: destLat, lng: destLng } = getLatLng(hospital);
+
     if (Number.isNaN(destLat) || Number.isNaN(destLng)) {
       alert("병원 좌표 정보가 없어 길찾기를 실행할 수 없습니다.");
       return;
     }
-    const sName = "현재 위치";
-    const dName = getHospitalName(hospital);
-    const url = `https://map.naver.com/index.nhn?slng=${userPos.lng}&slat=${userPos.lat}&stext=${encodeURIComponent(
-      sName
-    )}&elng=${destLng}&elat=${destLat}&etext=${encodeURIComponent(
-      dName
-    )}&menu=route`;
+
+    // 3. 네이버 지도 파라미터 구성
+    const params = new URLSearchParams({
+      slng: userPos.lng,      // 출발지 경도
+      slat: userPos.lat,      // 출발지 위도
+      stext: "내 위치",        // 출발지 텍스트
+      elng: destLng,          // 목적지 경도
+      elat: destLat,          // 목적지 위도
+      etext: getHospitalName(hospital), // 목적지 이름 (자동 인코딩됨)
+      menu: "route",          // 길찾기 모드
+      pathType: "0"           // 경로 타입 (0: 최적)
+    });
+
+    // 4. URL 생성 및 새 창 열기
+    const url = `https://map.naver.com/index.nhn?${params.toString()}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   /* ========= 즐겨찾기 토글 ========= */
   const handleToggleFavorite = async (hospital) => {
-    const rawId = getHospitalId(hospital);
-    if (!rawId) {
-      alert("병원 ID 정보가 없습니다.");
-      return;
-    }
-    const id = String(rawId);
-    try {
-      setFavoriteLoadingId(id);
-      if (favoriteIds.has(id)) {
-        await removeHospitalFavorite(rawId);
-        setFavoriteIds((prev) => {
-          const next = new Set(prev);
-          next.delete(id);
-          setHospitals((prevList) => sortHospitalsByFavorite(prevList, next));
-          return next;
-        });
-      } else {
-        await addHospitalFavorite(rawId);
-        setFavoriteIds((prev) => {
-          const next = new Set(prev);
-          next.add(id);
-          setHospitals((prevList) => sortHospitalsByFavorite(prevList, next));
-          return next;
-        });
+      if (!currentUserId) {
+          alert("로그인이 필요한 서비스입니다.");
+          return;
       }
-    } catch (e) {
-      console.error(e);
-      alert("즐겨찾기 처리 중 오류가 발생했습니다.");
-    } finally {
-      setFavoriteLoadingId(null);
-    }
+
+      const rawId = getHospitalId(hospital);
+      if (!rawId) {
+          alert("병원 ID 정보가 없습니다.");
+          return;
+      }
+
+      const idStr = String(rawId);
+      try {
+          setFavoriteLoadingId(idStr);
+          
+          if (favoriteIds.has(idStr)) {
+              await removeHospitalFavorite(rawId, currentUserId); 
+              setFavoriteIds((prev) => {
+                  const next = new Set(prev);
+                  next.delete(idStr);
+                  // 리스트 순서 업데이트 (즐겨찾기 해제 시 하단으로 이동할 수 있게)
+                  setHospitals((prevList) => sortHospitalsByFavorite(prevList, next));
+                  return next;
+              });
+          } else {
+              await addHospitalFavorite(rawId, currentUserId); 
+              setFavoriteIds((prev) => {
+                  const next = new Set(prev);
+                  next.add(idStr);
+                  // 리스트 순서 업데이트 (즐겨찾기 설정 시 상단으로 이동)
+                  setHospitals((prevList) => sortHospitalsByFavorite(prevList, next));
+                  return next;
+              });
+          }
+      } catch (e) {
+          console.error(e);
+          alert("즐겨찾기 처리 중 오류가 발생했습니다.");
+      } finally {
+          setFavoriteLoadingId(null);
+      }
   };
 
   /* ========= 예약 페이지 이동 ========= */
@@ -186,11 +212,10 @@ export default function HospitalRecommendSection({ resultData, searchKeywords })
     );
   }, [resultData]);
 
-  /* ========= 2. 추천 병원 조회 (다중 검색 병합) ========= */
+  /* ========= 2. 추천 병원 조회 (수정 핵심) ========= */
   useEffect(() => {
     if (!resultData || userPos.lat == null || userPos.lng == null) return;
     
-    // searchKeywords가 우선, 없으면 symptomId 기반으로 동작
     const keywords = searchKeywords || [];
 
     const fetchHospitals = async () => {
@@ -201,12 +226,13 @@ export default function HospitalRecommendSection({ resultData, searchKeywords })
         let finalUniqueHospitals = [];
 
         if (keywords.length > 0) {
-          // ✅ 진료과(deptName) 다중 검색
+          // ✅ 진료과 다중 검색 시 userId 전달
           const promises = keywords.map(dept => 
             getRecommendedHospitals({
               deptName: dept,
               lat: userPos.lat,
               lng: userPos.lng,
+              userId: currentUserId // <-- 이 부분이 있어야 서버가 즐겨찾기 여부를 알려줌
             })
           );
           const results = await Promise.all(promises);
@@ -215,19 +241,22 @@ export default function HospitalRecommendSection({ resultData, searchKeywords })
             new Map(allHospitals.map(h => [getHospitalId(h), h])).values()
           );
         } else {
-          // ✅ 기존 증상(symptomId) 기반 단일 검색
+          // ✅ 증상 기반 검색 시 userId 전달
           const data = await getRecommendedHospitals({
-            symptomId,
+            symptomCode: symptomId,
             lat: userPos.lat,
             lng: userPos.lng,
+            userId: currentUserId // <-- 이 부분이 있어야 서버가 즐겨찾기 여부를 알려줌
           });
           finalUniqueHospitals = Array.isArray(data) ? data : [];
         }
 
+        // ✅ 3. 서버 응답의 isFavorite 값을 기반으로 상태 초기화
         const favSet = new Set();
         finalUniqueHospitals.forEach((h) => {
           const rawId = getHospitalId(h);
-          if (h?.isFavorite && rawId != null) {
+          // 서버 응답 데이터 필드명인 'favorite'을 사용합니다.
+          if (h?.favorite === true && rawId != null) { 
             favSet.add(String(rawId));
           }
         });
@@ -243,8 +272,8 @@ export default function HospitalRecommendSection({ resultData, searchKeywords })
     };
 
     fetchHospitals();
-  }, [resultData, userPos.lat, userPos.lng, symptomId, searchKeywords?.join(",")]);
-
+  }, [resultData, userPos.lat, userPos.lng, symptomId, searchKeywords?.join(","), currentUserId]); // currentUserId 의존성 추가
+  
   return (
     <section className="result-section">
       <h3 className="result-section-title">
