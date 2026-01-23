@@ -203,3 +203,53 @@
   color: #868e96;
   cursor: pointer;
 }
+
+/* AI 검색창 스타일 추가 */
+.ai-search-area {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.ai-input-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 15px rgba(34, 139, 230, 0.15); /* 부드러운 파란 그림자 */
+  border-radius: 50px;
+  overflow: hidden;
+  border: 2px solid #e7f5ff;
+}
+
+.ai-input {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+  background: white;
+}
+
+.ai-input::placeholder {
+  color: #adb5bd;
+}
+
+.ai-search-btn {
+  background-color: #228be6;
+  color: white;
+  border: none;
+  padding: 0 24px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ai-search-btn:hover {
+  background-color: #1c7ed6;
+}
+
+.ai-search-btn:disabled {
+  background-color: #a5d8ff;
+  cursor: not-allowed;
+}

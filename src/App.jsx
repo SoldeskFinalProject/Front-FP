@@ -23,6 +23,7 @@ import AdminVerificationPage from "./pages/admin/AdminVerificationPage"
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList"
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList"
+import AiChatWidget from "./components/AiChatWidget/AiChatWidget";
 
 import "./App.css"
 
@@ -71,6 +72,7 @@ function App() {
 
             </Routes>
           </main>
+            <AiChatWidget />
         </div>
       </Router>
     </AuthProvider>
