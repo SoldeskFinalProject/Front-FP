@@ -29,12 +29,9 @@ import MyReservationPage from "./pages/MyReservationPage";
 import MyReviewPage from "./pages/MyReviewPage";
 import MyFavoritePage from "./pages/MyFavoritesPage";
 
-// ✅ 병원 예약 페이지 (hospitalId 기반)
+// 병원 예약 및 리뷰
 import HospitalReservationPage from "./pages/HospitalReservationPage";
-
-// ✅ B 방식 리뷰 작성 페이지(예약ID 기반)
 import HospitalReviewPage from "./pages/HospitalReviewPage";
-
 
 // 관리자(Admin) 페이지
 import DiseaseAdminList from "./pages/admin/DiseaseAdminList";
@@ -42,6 +39,9 @@ import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList";
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList";
+
+// AI 채팅 위젯 (새로 추가된 기능)
+import AiChatWidget from "./components/AiChatWidget/AiChatWidget";
 
 import "./App.css";
 
@@ -86,29 +86,9 @@ function App() {
               <Route path="/mypage/reviews" element={<MyReviewPage />} />
               <Route path="/mypage/favorites" element={<MyFavoritePage />} />
 
-              {/* ✅ 병원 예약 (hospitalId 기반) */}
-              <Route
-                path="/hospitals/:hospitalId/reservation"
-                element={<HospitalReservationPage />}
-              />
-
-              {/* ✅ 리뷰 작성/조회/수정 (한 페이지로 통합) */}
-              <Route
-                path="/reservations/:reservationId/review/new"
-                element={<HospitalReviewPage />}
-              />
-
-              {/* ✅ 병원 예약 (hospitalId 기반) */}
-              <Route
-                path="/hospitals/:hospitalId/reservation"
-                element={<HospitalReservationPage />}
-              />
-
-              {/* ✅ 리뷰 작성/조회/수정 (한 페이지로 통합) */}
-              <Route
-                path="/reservations/:reservationId/review/new"
-                element={<HospitalReviewPage />}
-              />
+              {/* 병원 예약 및 리뷰 */}
+              <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
+              <Route path="/reservations/:reservationId/review/new" element={<HospitalReviewPage />} />
 
               {/* 관리자(Admin) 관련 라우트 */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
@@ -119,6 +99,9 @@ function App() {
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
             </Routes>
           </main>
+          
+          {/* 하단에 AI 채팅 위젯 배치 */}
+          <AiChatWidget />
         </div>
       </Router>
     </AuthProvider>
