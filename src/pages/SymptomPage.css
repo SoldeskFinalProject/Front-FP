@@ -1,138 +1,255 @@
-.page-container {
-  width: 100%;
-  max-width: 1200px;
+/* 전체 레이아웃 */
+.symptom-container {
+  max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
-  color: #000000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Pretendard', sans-serif;
 }
 
-.tab-container {
+.page-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.page-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* 탭 스타일 */
+.tabs-container {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
-  justify-content: center;
-  width: 100%;
-  max-width: 800px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
 }
 
 .tab-btn {
-  padding: 0.75rem 2rem;
-  background-color: #f3f4f6;
-  color: #6b7280;
+  flex: 1;
+  padding: 12px 0;
+  background: none;
   border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
   font-size: 1rem;
+  color: #888;
+  cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
-}
-
-.tab-btn:hover {
-  background-color: #e5e7eb;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px; /* 라인 맞추기 */
 }
 
 .tab-btn.active {
-  background-color: #2563eb;
-  color: #ffffff;
-  border-bottom-color: #1d4ed8;
+  color: #228be6;
+  border-bottom: 2px solid #228be6;
 }
 
-.section {
-  margin-bottom: 2.5rem;
-  width: 100%;
-  max-width: 1000px;
+/* 증상 그리드 */
+.symptom-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2열 배치 */
+  gap: 12px;
+  min-height: 300px; /* 탭 전환 시 높이 덜컹거림 방지 */
 }
 
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #000000;
-  margin-bottom: 1rem;
-}
-
-.image-upload-container {
+.symptom-item {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
   align-items: center;
-}
-
-.file-input {
-  display: none;
-}
-
-.file-label {
-  padding: 0.75rem 1.5rem;
-  background-color: #2563eb;
-  color: #ffffff;
-  border-radius: 0.5rem;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  background-color: #fff;
 }
 
-.file-label:hover {
-  background-color: #1d4ed8;
+.symptom-item:hover {
+  background-color: #f8f9fa;
 }
 
-.image-preview {
-  max-width: 500px;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
-  overflow: hidden;
+.symptom-item.checked {
+  border-color: #228be6;
+  background-color: #e7f5ff;
+  color: #228be6;
+  font-weight: 600;
 }
 
-.image-preview img {
-  width: 100%;
-  height: auto;
-  display: block;
+.symptom-item input {
+  margin-right: 10px;
+  transform: scale(1.2);
+  accent-color: #228be6;
 }
 
-/* ✅ 내부 콘텐츠를 좌우로 배치 (메인 + 사이드) */
-.content-layout {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1100px;
-}
-
-/* ✅ 왼쪽 주요 선택 섹션 */
-.main-section {
-  flex: 3;
+/* 하단 액션바 */
+.action-area {
+  margin-top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 15px;
 }
 
-/* ✅ 오른쪽 카테고리 설명 영역 */
-.side-section {
-  flex: 1;
-  background-color: #f9fafb;
-  border-left: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  min-height: 300px;
-  max-height: fit-content;
-  color: #111827;
-  font-size: 0.95rem;
-  line-height: 1.6;
+.selected-count {
+  text-align: center;
+  color: #555;
 }
 
-/* ✅ 설명 내부 텍스트 스타일 */
-.category-description h4 {
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: #228be6;
+  color: white;
+  border: none;
+  border-radius: 12px;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.category-description p {
-  color: #4b5563;
-  white-space: pre-line;
+.submit-btn:hover {
+  background-color: #1c7ed6;
+}
+.submit-btn:disabled {
+  background-color: #a5d8ff;
+  cursor: not-allowed;
+}
+
+/* 결과 모달 */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-desc {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.result-card {
+  background: #f1f3f5;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rank-badge {
+  background: #228be6;
+  color: white;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.dept-name {
+  flex: 1;
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.find-hospital-btn {
+  background: none;
+  border: 1px solid #adb5bd;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #495057;
+}
+
+.find-hospital-btn:hover {
+  background: #fff;
+  border-color: #228be6;
+  color: #228be6;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  color: #868e96;
+  cursor: pointer;
+}
+
+/* AI 검색창 스타일 추가 */
+.ai-search-area {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.ai-input-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 15px rgba(34, 139, 230, 0.15); /* 부드러운 파란 그림자 */
+  border-radius: 50px;
+  overflow: hidden;
+  border: 2px solid #e7f5ff;
+}
+
+.ai-input {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+  background: white;
+}
+
+.ai-input::placeholder {
+  color: #adb5bd;
+}
+
+.ai-search-btn {
+  background-color: #228be6;
+  color: white;
+  border: none;
+  padding: 0 24px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ai-search-btn:hover {
+  background-color: #1c7ed6;
+}
+
+.ai-search-btn:disabled {
+  background-color: #a5d8ff;
+  cursor: not-allowed;
 }
