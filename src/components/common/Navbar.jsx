@@ -85,6 +85,10 @@ const Navbar = () => {
                   
                   <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>👤 마이 대시보드</Link>
                   <Link to="/mypage/reservations" className="sidebar-item" onClick={toggleSidebar}>📅 진료 예약 현황</Link>
+                  
+                  {/* ✅ 즐겨찾기 병원 메뉴 추가 */}
+                  <Link to="/mypage/favorites" className="sidebar-item" onClick={toggleSidebar}>⭐ 즐겨찾기 병원</Link>
+                  
                   <Link to="/mypage/reviews" className="sidebar-item" onClick={toggleSidebar}>✍️ 리뷰 작성/관리</Link>
                   <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>🏥 의사/병원 인증</Link>
 

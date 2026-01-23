@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import "./MyPage.css";
 
 export default function MyPage() {
-  const { user, logout } = useAuth(); // ✅ logout이 AuthContext에 있으면 사용
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const userId = useMemo(() => user?.userId || user?.id, [user]);
@@ -24,16 +24,26 @@ export default function MyPage() {
 
     setLoading(true);
     try {
+      // ✅ 두 API를 병렬로 호출
       const [reviewRes, reservRes] = await Promise.all([
         api.get(`/api/hospitals/my/reviewable`, { params: { userId } }),
         api.get(`/api/hospitals/my/reservations`, { params: { userId } }),
       ]);
 
-      setReviewableCount(Array.isArray(reviewRes.data) ? reviewRes.data.length : 0);
-      setReservationCount(Array.isArray(reservRes.data) ? reservRes.data.length : 0);
+      // 1. 리뷰 가능 건수 처리
+      // 서버에서 이미 필터링해서 주겠지만, 클라이언트에서도 한 번 더 안전하게 처리
+      const reviewableData = Array.isArray(reviewRes.data) ? reviewRes.data : [];
+      setReviewableCount(reviewableData.length);
+
+      // 2. 예약 현황 건수 처리 (취소된 예약 CANCELED 필터링)
+      const reservData = Array.isArray(reservRes.data) ? reservRes.data : [];
+      const activeReservations = reservData.filter(
+        (res) => String(res.status).toUpperCase() !== "CANCELED"
+      );
+      setReservationCount(activeReservations.length);
+
     } catch (error) {
       console.error("데이터 로딩 중 에러 발생:", error);
-      // 실패 시에도 화면은 뜨게 (0으로)
       setReviewableCount(0);
       setReservationCount(0);
     } finally {
@@ -46,11 +56,9 @@ export default function MyPage() {
   }, [fetchSummaryData]);
 
   const handleLogout = useCallback(() => {
-    // ✅ AuthContext에 logout()이 구현돼 있으면 그걸 호출
     if (typeof logout === "function") {
       logout();
     } else {
-      // ✅ 없으면 최소 동작: 토큰 제거 + 홈 이동
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     }

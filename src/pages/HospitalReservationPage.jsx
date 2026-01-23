@@ -1,4 +1,3 @@
-// src/pages/HospitalReservationPage.jsx
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -33,29 +32,35 @@ export default function HospitalReservationPage() {
 
   const { user, loading: authLoading } = useAuth();
 
-  // (선택) 증상은 location.state로 전달될 수도 있으니 유지
   const selectedSymptoms = location?.state?.selectedSymptoms || [];
-
   const userId = useMemo(() => user?.id || user?.userId || user?.memberId, [user]);
-
-  // ✅ 예약자 성함은 로그인 유저 이름으로 고정 (가족 예약 X)
   const fixedPatientName = useMemo(() => user?.name || "", [user]);
 
-  // ✅ 병원 요약(이름/주소/전화)
   const [hospital, setHospital] = useState(null);
   const [hospitalLoading, setHospitalLoading] = useState(true);
-
   const [date, setDate] = useState(getTodayDate());
   const [time, setTime] = useState("");
 
   const [phone, setPhone] = useState("");
   const [memo, setMemo] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
   const [slots, setSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
-  // ✅ 1) 병원 요약 조회
+  // ✅ 핸드폰 번호 실시간 하이픈 포매팅 함수 (기존 유지)
+  const handlePhoneChange = (e) => {
+    const input = e.target.value.replace(/[^0-9]/g, "");
+    let formatted = "";
+    if (input.length <= 3) {
+      formatted = input;
+    } else if (input.length <= 7) {
+      formatted = `${input.slice(0, 3)}-${input.slice(3)}`;
+    } else {
+      formatted = `${input.slice(0, 3)}-${input.slice(3, 7)}-${input.slice(7, 11)}`;
+    }
+    setPhone(formatted);
+  };
+
   useEffect(() => {
     if (!hospitalId) {
       setHospital(null);
@@ -79,7 +84,6 @@ export default function HospitalReservationPage() {
     fetchHospital();
   }, [hospitalId]);
 
-  // ✅ 2) 슬롯 조회
   useEffect(() => {
     if (!hospitalId) return;
 
@@ -110,7 +114,6 @@ export default function HospitalReservationPage() {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-
       if (authLoading) return;
 
       if (!userId) {
@@ -119,9 +122,15 @@ export default function HospitalReservationPage() {
         return;
       }
 
-      // ✅ 가족 예약 안 하므로: 이름이 없으면 예약 진행 막기(데이터 품질)
       if (!fixedPatientName) {
         alert("예약자 이름 정보를 불러오지 못했습니다. 로그인 정보를 확인해 주세요.");
+        return;
+      }
+
+      const rawPhone = phone.replace(/-/g, "");
+      const phoneRegex = /^010\d{7,8}$/;
+      if (!phoneRegex.test(rawPhone)) {
+        alert("올바른 핸드폰 번호 형식을 입력해 주세요.\n(예: 010-1234-5678)");
         return;
       }
 
@@ -141,10 +150,9 @@ export default function HospitalReservationPage() {
           ? `선택 증상: ${selectedSymptoms.map((s) => s.symptomName).join(", ")}`
           : "");
 
-      // ✅ 서버는 userId로 user.name을 조회해 저장하는 구조이므로 patientName은 보내지 않습니다.
       const payload = {
         userId: Number(userId),
-        phone: phone || "",
+        phone: rawPhone,
         memo: symptomMemo,
         reservedAt: `${date}T${time}:00`,
       };
@@ -166,26 +174,11 @@ export default function HospitalReservationPage() {
         setSubmitting(false);
       }
     },
-    [
-      authLoading,
-      userId,
-      fixedPatientName,
-      hospitalId,
-      time,
-      date,
-      phone,
-      memo,
-      selectedSymptoms,
-      navigate,
-    ]
+    [authLoading, userId, fixedPatientName, hospitalId, time, date, phone, memo, selectedSymptoms, navigate]
   );
 
   if (authLoading) {
-    return (
-      <div className="reservation-page-container">
-        사용자 정보를 확인 중입니다...
-      </div>
-    );
+    return <div className="reservation-page-container">사용자 정보를 확인 중입니다...</div>;
   }
 
   return (
@@ -200,7 +193,6 @@ export default function HospitalReservationPage() {
       {/* ✅ 병원 정보 */}
       <section className="reservation-section reservation-section--card">
         <h3 className="reservation-section-title">병원 정보</h3>
-
         {hospitalLoading ? (
           <p>병원 정보를 불러오는 중입니다...</p>
         ) : hospital ? (
@@ -212,9 +204,7 @@ export default function HospitalReservationPage() {
               {hospital.dutyAddr || hospital.address || "-"}
             </p>
             {(hospital.dutyTel1 || hospital.tel) && (
-              <p className="reservation-hospital-addr">
-                ☎ {hospital.dutyTel1 || hospital.tel}
-              </p>
+              <p className="reservation-hospital-addr">☎ {hospital.dutyTel1 || hospital.tel}</p>
             )}
           </>
         ) : (
@@ -239,17 +229,16 @@ export default function HospitalReservationPage() {
 
           <div className="reservation-field">
             <span className="reservation-label">예약 시간</span>
-
             {slotsLoading ? (
               <p>로딩 중...</p>
             ) : (
               <div className="time-slot-grid">
-                {slots.map((slot) => {
-                  const disabled =
-                    !slot.reservable || isPastTimeSlot(slot.time, date);
+                {/* 🚀 수정 포인트: 시간 중복 시 에러 방지를 위해 index 조합 key 사용 */}
+                {slots.map((slot, idx) => {
+                  const disabled = !slot.reservable || isPastTimeSlot(slot.time, date);
                   return (
                     <button
-                      key={slot.time}
+                      key={`${slot.time}-${idx}`}
                       type="button"
                       className={`time-slot-btn ${
                         time === slot.time ? "time-slot-btn--selected" : ""
@@ -274,12 +263,6 @@ export default function HospitalReservationPage() {
               readOnly
               disabled
               className="reservation-input"
-              placeholder="로그인 사용자 이름"
-              title={
-                fixedPatientName
-                  ? "로그인한 사용자 이름으로 자동 입력됩니다."
-                  : "로그인 정보에 이름이 없습니다."
-              }
             />
           </label>
 
@@ -288,10 +271,10 @@ export default function HospitalReservationPage() {
             <input
               type="tel"
               value={phone}
-              maxLength={15}
-              onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
+              maxLength={13}
+              onChange={handlePhoneChange}
               className="reservation-input"
-              placeholder="숫자만 입력"
+              placeholder="010-0000-0000"
               required
             />
           </label>
@@ -310,16 +293,7 @@ export default function HospitalReservationPage() {
           <button
             type="submit"
             className="reservation-submit-btn"
-            disabled={
-              submitting || !time || authLoading || !userId || !fixedPatientName
-            }
-            title={
-              !userId
-                ? "로그인이 필요합니다."
-                : !fixedPatientName
-                ? "예약자 이름 정보를 불러오지 못했습니다."
-                : ""
-            }
+            disabled={submitting || !time || authLoading || !userId || !fixedPatientName}
           >
             {submitting ? "처리 중..." : "예약 확정하기"}
           </button>

@@ -1,4 +1,3 @@
-// src/pages/MyReservationPage.jsx
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../config";
@@ -9,11 +8,13 @@ const MyReservationPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // 사용자 ID 추출
   const userId = useMemo(() => user?.userId || user?.id, [user]);
 
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ 예약 목록 불러오기
   const fetchReservations = useCallback(async () => {
     if (!userId) {
       setReservations([]);
@@ -26,7 +27,21 @@ const MyReservationPage = () => {
       const response = await api.get("/api/hospitals/my/reservations", {
         params: { userId },
       });
-      setReservations(Array.isArray(response.data) ? response.data : []);
+      
+      console.log("서버 응답 데이터:", response.data);
+
+      if (Array.isArray(response.data)) {
+        // CANCELED 상태 필터링 및 병원 이름 안전 추출
+        const activeData = response.data
+          .filter((res) => String(res.status).toUpperCase() !== "CANCELED")
+          .map((res) => ({
+            ...res,
+            safeHospitalName: res.hospitalName || res.hospital?.dutyName || "병원 정보 없음"
+          }));
+        setReservations(activeData);
+      } else {
+        setReservations([]);
+      }
     } catch (error) {
       console.error("예약 내역 로딩 실패:", error);
       setReservations([]);
@@ -39,6 +54,7 @@ const MyReservationPage = () => {
     fetchReservations();
   }, [fetchReservations]);
 
+  // ✅ 예약 취소 처리
   const handleCancel = useCallback(
     async (reservationId) => {
       if (!userId) {
@@ -53,12 +69,8 @@ const MyReservationPage = () => {
           params: { userId },
         });
         alert("예약이 취소되었습니다.");
-
-        setReservations((prev) =>
-          prev.map((r) =>
-            r.id === reservationId ? { ...r, status: "CANCELED" } : r
-          )
-        );
+        // 목록에서 즉시 제거
+        setReservations((prev) => prev.filter((r) => r.id !== reservationId));
       } catch (error) {
         console.error("취소 실패:", error);
         alert(
@@ -71,46 +83,31 @@ const MyReservationPage = () => {
     [userId]
   );
 
-  /**
-   * ✅ 리뷰 버튼 클릭
-   * - 미작성: 리뷰 작성 페이지로 이동 (/review/new)
-   * - 작성됨: 리뷰 보기 페이지로 이동 (/review)
-   */
+  // ✅ 리뷰 페이지 이동
   const handleReviewClick = useCallback(
-    (reservationId, isReviewed) => {
+    (reservationId) => {
       if (!reservationId) {
         alert("예약 정보가 없어 리뷰를 확인할 수 없습니다.");
         return;
       }
-
-      if (isReviewed) {
-        // ✅ 이미 작성된 리뷰는 '리뷰 보기' 화면으로 이동
-        // (App.jsx에 Route: /reservations/:reservationId/review 추가 필요)
-        navigate(`/reservations/${reservationId}/review`);
-        return;
-      }
-
-      // ✅ 미작성일 때만 리뷰 작성 화면으로 이동
+      // 통일된 리뷰 작성 경로
       navigate(`/reservations/${reservationId}/review/new`);
     },
     [navigate]
   );
 
+  // 상태 텍스트 변환
   const renderStatusText = (status) => {
     switch (status) {
-      case "REQUESTED":
-        return "예약 대기";
-      case "CONFIRMED":
-        return "예약 확정";
-      case "COMPLETED":
-        return "진료 완료";
-      case "CANCELED":
-        return "예약 취소";
-      default:
-        return "상태 확인";
+      case "REQUESTED": return "예약 대기";
+      case "CONFIRMED": return "예약 확정";
+      case "COMPLETED": return "진료 완료";
+      case "CANCELED": return "예약 취소";
+      default: return "상태 확인";
     }
   };
 
+  // 날짜 포맷
   const formatReservedAt = (reservedAt) => {
     if (!reservedAt) return "-";
     const d = new Date(reservedAt);
@@ -141,51 +138,62 @@ const MyReservationPage = () => {
         </div>
       ) : (
         <div className="reservation-list">
-          {reservations.map((res) => (
-            <div key={res.id} className="reservation-card">
-              <div className="res-header">
-                <span className="res-hospital">
-                  {res.hospitalName || "병원 정보 없음"}
-                </span>
-                <span className={`res-status status-${String(res.status || "").toLowerCase()}`}>
-                  {renderStatusText(res.status)}
-                </span>
-              </div>
-
-              <div className="res-info">
-                <p>
-                  <strong>예약 일시 :</strong> {formatReservedAt(res.reservedAt)}
-                </p>
-                <p>
-                  <strong>환자 성함 :</strong>{" "}
-                  {res.patientName || user?.name || "이름 정보 없음"}
-                </p>
-                {res.memo && (
-                  <p>
-                    <strong>요청 사항:</strong> {res.memo}
-                  </p>
-                )}
-              </div>
-
-              <div className="res-footer">
-                {(res.status === "REQUESTED" || res.status === "CONFIRMED") && (
-                  <button className="cancel-btn" onClick={() => handleCancel(res.id)}>
-                    예약 취소
-                  </button>
-                )}
-
-                {/* ✅ COMPLETED이면: 미작성=리뷰쓰기, 작성됨=리뷰보기 */}
-                {res.status === "COMPLETED" && (
-                  <button
-                    className="review-btn"
-                    onClick={() => handleReviewClick(res.id, !!res.isReviewed)}
+          {reservations.map((res, index) => {
+            // 🚀 Key 에러 해결 포인트: res.id가 없으면 index를 조합하여 고유성 확보
+            const itemKey = res.id ? `res-id-${res.id}` : `res-idx-${index}`;
+            
+            return (
+              <div key={itemKey} className="reservation-card">
+                <div className="res-header">
+                  <span className="res-hospital">
+                    {res.safeHospitalName}
+                  </span>
+                  <span
+                    className={`res-status status-${String(res.status || "").toLowerCase()}`}
                   >
-                    {res.isReviewed ? "리뷰 보기" : "리뷰 쓰기"}
-                  </button>
-                )}
+                    {renderStatusText(res.status)}
+                  </span>
+                </div>
+
+                <div className="res-info">
+                  <p>
+                    <strong>예약 일시 :</strong> {formatReservedAt(res.reservedAt)}
+                  </p>
+                  <p>
+                    <strong>환자 성함 :</strong>{" "}
+                    {res.patientName || user?.name || "이름 정보 없음"}
+                  </p>
+                  {res.memo && (
+                    <p>
+                      <strong>요청 사항:</strong> {res.memo}
+                    </p>
+                  )}
+                </div>
+
+                <div className="res-footer">
+                  {/* 대기중/확정 상태일 때만 취소 가능 */}
+                  {(res.status === "REQUESTED" || res.status === "CONFIRMED") && (
+                    <button
+                      className="cancel-btn"
+                      onClick={() => handleCancel(res.id)}
+                    >
+                      예약 취소
+                    </button>
+                  )}
+
+                  {/* 진료 완료 상태일 때 리뷰 버튼 활성화 */}
+                  {res.status === "COMPLETED" && (
+                    <button
+                      className="review-btn"
+                      onClick={() => handleReviewClick(res.id)}
+                    >
+                      {res.isReviewed ? "리뷰 보기" : "리뷰 쓰기"}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

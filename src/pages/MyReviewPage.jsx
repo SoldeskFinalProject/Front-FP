@@ -16,10 +16,8 @@ const MyReviewPage = () => {
   const userId = useMemo(() => user?.userId || user?.id, [user]);
 
   const [activeTab, setActiveTab] = useState(TAB.REVIEWABLE);
-
   const [reviewableList, setReviewableList] = useState([]);
   const [myReviews, setMyReviews] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -105,7 +103,6 @@ const MyReviewPage = () => {
           리뷰 작성 가능한 예약과, 내가 작성한 리뷰를 한 곳에서 관리합니다.
         </p>
 
-        {/* ✅ 탭 */}
         <div className="review-tabs">
           <button
             type="button"
@@ -133,9 +130,7 @@ const MyReviewPage = () => {
         </div>
       )}
 
-      {/* =========================
-          탭 1) 작성 가능
-         ========================= */}
+      {/* 탭 1) 작성 가능 */}
       {activeTab === TAB.REVIEWABLE && !error && (
         <>
           {reviewableList.length === 0 ? (
@@ -145,31 +140,33 @@ const MyReviewPage = () => {
             </div>
           ) : (
             <div className="review-list">
-              {reviewableList.map((res) => (
-                <div key={res.id} className="review-item-card">
-                  <div className="item-main">
-                    <div className="item-info">
-                      <span className="complete-badge">진료 완료</span>
-                      <h3>
-                        {res.hospital?.dutyName || res.hospitalName || "병원 정보 없음"}
-                      </h3>
-                      <p className="visit-date">방문 날짜: {formatDate(res.reservedAt)}</p>
-                    </div>
+              {reviewableList.map((res, index) => {
+                // 🚀 Key 수정: 고유 ID가 없을 경우 인덱스 조합하여 중복 방지
+                const itemKey = res.id ? `reviewable-${res.id}` : `reviewable-idx-${index}`;
+                return (
+                  <div key={itemKey} className="review-item-card">
+                    <div className="item-main">
+                      <div className="item-info">
+                        <span className="complete-badge">진료 완료</span>
+                        <h3>
+                          {res.hospital?.dutyName || res.hospitalName || "병원 정보 없음"}
+                        </h3>
+                        <p className="visit-date">방문 날짜: {formatDate(res.reservedAt)}</p>
+                      </div>
 
-                    <button className="go-review-btn" onClick={() => goReviewPage(res.id)}>
-                      리뷰 작성하기
-                    </button>
+                      <button className="go-review-btn" onClick={() => goReviewPage(res.id)}>
+                        리뷰 작성하기
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </>
       )}
 
-      {/* =========================
-          탭 2) 내가 작성한 리뷰
-         ========================= */}
+      {/* 탭 2) 내가 작성한 리뷰 */}
       {activeTab === TAB.MY_REVIEWS && !error && (
         <>
           {myReviews.length === 0 ? (
@@ -179,29 +176,33 @@ const MyReviewPage = () => {
             </div>
           ) : (
             <div className="review-list">
-              {myReviews.map((r) => (
-                <div key={r.reviewId || r.id} className="review-item-card">
-                  <div className="item-main">
-                    <div className="item-info">
-                      <span className="complete-badge">작성됨</span>
-                      <h3>{r.hospitalName || r.hospital?.dutyName || "병원 정보 없음"}</h3>
-                      <p className="visit-date">작성일: {formatDate(r.createdAt)}</p>
-                      <p className="visit-date">평점: {Number(r.rating ?? 0).toFixed(1)}점</p>
-                      <p className="review-preview">
-                        {String(r.content || "").slice(0, 60)}
-                        {String(r.content || "").length > 60 ? "..." : ""}
-                      </p>
-                    </div>
+              {myReviews.map((r, index) => {
+                // 🚀 Key 수정: reviewId와 id를 모두 체크하고 인덱스 조합
+                const reviewKey = r.reviewId || r.id ? `myreview-${r.reviewId || r.id}` : `myreview-idx-${index}`;
+                return (
+                  <div key={reviewKey} className="review-item-card">
+                    <div className="item-main">
+                      <div className="item-info">
+                        <span className="complete-badge">작성됨</span>
+                        <h3>{r.hospitalName || r.hospital?.dutyName || "병원 정보 없음"}</h3>
+                        <p className="visit-date">작성일: {formatDate(r.createdAt)}</p>
+                        <p className="visit-date">평점: {Number(r.rating ?? 0).toFixed(1)}점</p>
+                        <p className="review-preview">
+                          {String(r.content || "").slice(0, 60)}
+                          {String(r.content || "").length > 60 ? "..." : ""}
+                        </p>
+                      </div>
 
-                    <button
-                      className="go-review-btn"
-                      onClick={() => goReviewPage(r.reservationId)}
-                    >
-                      리뷰 보기/수정
-                    </button>
+                      <button
+                        className="go-review-btn"
+                        onClick={() => goReviewPage(r.reservationId)}
+                      >
+                        리뷰 보기/수정
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </>

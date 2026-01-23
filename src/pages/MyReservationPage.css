@@ -1,16 +1,162 @@
-.my-reservation-container { max-width: 800px; margin: 40px auto; padding: 20px; }
-.reservation-card { 
-  background: #fff; border: 1px solid #eee; border-radius: 12px; 
-  padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+/* MyReservationPage.css */
+.my-reservation-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Pretendard', -apple-system, sans-serif;
 }
-.res-header { display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; margin-bottom: 15px; }
-.res-hospital { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
-.res-status { padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-.status-requested { background: #fff3cd; color: #856404; } /* 노란색 */
-.status-confirmed { background: #d4edda; color: #155724; } /* 초록색 */
-.status-completed { background: #e2e3e5; color: #383d41; } /* 회색 */
 
-.res-footer { margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end; }
-.cancel-btn { background: #ff4d4f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
-.cancel-btn:hover { background: #ff7875; }
-.review-btn { background: #1890ff; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+/* 헤더 섹션 */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 10px;
+}
+
+.page-header .description {
+  color: #666;
+  font-size: 15px;
+}
+
+/* 카드 리스트 */
+.reservation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reservation-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease;
+}
+
+.reservation-card:hover {
+  transform: translateY(-2px);
+}
+
+/* 카드 상단 */
+.res-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.res-hospital {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+}
+
+.res-status {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* 상태별 세련된 컬러셋 */
+.status-requested { background: #fff9db; color: #f08c00; } /* 대기: 노랑 */
+.status-confirmed { background: #e7f5ff; color: #1c7ed6; } /* 확정: 파랑 */
+.status-completed { background: #ebfbee; color: #2b8a3e; } /* 완료: 초록 */
+.status-canceled { background: #f1f3f5; color: #868e96; }  /* 취소: 회색 */
+
+/* 카드 정보 본문 */
+.res-info {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.res-info p {
+  margin: 0;
+  font-size: 15px;
+  color: #495057;
+  display: flex;
+  gap: 10px;
+}
+
+.res-info strong {
+  color: #868e96;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+/* 카드 하단 버튼 */
+.res-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.res-footer button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.cancel-btn {
+  background: #fff;
+  color: #fa5252;
+  border: 1px solid #ffe3e3 !important;
+}
+
+.cancel-btn:hover {
+  background: #fff5f5;
+}
+
+.review-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.review-btn:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* 데이터 없음 상자 */
+.no-data-box {
+  text-align: center;
+  padding: 80px 20px;
+  background: #fdfdfd;
+  border: 2px dashed #eee;
+  border-radius: 20px;
+  color: #adb5bd;
+  font-size: 16px;
+}
+
+.review-btn.view-mode {
+  background: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #dbeafe;
+}
+
+.review-btn.view-mode:hover {
+  background: #dbeafe;
+}
+
+/* 아직 리뷰를 안 썼을 때 (진한 파란색 강조) */
+.review-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
