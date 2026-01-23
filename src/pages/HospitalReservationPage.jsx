@@ -1,3 +1,4 @@
+// src/pages/HospitalReservationPage.jsx
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -45,10 +46,11 @@ export default function HospitalReservationPage() {
   const [slots, setSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
-  // ✅ 핸드폰 번호 실시간 하이픈 포매팅 함수 (기존 유지)
+  // ✅ 핸드폰 번호 실시간 하이픈 포매팅 함수
   const handlePhoneChange = (e) => {
-    const input = e.target.value.replace(/[^0-9]/g, "");
+    const input = e.target.value.replace(/[^0-9]/g, ""); // 숫자만 남김
     let formatted = "";
+
     if (input.length <= 3) {
       formatted = input;
     } else if (input.length <= 7) {
@@ -109,17 +111,20 @@ export default function HospitalReservationPage() {
       e.preventDefault();
       if (authLoading) return;
 
+      // 1. 로그인 체크
       if (!userId) {
         alert("로그인이 필요합니다. 다시 로그인해 주세요.");
         navigate("/login");
         return;
       }
 
+      // 2. 예약자 이름 체크
       if (!fixedPatientName) {
         alert("예약자 이름 정보를 불러오지 못했습니다. 로그인 정보를 확인해 주세요.");
         return;
       }
 
+      // 3. 연락처 유효성 검사 (010으로 시작하는 10~11자리 숫자 확인)
       const rawPhone = phone.replace(/-/g, "");
       const phoneRegex = /^010\d{7,8}$/;
       if (!phoneRegex.test(rawPhone)) {
@@ -148,6 +153,7 @@ export default function HospitalReservationPage() {
         phone: rawPhone,
         memo: symptomMemo,
         reservedAt: `${date}T${time}:00`,
+        // hospitalId는 이미 URL params로 존재하므로 payload에는 객체를 담지 않습니다.
       };
 
       try {
@@ -156,15 +162,23 @@ export default function HospitalReservationPage() {
         alert("예약이 성공적으로 완료되었습니다!");
         navigate("/mypage/reservations", { replace: true });
       } catch (err) {
-        console.error("예약 실패:", err);
-        alert(
-          err?.response?.data?.message ||
-            err?.response?.data ||
-            err?.message ||
-            "예약 중 오류가 발생했습니다."
-        );
+        console.error("예약 실패 상세:", err);
+
+        // ✅ DB 중복 에러(Duplicate entry)가 발생한 경우를 체크합니다.
+        const errorMessage = err?.response?.data?.message || err?.message || "";
+        
+        if (errorMessage.includes("Duplicate entry") || errorMessage.includes("500")) {
+          alert("죄송합니다. 현재 해당 시간대에 이미 진행 중인 예약이 있거나 방금 선점되었습니다.\n잠시 후 다시 시도하시거나 다른 시간을 선택해 주세요.");
+        } else {
+          alert(
+            err?.response?.data?.message ||
+              err?.response?.data ||
+              err?.message ||
+              "예약 중 오류가 발생했습니다."
+          );
+        }
       } finally {
-        setSubmitting(false);
+        setSubmitting(false); // ✅ 에러가 나더라도 버튼 잠금을 풀어 재시도가 가능하게 합니다.
       }
     },
     [authLoading, userId, fixedPatientName, hospitalId, time, date, phone, memo, selectedSymptoms, navigate]
@@ -222,12 +236,11 @@ export default function HospitalReservationPage() {
               <p>로딩 중...</p>
             ) : (
               <div className="time-slot-grid">
-                {/* 🚀 수정 포인트: 시간 중복 시 에러 방지를 위해 index 조합 key 사용 */}
-                {slots.map((slot, idx) => {
+                {slots.map((slot) => {
                   const disabled = !slot.reservable || isPastTimeSlot(slot.time, date);
                   return (
                     <button
-                      key={`${slot.time}-${idx}`}
+                      key={slot.time}
                       type="button"
                       className={`time-slot-btn ${time === slot.time ? "time-slot-btn--selected" : ""} ${disabled ? "time-slot-btn--disabled" : ""}`}
                       disabled={disabled}
@@ -257,8 +270,8 @@ export default function HospitalReservationPage() {
             <input
               type="tel"
               value={phone}
-              maxLength={13}
-              onChange={handlePhoneChange}
+              maxLength={13} // 010-1234-5678 자릿수 맞춤
+              onChange={handlePhoneChange} // ✅ 하이픈 자동 생성 핸들러 사용
               className="reservation-input"
               placeholder="010-0000-0000"
               required
