@@ -32,6 +32,7 @@ export default function HospitalReservationPage() {
   const navigate = useNavigate();
 
   const { user, loading: authLoading } = useAuth();
+
   const selectedSymptoms = location?.state?.selectedSymptoms || [];
   const userId = useMemo(() => user?.id || user?.userId || user?.memberId, [user]);
   const fixedPatientName = useMemo(() => user?.name || "", [user]);
@@ -40,6 +41,7 @@ export default function HospitalReservationPage() {
   const [hospitalLoading, setHospitalLoading] = useState(true);
   const [date, setDate] = useState(getTodayDate());
   const [time, setTime] = useState("");
+
   const [phone, setPhone] = useState("");
   const [memo, setMemo] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -67,6 +69,7 @@ export default function HospitalReservationPage() {
       setHospitalLoading(false);
       return;
     }
+
     const fetchHospital = async () => {
       try {
         setHospitalLoading(true);
@@ -79,17 +82,20 @@ export default function HospitalReservationPage() {
         setHospitalLoading(false);
       }
     };
+
     fetchHospital();
   }, [hospitalId]);
 
   useEffect(() => {
     if (!hospitalId) return;
+
     const fetchSlots = async () => {
       try {
         setSlotsLoading(true);
         const data = await getHospitalReservationSlots(hospitalId, date);
         const list = Array.isArray(data?.slots) ? data.slots : [];
         setSlots(list);
+
         const firstReservable = list.find(
           (s) => s.reservable && !isPastTimeSlot(s.time, date)
         );
@@ -103,6 +109,7 @@ export default function HospitalReservationPage() {
         setSlotsLoading(false);
       }
     };
+
     fetchSlots();
   }, [hospitalId, date]);
 
@@ -192,9 +199,12 @@ export default function HospitalReservationPage() {
     <div className="reservation-page-container">
       <header className="reservation-header">
         <h2 className="reservation-title">병원 예약</h2>
-        <button className="reservation-back-btn" onClick={() => navigate(-1)}>뒤로가기</button>
+        <button className="reservation-back-btn" onClick={() => navigate(-1)}>
+          뒤로가기
+        </button>
       </header>
 
+      {/* ✅ 병원 정보 */}
       <section className="reservation-section reservation-section--card">
         <h3 className="reservation-section-title">병원 정보</h3>
         {hospitalLoading ? (
@@ -218,6 +228,7 @@ export default function HospitalReservationPage() {
 
       <section className="reservation-section reservation-section--card">
         <h3 className="reservation-section-title">예약 정보 입력</h3>
+
         <form className="reservation-form" onSubmit={handleSubmit}>
           <label className="reservation-field">
             <span className="reservation-label">예약 날짜</span>
@@ -242,7 +253,9 @@ export default function HospitalReservationPage() {
                     <button
                       key={slot.time}
                       type="button"
-                      className={`time-slot-btn ${time === slot.time ? "time-slot-btn--selected" : ""} ${disabled ? "time-slot-btn--disabled" : ""}`}
+                      className={`time-slot-btn ${
+                        time === slot.time ? "time-slot-btn--selected" : ""
+                      } ${disabled ? "time-slot-btn--disabled" : ""}`}
                       disabled={disabled}
                       onClick={() => setTime(slot.time)}
                     >
@@ -254,6 +267,7 @@ export default function HospitalReservationPage() {
             )}
           </div>
 
+          {/* ✅ 예약자 성함: 로그인 유저 이름으로 고정 (가족 예약 X) */}
           <label className="reservation-field">
             <span className="reservation-label">예약자 성함</span>
             <input
