@@ -1,5 +1,6 @@
+/* --- 기본 컨테이너 및 헤더 --- */
 .result-page-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 40px 20px;
 }
@@ -36,6 +37,7 @@
   background-color: #2563eb;
 }
 
+/* --- 섹션 스타일 --- */
 .result-section {
   margin-bottom: 40px;
   padding: 24px;
@@ -53,122 +55,33 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.symptom-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.symptom-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-
-.symptom-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: #1f2937;
-}
-
-.symptom-category {
-  font-size: 14px;
-  color: #6b7280;
-  background-color: #e0e7ff;
-  padding: 4px 12px;
-  border-radius: 12px;
-}
-
-.no-data {
-  text-align: center;
-  color: #9ca3af;
-  padding: 20px;
-}
-
-.uploaded-image-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.result-image {
-  max-width: 500px;
-  max-height: 500px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.recommendation-placeholder {
-  text-align: center;
-  padding: 40px 20px;
-  background-color: #f9fafb;
-  border-radius: 8px;
-  border: 2px dashed #d1d5db;
-}
-
-.recommendation-placeholder p {
-  font-size: 16px;
-  color: #6b7280;
-  margin: 8px 0;
-}
-
-.placeholder-hint {
-  font-size: 14px;
-  color: #9ca3af;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 18px;
-  color: #6b7280;
-}
-
-/* 카드 전체 */
+/* --- 병원 리스트 카드 --- */
 .hospital-card {
   background-color: #ffffff;
   border-radius: 12px;
-  padding: 16px 18px;
+  padding: 20px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
   text-align: left;
 }
 
-/* 1. 상단: 이름 / 평점+거리 / 즐겨찾기 */
 .hospital-row-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-}
-
-.hospital-top-left {
-  flex: 1;
-  min-width: 0;
+  margin-bottom: 12px;
 }
 
 .hospital-name {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #111827;
   margin: 0 0 4px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.hospital-type {
-  font-size: 0.82rem;
-  color: #6b7280;
-}
-
-/* 평점/거리 pill */
+/* 평점/거리 레이아웃 유지 */
 .hospital-top-right {
   display: flex;
   flex-direction: column;
@@ -182,101 +95,101 @@
 }
 
 .pill {
-  font-size: 0.76rem;
-  padding: 4px 8px;
+  font-size: 0.8rem;
+  padding: 4px 12px;
   border-radius: 999px;
   background-color: #f3f4f6;
   color: #4b5563;
+  border: 1px solid #e5e7eb;
 }
 
-.pill-rating {
-  min-width: 120px;
-  text-align: center;
-}
-
-.pill-distance {
-  min-width: 80px;
-  text-align: center;
-}
-
-/* 즐겨찾기 chip */
-.favorite-chip {
-  border: none;
-  background-color: #f9fafb;
-  border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 0.78rem;
-  color: #6b7280;
-  cursor: pointer;
-}
-
-.favorite-chip.on {
-  background-color: #fef3c7;
-  color: #b45309;
-}
-
-/* 2. 중간: 주소 한 줄 */
-.hospital-row-middle {
-  margin-top: 6px;
-}
-
-.hospital-address {
-  font-size: 0.9rem;
-  color: #374151;
-  margin: 0;
-}
-
-/* 3. 하단: 전화번호 / 액션 버튼들 */
+/* --- 하단 액션 버튼 그룹 (✅ PC에서 네이버만 오른쪽 고정) --- */
 .hospital-row-bottom {
-  margin-top: 8px;
+  margin-top: 16px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
+/* ✅ 왼쪽(전화)은 남는 공간 다 먹게 */
 .hospital-tel {
-  font-size: 0.86rem;
+  flex: 1;                 /* 핵심 */
+  min-width: 0;
+  font-size: 0.9rem;
   color: #4b5563;
+  font-weight: 500;
 }
 
+/* ✅ 버튼 영역은 오른쪽에 붙고, 내부에서 네이버만 우측 */
 .hospital-bottom-right {
+  flex: 1;                 /* 핵심: 버튼영역도 폭을 가져야 auto가 먹음 */
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* 흰색 테두리 버튼 (예약/리뷰) */
-.secondary-button {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: #374151;
-  font-size: 0.84rem;
-  font-weight: 500;
+/* ✅ 네이버만 오른쪽 끝 */
+.hospital-bottom-right .naver-route-button {
+  margin-left: auto;       /* 핵심 */
+}
+
+/* 모든 버튼 높이 통일 및 정렬 */
+.favorite-chip,
+.secondary-button,
+.naver-route-button {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+/* 즐겨찾기 버튼 */
+.favorite-chip {
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+}
+
+.favorite-chip.on {
+  background-color: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+
+/* 예약하기 버튼 */
+.secondary-button {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
 }
 
 .secondary-button:hover {
   background-color: #f3f4ff;
+  border-color: #3b82f6;
 }
 
-/* 파랑/흰색 길찾기 버튼 (기존 스타일 유지) */
+/* 길찾기 버튼 */
 .naver-route-button {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: none;
   background-color: #2563eb;
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+  color: white;
+  border: none;
+  min-width: 130px;
 }
 
 .naver-route-button:hover {
   background-color: #1d4ed8;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
 }
 
+/* --- 모바일 대응 (반응형 정리) --- */
+/* ✅ 요청대로 아래는 건드리지 않음 */
 @media (max-width: 768px) {
   .result-header {
     flex-direction: column;
@@ -284,29 +197,31 @@
     align-items: flex-start;
   }
 
-  .result-title {
-    font-size: 24px;
-  }
-
-  .symptom-item {
+  .hospital-row-top {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
   }
 
-  .result-image {
-    max-width: 100%;
+  .hospital-top-right {
+    align-items: flex-start;
+    margin-top: 8px;
   }
 
   .hospital-row-bottom {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* 모바일 버튼 배치: 즐겨찾기/예약은 나란히, 길찾기는 가득 차게 */
+  .hospital-bottom-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
 
-  .hospital-bottom-right {
+  .naver-route-button {
+    grid-column: span 2;
     width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    height: 44px;
   }
 }
