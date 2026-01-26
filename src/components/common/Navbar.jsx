@@ -3,11 +3,12 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
+import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
 import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, loading, isAdmin } = useAuth()
+  const { user, logout, loading, isAdmin, verificationStatus } = useAuth()
   const navigate = useNavigate()
 
   const toggleSidebar = () => {
@@ -48,6 +49,7 @@ const Navbar = () => {
 
         <div className="navbar-section navbar-right">
           <button className="nav-btn" onClick={toggleSidebar}>메뉴</button>
+
           {user ? (
             <>
               <Link to="/mypage" className="user-info-link">
@@ -64,9 +66,15 @@ const Navbar = () => {
         </div>
       </header>
 
+      {/* ✅ 인증 상태 배너 (로그인 사용자만 표시) */}
+      {user && (
+        <VerificationStatusBanner verificationStatus={verificationStatus} />
+      )}
+
       {isSidebarOpen && (
         <>
           <div className="sidebar-overlay" onClick={toggleSidebar}></div>
+
           <div className="sidebar">
             <div className="sidebar-header">
               <h2>전체 메뉴</h2>
@@ -77,20 +85,31 @@ const Navbar = () => {
               {/* 일반 메뉴 */}
               <Link to="/search" className="sidebar-item" onClick={toggleSidebar}>🔍 증상검색</Link>
               <Link to="/dictionary" className="sidebar-item" onClick={toggleSidebar}>💊 의약품 백과</Link>
-              
+              <Link to="/disease" className="sidebar-item" onClick={toggleSidebar}>🦠 질환 백과</Link>
+              <Link to="/qna" className="sidebar-item" onClick={toggleSidebar}>💬 Q&A</Link>
+
               {user && (
                 <>
                   <hr className="sidebar-divider" />
                   <div className="sidebar-group-title">마이페이지</div>
-                  
+
                   <Link to="/mypage" className="sidebar-item" onClick={toggleSidebar}>👤 마이 대시보드</Link>
                   <Link to="/mypage/reservations" className="sidebar-item" onClick={toggleSidebar}>📅 진료 예약 현황</Link>
-                  
-                  {/* ✅ 즐겨찾기 병원 메뉴 추가 */}
                   <Link to="/mypage/favorites" className="sidebar-item" onClick={toggleSidebar}>⭐ 즐겨찾기 병원</Link>
-                  
                   <Link to="/mypage/reviews" className="sidebar-item" onClick={toggleSidebar}>✍️ 리뷰 작성/관리</Link>
                   <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>🏥 의사/병원 인증</Link>
+
+                  {/* ✅ 관리자 메뉴 (관리자 권한일 때만 노출) */}
+                  {isAdmin && (
+                    <>
+                      <hr className="sidebar-divider" />
+                      <div className="sidebar-group-title">관리자</div>
+
+                      <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
+                        🛠 승인 요청 관리
+                      </Link>
+                    </>
+                  )}
 
                   <div className="sidebar-footer">
                     <button className="sidebar-logout" onClick={handleLogout}>로그아웃</button>
