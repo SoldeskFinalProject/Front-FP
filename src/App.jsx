@@ -20,7 +20,10 @@ import LoginPage from "./components/auth/LoginPage";
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import NaverCallback from "./components/auth/NaverCallback";
 import VerificationRequestPage from "./pages/VerificationRequestPage";
+import DoctorVerificationForm from "./components/verification/DoctorVerificationForm";
+import HospitalVerificationForm from "./components/verification/HospitalVerificationForm";
 import FindAccount from "./components/auth/FindAccount";
+
 
 // 마이페이지 관련
 import MyPage from "./pages/MyPage";
@@ -77,6 +80,8 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="/verification/doctor" element={<DoctorVerificationForm />} />
+              <Route path="/verification/hospital" element={<HospitalVerificationForm />} />
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
               <Route path="/auth/naver/callback" element={<NaverCallback />} />
               <Route path="/find-account" element={<FindAccount />} />
