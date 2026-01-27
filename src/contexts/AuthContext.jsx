@@ -1,11 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { 
-    login as loginAPI, 
-    logout as logoutAPI, 
-    kakaoLogin as kakaoLoginAPI, 
-    naverLogin as naverLoginAPI 
+import {
+  login as loginAPI,
+  logout as logoutAPI,
+  kakaoLogin as kakaoLoginAPI,
+  naverLogin as naverLoginAPI,
 } from "../api/authAPI";
 import { api } from "../config";
 
@@ -13,142 +13,180 @@ const AuthContext = createContext();
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within AuthProvider");
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
 };
 
 export const AuthProvider = ({ children }) => {
-    // 로그인한 유저 정보 객체 (userId, email, name, role 등)
-    const [user, setUser] = useState(null); 
-    const [loading, setLoading] = useState(true);
+  // 로그인한 유저 정보 객체 (userId, email, name, role 등)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
-    useEffect(() => {
-        const accessToken = localStorage.getItem("accessToken");
-        const storedUser = localStorage.getItem("user");
+  // ✅ 인증 상태(의사/병원 인증 요청의 최신 상태)
+  const [verificationStatus, setVerificationStatus] = useState(null);
 
-        if (accessToken && storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error("Failed to parse user data:", error);
-                localStorage.removeItem("user"); // 잘못된 데이터면 삭제
-            }
-        }
-        setLoading(false);
-    }, []);
+  // ✅ 내 인증상태 조회
+  const refreshVerificationStatus = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      setVerificationStatus(null);
+      return null;
+    }
 
-    // ✅ 로그인/소셜로그인 성공 시 공통 처리 함수
-    const handleLoginSuccess = (data) => {
-        // 백엔드 응답 구조: { accessToken, refreshToken, userId, email, name, role, ... }
-        const { accessToken, refreshToken, ...userData } = data;
+    try {
+      const res = await api.get("/api/verification/me");
+      setVerificationStatus(res.data);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to refresh verification status:", error);
+      setVerificationStatus(null);
+      return null;
+    }
+  };
 
-        // 1. 토큰 및 유저 정보 저장
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-        
-        // 2. 유저 정보 저장 (새로고침 시 유지용)
-        // userData 안에 userId가 반드시 포함되어 있어야 합니다!
-        localStorage.setItem("user", JSON.stringify(userData));
+  // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const storedUser = localStorage.getItem("user");
 
-        // 3. 리액트 상태 업데이트
-        setUser(userData);
-        
-        return userData;
-    };
+    if (accessToken && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
 
-    // 일반 로그인
-    const login = async (credentials) => {
-        try {
-            const response = await loginAPI(credentials);
-            return handleLoginSuccess(response);
-        } catch (error) {
-            console.error("Login failed:", error);
-            throw error;
-        }
-    };
+        // ✅ 복구 성공 시 인증 상태도 같이 불러오기
+        refreshVerificationStatus();
+      } catch (error) {
+        console.error("Failed to parse user data:", error);
+        localStorage.removeItem("user"); // 잘못된 데이터면 삭제
+        setUser(null);
+        setVerificationStatus(null);
+      }
+    } else {
+      setVerificationStatus(null);
+    }
 
-    // ✅ 카카오 소셜 로그인
-    const socialLogin = async (code) => {
-        try {
-            const response = await kakaoLoginAPI(code);
-            return handleLoginSuccess(response);
-        } catch (error) {
-            console.error("Kakao Login failed:", error);
-            throw error;
-        }
-    };
+    setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // ✅ 네이버 소셜 로그인
-    const naverLogin = async (code, state) => {
-        try {
-            const response = await naverLoginAPI(code, state);
-            return handleLoginSuccess(response);
-        } catch (error) {
-            console.error("Naver Login failed:", error);
-            throw error;
-        }
-    };
+  // ✅ 로그인/소셜로그인 성공 시 공통 처리 함수
+  const handleLoginSuccess = async (data) => {
+    // 백엔드 응답 구조: { accessToken, refreshToken, userId, email, name, role, ... }
+    const { accessToken, refreshToken, ...userData } = data;
 
-    // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
-    const logout = async () => {
-        try {
-            const refreshToken = localStorage.getItem("refreshToken");
-            if (refreshToken) {
-                // 백엔드에 로그아웃 요청 (리프레시 토큰 삭제 등)
-                // 서버에서 이미 만료된 토큰이라도 클라이언트 로그아웃은 진행되어야 하므로 catch 처리
-                await logoutAPI(refreshToken).catch(err => {
-                    console.warn("서버 세션은 이미 만료되었거나 찾을 수 없습니다.", err);
-                });
-            }
-        } catch (error) {
-            console.error("Logout process error:", error);
-        } finally {
-            // 서버 실패 여부와 상관없이 클라이언트 상태는 무조건 클리어
-            setUser(null);
-            localStorage.removeItem("user");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            
-            // 로그인 페이지로 이동
-            window.location.href = "/login";
-        }
-    };
+    // 1. 토큰 및 유저 정보 저장
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
 
-    // 사용자 정보 최신화 (프로필 수정, 관리자 승인, 등급 변경 등 반영용)
-    const refreshUserInfo = async () => {
-        const accessToken = localStorage.getItem("accessToken");
-        if (user && accessToken) {
-            try {
-                // 내 정보 가져오기 API (백엔드에 구현되어 있어야 함)
-                const userResponse = await api.get("/api/users/me");
-                const updatedUser = userResponse.data;
-                
-                // 기존 user 정보에 덮어쓰기 (토큰은 그대로)
-                setUser(updatedUser);
-                localStorage.setItem("user", JSON.stringify(updatedUser));
-            } catch (error) {
-                console.error("Failed to refresh user info:", error);
-                // 토큰 만료 에러라면 로그아웃 처리가 인터셉터에서 될 것임
-            }
-        }
-    };
+    // 2. 유저 정보 저장 (새로고침 시 유지용)
+    localStorage.setItem("user", JSON.stringify(userData));
 
-    const value = {
-        user,             // 현재 로그인한 유저 객체
-        login,            // 일반 로그인 함수
-        socialLogin,      // 카카오 로그인 함수
-        naverLogin,       // 네이버 로그인 함수
-        logout,           // 로그아웃 함수
-        loading,          // 초기 로딩 상태
-        refreshUserInfo,  // 유저 정보 갱신 함수
-        isAuthenticated: !!user,       // 로그인 여부 (boolean)
-        // 관리자 여부 (Spring Security Role 네이밍 컨벤션 고려하여 둘 다 체크)
-        isAdmin: user?.role === "ADMIN" || user?.role === "ROLE_ADMIN" 
-    };
+    // 3. 리액트 상태 업데이트
+    setUser(userData);
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    // ✅ 4. 로그인 직후 인증 상태 갱신 (배너 즉시 반영)
+    await refreshVerificationStatus();
+
+    return userData;
+  };
+
+  // 일반 로그인
+  const login = async (credentials) => {
+    try {
+      const response = await loginAPI(credentials);
+      return await handleLoginSuccess(response);
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
+  };
+
+  // ✅ 카카오 소셜 로그인
+  const socialLogin = async (code) => {
+    try {
+      const response = await kakaoLoginAPI(code);
+      return await handleLoginSuccess(response);
+    } catch (error) {
+      console.error("Kakao Login failed:", error);
+      throw error;
+    }
+  };
+
+  // ✅ 네이버 소셜 로그인
+  const naverLogin = async (code, state) => {
+    try {
+      const response = await naverLoginAPI(code, state);
+      return await handleLoginSuccess(response);
+    } catch (error) {
+      console.error("Naver Login failed:", error);
+      throw error;
+    }
+  };
+
+  // 로그아웃 (서버 세션 종료 및 로컬 데이터 삭제)
+  const logout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        await logoutAPI(refreshToken).catch((err) => {
+          console.warn("서버 세션은 이미 만료되었거나 찾을 수 없습니다.", err);
+        });
+      }
+    } catch (error) {
+      console.error("Logout process error:", error);
+    } finally {
+      // 서버 실패 여부와 상관없이 클라이언트 상태는 무조건 클리어
+      setUser(null);
+      setVerificationStatus(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+
+      // 로그인 페이지로 이동
+      window.location.href = "/login";
+    }
+  };
+
+  // 사용자 정보 최신화 (프로필 수정, 관리자 승인, 등급 변경 등 반영용)
+  const refreshUserInfo = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (user && accessToken) {
+      try {
+        const userResponse = await api.get("/api/users/me");
+        const updatedUser = userResponse.data;
+
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+        // ✅ 유저 정보 갱신 후 인증 상태도 다시 갱신
+        await refreshVerificationStatus();
+      } catch (error) {
+        console.error("Failed to refresh user info:", error);
+        // 토큰 만료 에러라면 로그아웃 처리가 인터셉터에서 될 것임
+      }
+    }
+  };
+
+  const value = {
+    user,
+    login,
+    socialLogin,
+    naverLogin,
+    logout,
+    loading,
+    refreshUserInfo,
+
+    // ✅ 추가: 인증 상태 배너용
+    verificationStatus,
+    refreshVerificationStatus,
+
+    isAuthenticated: !!user,
+    isAdmin: user?.role === "ADMIN" || user?.role === "ROLE_ADMIN",
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

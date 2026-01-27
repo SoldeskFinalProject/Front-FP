@@ -1,9 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Navbar from "./components/common/Navbar";
 
 // 일반 페이지
-import HomePage from "./pages/HomePage";
 import SymptomPage from "./pages/SymptomPage";
 import SymptomResultPage from "./pages/SymptomResultPage";
 import Dictionary from "./pages/Dictionary";
@@ -21,7 +20,10 @@ import LoginPage from "./components/auth/LoginPage";
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import NaverCallback from "./components/auth/NaverCallback";
 import VerificationRequestPage from "./pages/VerificationRequestPage";
+import DoctorVerificationForm from "./components/verification/DoctorVerificationForm";
+import HospitalVerificationForm from "./components/verification/HospitalVerificationForm";
 import FindAccount from "./components/auth/FindAccount";
+
 
 // 마이페이지 관련
 import MyPage from "./pages/MyPage";
@@ -40,7 +42,7 @@ import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList";
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList";
 
-// AI 채팅 위젯 (새로 추가된 기능)
+// AI 채팅 위젯
 import AiChatWidget from "./components/AiChatWidget/AiChatWidget";
 
 import "./App.css";
@@ -55,8 +57,10 @@ function App() {
 
           <main className="content">
             <Routes>
-              {/* 메인 및 증상 분석 */}
-              <Route path="/" element={<HomePage />} />
+              {/* ✅ 시작 페이지를 증상검색으로 */}
+              <Route path="/" element={<Navigate to="/search" replace />} />
+
+              {/* 증상 분석 */}
               <Route path="/search" element={<SymptomPage />} />
               <Route path="/result" element={<SymptomResultPage />} />
 
@@ -72,25 +76,33 @@ function App() {
               <Route path="/qna/create" element={<QnaCreate />} />
               <Route path="/qna/:questionId" element={<QnaDetail />} />
 
-              {/* 인증 관련 라우트 */}
+              {/* 인증 관련 */}
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verification" element={<VerificationRequestPage />} />
+              <Route path="/verification/doctor" element={<DoctorVerificationForm />} />
+              <Route path="/verification/hospital" element={<HospitalVerificationForm />} />
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
               <Route path="/auth/naver/callback" element={<NaverCallback />} />
               <Route path="/find-account" element={<FindAccount />} />
 
-              {/* 마이페이지 관련 라우트 */}
+              {/* 마이페이지 */}
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/reservations" element={<MyReservationPage />} />
               <Route path="/mypage/reviews" element={<MyReviewPage />} />
               <Route path="/mypage/favorites" element={<MyFavoritePage />} />
 
               {/* 병원 예약 및 리뷰 */}
-              <Route path="/hospitals/:hospitalId/reservation" element={<HospitalReservationPage />} />
-              <Route path="/reservations/:reservationId/review/new" element={<HospitalReviewPage />} />
+              <Route
+                path="/hospitals/:hospitalId/reservation"
+                element={<HospitalReservationPage />}
+              />
+              <Route
+                path="/reservations/:reservationId/review/new"
+                element={<HospitalReviewPage />}
+              />
 
-              {/* 관리자(Admin) 관련 라우트 */}
+              {/* 관리자(Admin) */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
               <Route path="/admin/diseases/form/:id" element={<DiseaseAdminForm />} />
@@ -99,8 +111,7 @@ function App() {
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
             </Routes>
           </main>
-          
-          {/* 하단에 AI 채팅 위젯 배치 */}
+
           <AiChatWidget />
         </div>
       </Router>
