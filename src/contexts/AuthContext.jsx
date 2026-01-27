@@ -28,19 +28,52 @@ export const AuthProvider = ({ children }) => {
   // ✅ 인증 상태(의사/병원 인증 요청의 최신 상태)
   const [verificationStatus, setVerificationStatus] = useState(null);
 
-  // ✅ 내 인증상태 조회
+  // ✅ 내 인증상태 조회 (안전 버전)
   const refreshVerificationStatus = async () => {
     const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
+    const storedUser = localStorage.getItem("user");
+
+    // 토큰/유저 없으면 스킵
+    if (!accessToken || !storedUser) {
+      setVerificationStatus(null);
+      return null;
+    }
+
+    let parsedUser = null;
+    try {
+      parsedUser = JSON.parse(storedUser);
+    } catch (e) {
+      // user 파싱이 깨져있으면 정리
+      localStorage.removeItem("user");
+      setVerificationStatus(null);
+      return null;
+    }
+
+    // ✅ 어드민은 인증상태 배너 대상이 아니므로 호출 스킵(필요하면 제거 가능)
+    const isAdmin =
+      parsedUser?.role === "ADMIN" || parsedUser?.role === "ROLE_ADMIN";
+    if (isAdmin) {
       setVerificationStatus(null);
       return null;
     }
 
     try {
-      const res = await api.get("/api/verification/me");
+      // ✅ 백엔드가 userId를 요구하는 경우 대비해서 같이 전달
+      const res = await api.get("/api/verification/me", {
+        params: { userId: parsedUser?.userId },
+      });
+
       setVerificationStatus(res.data);
       return res.data;
     } catch (error) {
+      const status = error?.response?.status;
+
+      // ✅ 400은 "요청 없음/대상 아님"류로 조용히 처리 (콘솔 에러 방지)
+      if (status === 400) {
+        setVerificationStatus(null);
+        return null;
+      }
+
       console.error("Failed to refresh verification status:", error);
       setVerificationStatus(null);
       return null;
