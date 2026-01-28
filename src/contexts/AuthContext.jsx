@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import {
-  login as loginAPI,
-  logout as logoutAPI,
-  kakaoLogin as kakaoLoginAPI,
-  naverLogin as naverLoginAPI,
+    login as loginAPI,
+    logout as logoutAPI,
+    kakaoLogin as kakaoLoginAPI,
+    naverLogin as naverLoginAPI,
 } from "../api/authAPI";
 import { api } from "../config";
 
@@ -13,39 +13,39 @@ const AuthContext = createContext();
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within AuthProvider");
+    }
+    return context;
 };
 
 export const AuthProvider = ({ children }) => {
-  // 로그인한 유저 정보 객체 (userId, email, name, role 등)
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+    // 로그인한 유저 정보 객체 (userId, email, name, role 등)
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  // ✅ 인증 상태(의사/병원 인증 요청의 최신 상태)
-  const [verificationStatus, setVerificationStatus] = useState(null);
+    // ✅ 인증 상태(의사/병원 인증 요청의 최신 상태)
+    const [verificationStatus, setVerificationStatus] = useState(null);
 
-  // ✅ 내 인증상태 조회
-  const refreshVerificationStatus = async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      setVerificationStatus(null);
-      return null;
-    }
+    // ✅ 내 인증상태 조회
+    const refreshVerificationStatus = async () => {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+        setVerificationStatus(null);
+        return null;
+        }
 
-    try {
-      const res = await api.get("/api/verification/me");
-      setVerificationStatus(res.data);
-      return res.data;
-    } catch (error) {
-      console.error("Failed to refresh verification status:", error);
-      setVerificationStatus(null);
-      return null;
-    }
-  };
+        try {
+        const res = await api.get("/api/verification/me");
+        setVerificationStatus(res.data);
+        return res.data;
+        } catch (error) {
+        console.error("Failed to refresh verification status:", error);
+        setVerificationStatus(null);
+        return null;
+        }
+    };
 
   // 앱 로드 시 로컬스토리지에서 사용자 정보 복구
   useEffect(() => {

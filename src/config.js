@@ -189,3 +189,9 @@ export const HOSPITAL_ENDPOINTS = {
     DETAIL: (hospitalMemberId) => `/api/hospital-members/${hospitalMemberId}`,
     MY_PROFILE: (userId) => `/api/hospital-members/profile/${userId}`,
 };
+
+export const REPORT_ENDPOINTS = {
+    CREATE: "/api/reports",                    // 일반 유저 신고하기 (POST)
+    ADMIN_LIST: "/api/admin/reports",          // 관리자 리스트 조회 (GET)
+    ADMIN_DELETE: (type, id) => `/api/admin/reports/${type}/${id}`, // 관리자 강제 삭제 (DELETE)
+};

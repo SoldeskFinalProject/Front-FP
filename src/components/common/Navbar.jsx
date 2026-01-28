@@ -3,12 +3,12 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
-import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
+// import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
 import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, loading, isAdmin, verificationStatus } = useAuth()
+  const { user, logout, loading, isAdmin } = useAuth()
   const navigate = useNavigate()
 
   const toggleSidebar = () => {
@@ -67,9 +67,9 @@ const Navbar = () => {
       </header>
 
       {/* ✅ 인증 상태 배너 (로그인 사용자만 표시) */}
-      {user && (
+      {/* {user && (
         <VerificationStatusBanner verificationStatus={verificationStatus} />
-      )}
+      )} */}
 
       {isSidebarOpen && (
         <>
@@ -107,6 +107,9 @@ const Navbar = () => {
 
                       <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
                         🛠 승인 요청 관리
+                      </Link>
+                      <Link to="/admin/reports" className="sidebar-item" onClick={toggleSidebar}>
+                        🚨 신고 접수 현황
                       </Link>
                     </>
                   )}
