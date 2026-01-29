@@ -20,8 +20,6 @@ import LoginPage from "./components/auth/LoginPage";
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import NaverCallback from "./components/auth/NaverCallback";
 import VerificationRequestPage from "./pages/VerificationRequestPage";
-import DoctorVerificationForm from "./components/verification/DoctorVerificationForm";
-import HospitalVerificationForm from "./components/verification/HospitalVerificationForm";
 import FindAccount from "./components/auth/FindAccount";
 
 
@@ -42,14 +40,19 @@ import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList";
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList";
+import AdminSubscriptionPlanPage from "./pages/admin/AdminSubscriptionPlanPage";
 
-// 병원 찾기
+// 병원 찾기 (본인 작업 내용)
 import HospitalSearchPage from "./pages/HospitalSearchPage";
 
 // AI 채팅 위젯
 import AiChatWidget from "./components/AiChatWidget/AiChatWidget";
 
+// 병원 구독 (개발자 A 작업 내용)
+import SubscriptionPurchasePage from "./pages/SubscriptionPurchasePage";
+
 import "./App.css";
+import AdminReportPage from "./pages/admin/AdminReportPage";
 
 function App() {
   return (
@@ -84,8 +87,8 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verification" element={<VerificationRequestPage />} />
-              <Route path="/verification/doctor" element={<DoctorVerificationForm />} />
-              <Route path="/verification/hospital" element={<HospitalVerificationForm />} />
+              <Route path="/verification/doctor" element={<Navigate to="/verification?type=DOCTOR" replace />} />
+              <Route path="/verification/hospital" element={<Navigate to="/verification?type=HOSPITAL" replace />} />
               <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
               <Route path="/auth/naver/callback" element={<NaverCallback />} />
               <Route path="/find-account" element={<FindAccount />} />
@@ -106,9 +109,13 @@ function App() {
                 element={<HospitalReviewPage />}
               />
 
-              {/* 병원 찾기 */}
+              {/* 병원 찾기 및 상세  */}
               <Route path="/hospitals" element={<HospitalSearchPage />} />
               <Route path="/hospitals/:hospitalId" element={<HospitalDetailPage />} />
+
+              {/* 병원 구독  */}
+              <Route path="/subscription" element={<SubscriptionPurchasePage />} />
+              <Route path="/mypage/subscription" element={<SubscriptionPurchasePage />} />
 
               {/* 관리자(Admin) */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
@@ -117,6 +124,9 @@ function App() {
               <Route path="/admin/verification" element={<AdminVerificationPage />} />
               <Route path="/admin/verification/doctor" element={<DoctorVerificationList />} />
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
+              <Route path="/admin/reports" element={<AdminReportPage />} />
+              {/* <Route path="/admin/verification" */}
+              <Route path="/admin/subscriptions/plans" element={<AdminSubscriptionPlanPage />} />
             </Routes>
           </main>
 

@@ -1,0 +1,133 @@
+/* 1. 화면 전체를 덮는 반투명 배경 (Overlay) */
+.report-modal-overlay {
+  position: fixed; /* 스크롤과 상관없이 화면에 고정 */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* 검은색 50% 투명도 */
+  z-index: 1000; /* 다른 요소들보다 위에 뜨도록 높은 값 설정 */
+  display: flex;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center;     /* 세로 중앙 정렬 */
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* 2. 실제 신고 내용이 담긴 하얀 박스 */
+.report-modal-content {
+  background: white;
+  width: 400px;        /* 너비 고정 (모바일은 미디어쿼리로 조정 가능) */
+  max-width: 90%;
+  padding: 24px;
+  border-radius: 12px; /* 둥근 모서리 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 그림자 */
+  position: relative;
+  z-index: 1001;
+  animation: slideUp 0.2s ease-in-out;
+}
+
+/* 제목 스타일 */
+.report-modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.modal-notice {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* 사유 리스트 */
+.reason-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.reason-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.reason-item:hover {
+  background-color: #f8f9fa;
+}
+
+.reason-item input[type="radio"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #e03131; /* 체크 색상 (빨강) */
+}
+
+/* 기타 사유 입력창 */
+.report-modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  resize: none;
+  font-family: inherit;
+  margin-bottom: 20px;
+}
+
+.report-modal-content textarea:focus {
+  outline: none;
+  border-color: #e03131;
+}
+
+/* 버튼 영역 */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.modal-actions .cancel-btn {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+
+.modal-actions .cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.modal-actions .submit-btn {
+  background-color: #e03131; /* 신고는 보통 경고색(빨강) */
+  color: white;
+}
+
+.modal-actions .submit-btn:hover {
+  background-color: #c92a2a;
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

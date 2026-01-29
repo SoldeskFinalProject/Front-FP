@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { getQuestionList } from "../../api/qnaAPI"
 import QuestionList from "./QuestionList"
 import "./QuestionTabs.css"
@@ -12,24 +12,24 @@ const QuestionTabs = () => {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
 
-    useEffect(() => {
-        fetchQuestions()
+    const fetchQuestions = useCallback(async () => {
+        try {
+            setLoading(true)
+            // 답변 여부에 따라 필터링 (백엔드에서 hasAnswer 파라미터 지원 필요)
+            const hasAnswer = activeTab === "answered"
+            const response = await getQuestionList("PUBLIC", currentPage, 10, null, hasAnswer)
+            setQuestions(response.content)
+            setTotalPages(response.totalPages)
+        } catch (error) {
+            console.error("질문 목록 조회 실패:", error)
+        } finally {
+            setLoading(false)
+        }
     }, [activeTab, currentPage])
 
-    const fetchQuestions = async () => {
-        try {
-        setLoading(true)
-        // 답변 여부에 따라 필터링 (백엔드에서 hasAnswer 파라미터 지원 필요)
-        const hasAnswer = activeTab === "answered"
-        const response = await getQuestionList("PUBLIC", currentPage, 10, null, hasAnswer)
-        setQuestions(response.content)
-        setTotalPages(response.totalPages)
-        } catch (error) {
-        console.error("질문 목록 조회 실패:", error)
-        } finally {
-        setLoading(false)
-        }
-    }
+    useEffect(() => {
+        fetchQuestions()
+    }, [fetchQuestions])
 
     const handleTabChange = (tab) => {
         setActiveTab(tab)

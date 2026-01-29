@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { api } from "../config";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import VerificationStatusBanner from "../components/verification/VerificationStatusBanner";
 import "./MyPage.css";
 
 export default function MyPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, verificationStatus } = useAuth();
   const navigate = useNavigate();
 
   const userId = useMemo(() => user?.userId || user?.id, [user]);
@@ -76,6 +77,10 @@ export default function MyPage() {
           <strong>{user.name || "사용자"}</strong>님, 반갑습니다!
         </p>
       </header>
+
+      <div style={{ marginBottom: "20px" }}>
+        <VerificationStatusBanner verificationStatus={verificationStatus} />
+      </div>
 
       <div className="mypage-dashboard">
         {/* 📅 카드 1: 나의 예약 관리 */}

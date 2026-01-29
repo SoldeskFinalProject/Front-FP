@@ -1,5 +1,5 @@
 // src/api/hospitalApi.js
-
+import { api } from "../config";
 // 백엔드 기본 URL
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
@@ -307,3 +307,13 @@ export async function getHospitalDetail(hospitalId) {
 
   return ensureOk(res, "병원 상세 정보 조회 실패");
 }
+
+/* =========================================================================
+ * ✅ [NEW] 병원 검증용 검색 (개발자 A 추가)
+ * ========================================================================= */
+export const searchHospitalsForVerification = async ({ keyword = "", page = 0, size = 10 }) => {
+  const res = await api.get("/api/hospitals/verification/search", {
+    params: { keyword, page, size },
+  });
+  return res.data; // Spring Page 형태
+};

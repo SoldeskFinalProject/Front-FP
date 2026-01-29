@@ -8,7 +8,7 @@ import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, loading, isAdmin, verificationStatus } = useAuth()
+  const { user, logout, loading, isAdmin, isHospitalMember } = useAuth()
   const navigate = useNavigate()
 
   const toggleSidebar = () => {
@@ -74,11 +74,6 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* ✅ 인증 상태 배너 (로그인 사용자만 표시) */}
-      {user && (
-        <VerificationStatusBanner verificationStatus={verificationStatus} />
-      )}
-
       {isSidebarOpen && (
         <>
           <div className="sidebar-overlay" onClick={toggleSidebar}></div>
@@ -107,6 +102,22 @@ const Navbar = () => {
                   <Link to="/mypage/reviews" className="sidebar-item" onClick={toggleSidebar}>✍️ 리뷰 작성/관리</Link>
                   <Link to="/verification" className="sidebar-item" onClick={toggleSidebar}>🏥 의사/병원 인증</Link>
 
+                  {/* ✅ 병원 관계자 인증 승인된 사용자만 "구독 관리" 메뉴 노출 */}
+                  {isHospitalMember && (
+                    <>
+                      <hr className="sidebar-divider" />
+                      <div className="sidebar-group-title">병원 관계자</div>
+
+                      <Link
+                        to="/mypage/subscription"
+                        className="sidebar-item"
+                        onClick={toggleSidebar}
+                      >
+                        💳 구독(상단 노출) 관리
+                      </Link>
+                    </>
+                  )}
+
                   {/* ✅ 관리자 메뉴 (관리자 권한일 때만 노출) */}
                   {isAdmin && (
                     <>
@@ -115,6 +126,13 @@ const Navbar = () => {
 
                       <Link to="/admin/verification" className="sidebar-item" onClick={toggleSidebar}>
                         🛠 승인 요청 관리
+                      </Link>
+
+                      <Link to="/admin/subscriptions/plans" className="sidebar-item" onClick={toggleSidebar}>
+                        💳 구독 상품(플랜) 관리
+                      </Link>
+                      <Link to="/admin/reports" className="sidebar-item" onClick={toggleSidebar}>
+                        🚨 신고 접수 현황
                       </Link>
                     </>
                   )}
