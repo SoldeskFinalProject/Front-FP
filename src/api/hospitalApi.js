@@ -73,6 +73,10 @@ export async function getRecommendedHospitals(params = {}) {
     searchParams.append("userId", String(params.userId));
   }
 
+  if (params.sunday) searchParams.append("sunday", "true");
+  if (params.holiday) searchParams.append("holiday", "true");
+  if (params.sort) searchParams.append("sort", params.sort); // distance, review, name  
+
   // 4. 페이징 (SearchController는 Page 객체를 반환하므로 기본값 설정)
   searchParams.append("page", params.page || 0);
   searchParams.append("size", params.size || 20);
@@ -148,10 +152,6 @@ export async function getMyFavoriteHospitals(userId) {
   });
   return ensureOk(res, "즐겨찾기 목록 조회 실패");
 }
-
-/* =========================================================================
- * ✅ 2) 예약
- * ========================================================================= */
 
 export async function createHospitalReservation(hospitalId, payload = {}) {
   const url = `${BASE_URL}/api/hospitals/${hospitalId}/reservations`;
@@ -238,3 +238,72 @@ export async function createReviewByReservation(payload = {}) {
   return ensureOk(res, "리뷰 작성 실패");
 }
 
+/* =========================================================================
+ * ✅ [NEW] 병원 찾기 페이지용 (페이징/총 개수 포함)
+ * ========================================================================= */
+
+/**
+ * 병원 검색 (메타데이터 포함)
+ * GET /api/hospitals/search
+ * - getRecommendedHospitals와 로직은 같지만, '총 개수(totalElements)'를 위해
+ * response 전체를 반환합니다.
+ */
+export async function searchHospitals(params = {}) {
+  const searchParams = new URLSearchParams();
+
+  // 1. 위치 정보
+  if (params.lat != null) searchParams.append("lat", params.lat);
+  if (params.lng != null) searchParams.append("lng", params.lng);
+  
+  // 2. 검색어 (진료과 필터)
+  // '전체'일 경우 빈 문자열로 보내야 백엔드가 전체 조회를 수행함
+  const keyword = params.deptName === "전체" ? "" : (params.deptName || "");
+  searchParams.append("keyword", keyword);
+  
+  // 3. 즐겨찾기 상태 확인용
+  if (params.userId) {
+    searchParams.append("userId", String(params.userId));
+  }
+
+  if (params.sunday) searchParams.append("isSunday", "true");   // 백엔드: isSunday
+  if (params.holiday) searchParams.append("isHoliday", "true"); // 백엔드: isHoliday
+  if (params.sort) searchParams.append("sort", params.sort);
+
+  // 4. 페이징
+  searchParams.append("page", params.page || 0);
+  searchParams.append("size", params.size || 20);
+
+  const url = `${BASE_URL}/api/hospitals/search?${searchParams.toString()}`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  const data = await ensureOk(res, "병원 검색 실패");
+  
+  // 🚨 중요: 배열(content)이 아니라, 전체 객체(data)를 반환합니다.
+  // data 구조: { content: [...], totalElements: 123, totalPages: 10, ... }
+  return data; 
+}
+
+/* =========================================================================
+ * ✅ [NEW] 병원 상세 조회 (진료과, 시간표, 의료진 포함)
+ * GET /api/hospitals/{hospitalId}
+ * ========================================================================= */
+export async function getHospitalDetail(hospitalId) {
+  const url = `${BASE_URL}/api/hospitals/${hospitalId}`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  return ensureOk(res, "병원 상세 정보 조회 실패");
+}
