@@ -32,6 +32,7 @@ import MyFavoritePage from "./pages/MyFavoritesPage";
 // 병원 예약 및 리뷰
 import HospitalReservationPage from "./pages/HospitalReservationPage";
 import HospitalReviewPage from "./pages/HospitalReviewPage";
+import HospitalDetailPage from "./pages/HospitalDetailPage";
 
 // 관리자(Admin) 페이지
 import DiseaseAdminList from "./pages/admin/DiseaseAdminList";
@@ -41,10 +42,13 @@ import DoctorVerificationList from "./pages/admin/DoctorVerificationList";
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList";
 import AdminSubscriptionPlanPage from "./pages/admin/AdminSubscriptionPlanPage";
 
+// 병원 찾기 (본인 작업 내용)
+import HospitalSearchPage from "./pages/HospitalSearchPage";
+
 // AI 채팅 위젯
 import AiChatWidget from "./components/AiChatWidget/AiChatWidget";
 
-// 병원 구독
+// 병원 구독 (개발자 A 작업 내용)
 import SubscriptionPurchasePage from "./pages/SubscriptionPurchasePage";
 
 import "./App.css";
@@ -105,7 +109,11 @@ function App() {
                 element={<HospitalReviewPage />}
               />
 
-              {/* 병원 구독 */}
+              {/* 병원 찾기 및 상세  */}
+              <Route path="/hospitals" element={<HospitalSearchPage />} />
+              <Route path="/hospitals/:hospitalId" element={<HospitalDetailPage />} />
+
+              {/* 병원 구독  */}
               <Route path="/subscription" element={<SubscriptionPurchasePage />} />
               <Route path="/mypage/subscription" element={<SubscriptionPurchasePage />} />
 
