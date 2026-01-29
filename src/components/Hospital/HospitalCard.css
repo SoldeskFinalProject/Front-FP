@@ -1,0 +1,61 @@
+.hospital-card-item {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.hospital-card-item:hover {
+  border-color: #228be6;
+  box-shadow: 0 4px 12px rgba(34, 139, 230, 0.15);
+  transform: translateY(-2px);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hospital-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.favorite-heart {
+  font-size: 1.2rem;
+}
+
+.badges-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge-open { background: #e6fcf5; color: #0ca678; }
+.badge-closed { background: #f1f3f5; color: #868e96; }
+.badge-unknown { background: #fff9db; color: #f59f00; }
+.badge-holiday { background: #fff5f5; color: #fa5252; border: 1px solid #ffc9c9; }
+
+.card-info { font-size: 13px; color: #666; }
+
+.rating-row {
+  display: flex; align-items: center; gap: 4px; margin-bottom: 6px;
+}
+.score { font-weight: 700; color: #333; }
+.distance { color: #228be6; font-weight: 700; }
+.tel-row { margin-top: 6px; color: #868e96; font-size: 12px; }

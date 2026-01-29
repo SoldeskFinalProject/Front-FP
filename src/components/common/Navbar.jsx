@@ -37,6 +37,8 @@ const Navbar = () => {
 
         <div className="navbar-section navbar-center">
           <Link to="/search" className="nav-item">증상검색</Link>
+          
+          {/* 의학 백과 드롭다운 */}
           <div className="nav-item dropdown-container">
             <span className="dropdown-trigger">의학 백과 ▾</span>
             <div className="dropdown-menu">
@@ -44,6 +46,12 @@ const Navbar = () => {
               <Link to="/disease" className="dropdown-item">질환 백과</Link>
             </div>
           </div>
+
+          {/* ✅ [수정됨] 드롭다운 밖으로 꺼내서 독립적으로 배치 */}
+          <Link to="/hospitals" className="nav-item">
+            병원 찾기
+          </Link>
+
           <Link to="/qna" className="nav-item">Q&A</Link>
         </div>
 

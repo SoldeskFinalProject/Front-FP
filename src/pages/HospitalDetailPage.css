@@ -1,0 +1,307 @@
+/* 전체 레이아웃 (PC 최적화) */
+.detail-page-wrapper {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 40px 0;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.detail-container {
+  max-width: 1200px; /* 넓은 PC 화면 대응 */
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 40px; /* 본문과 사이드바 간격 넓힘 */
+  align-items: flex-start;
+}
+
+/* === 메인 영역 (왼쪽) === */
+.detail-main {
+  flex: 1; /* 남은 공간 모두 차지 */
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  padding-bottom: 40px;
+}
+
+/* 히어로 이미지 */
+.hero-image-box {
+  width: 100%;
+  height: 400px; /* 높이 키움 */
+  background-color: #eee;
+  overflow: hidden;
+}
+.hero-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 헤더 */
+.main-header {
+  padding: 30px 40px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hospital-category {
+  font-size: 0.95rem;
+  color: #868e96;
+  font-weight: 500;
+}
+
+.hospital-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #212529;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ✅ [NEW] 즐겨찾기 버튼 스타일 */
+.favorite-header-btn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.favorite-header-btn:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* 즐겨찾기 활성화 상태 (Active) */
+.favorite-header-btn.active {
+  background-color: #fff9db; /* 연한 노랑 배경 */
+  border-color: #fcc419;
+  color: #f08c00;
+}
+
+.header-meta {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+}
+.rating-score { font-weight: 700; color: #212529; }
+.review-count { color: #868e96; text-decoration: underline; }
+
+.dept-tags-row {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dept-tag {
+  background-color: #e7f5ff;
+  color: #1864ab;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* 탭 메뉴 */
+.tabs-container {
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0 40px;
+}
+.tab-btn {
+  padding: 18px 24px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #adb5bd;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.tab-btn.active {
+  color: #212529;
+  border-bottom-color: #212529;
+}
+
+/* 탭 내용 */
+.tab-content-area {
+  padding: 40px;
+}
+
+.info-block { margin-bottom: 50px; }
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #343a40;
+}
+
+/* 시간표 */
+.time-table-wrapper {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #f1f3f5;
+}
+.time-table { width: 100%; border-collapse: collapse; }
+.time-table tr { border-bottom: 1px solid #e9ecef; }
+.time-table tr:last-child { border-bottom: none; }
+.time-table th {
+  text-align: left;
+  padding: 12px;
+  width: 100px;
+  font-size: 1rem;
+  color: #495057;
+}
+.time-table td {
+  text-align: right;
+  padding: 12px;
+  font-size: 1rem;
+  color: #212529;
+}
+.today-row { background-color: #fff9db; } /* 오늘 강조 */
+.today-badge {
+  margin-left: 8px;
+  background-color: #fab005;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.closed-day { color: #fa5252; }
+.closed-text { color: #adb5bd; }
+
+/* 의료진 그리드 */
+.doctor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.doctor-card {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.doctor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+}
+.doctor-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f1f3f5;
+  flex-shrink: 0;
+}
+.doctor-img img { width: 100%; height: 100%; object-fit: cover; }
+.doctor-name { font-size: 1.1rem; font-weight: 700; color: #212529; margin-bottom: 4px; }
+.doctor-spec { font-size: 0.9rem; color: #228be6; font-weight: 600; margin-bottom: 6px; }
+.doctor-bio { font-size: 0.85rem; color: #868e96; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ✅ [수정] 지도 대신 주소 텍스트 강조 스타일 */
+.address-container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.address-text { 
+  font-size: 1.1rem; 
+  color: #343a40; 
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* === 사이드바 (Sticky) === */
+.detail-sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px; /* 스크롤 시 상단 여백 */
+}
+
+.reservation-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.card-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; color: #212529; }
+.card-desc { font-size: 0.95rem; color: #868e96; margin-bottom: 24px; }
+
+.card-actions { display: flex; flex-direction: column; gap: 12px; }
+.action-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.action-btn.reserve {
+  background-color: #228be6;
+  color: white;
+}
+.action-btn.reserve:hover { background-color: #1971c2; transform: translateY(-2px); }
+
+.action-btn.route {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+.action-btn.route:hover { background-color: #e9ecef; }
+
+.divider { height: 1px; background: #e9ecef; margin: 24px 0; }
+
+.contact-label { display: block; font-size: 0.9rem; color: #868e96; margin-bottom: 4px; }
+.contact-number { font-size: 1.3rem; color: #212529; }
+
+/* === 반응형 (모바일) === */
+@media (max-width: 900px) {
+  .detail-container {
+    flex-direction: column;
+  }
+  .detail-sidebar {
+    width: 100%;
+    position: static;
+    margin-top: 20px;
+  }
+  .reservation-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .doctor-grid { grid-template-columns: 1fr; }
+}

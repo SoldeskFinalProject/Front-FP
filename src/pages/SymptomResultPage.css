@@ -1,3 +1,5 @@
+/* src/pages/SymptomResultPage.css */
+
 .result-page-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -83,230 +85,46 @@
   border-radius: 12px;
 }
 
-.no-data {
-  text-align: center;
-  color: #9ca3af;
-  padding: 20px;
-}
-
-.uploaded-image-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.result-image {
-  max-width: 500px;
-  max-height: 500px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.recommendation-placeholder {
-  text-align: center;
-  padding: 40px 20px;
-  background-color: #f9fafb;
-  border-radius: 8px;
-  border: 2px dashed #d1d5db;
-}
-
-.recommendation-placeholder p {
-  font-size: 16px;
-  color: #6b7280;
-  margin: 8px 0;
-}
-
-.placeholder-hint {
-  font-size: 14px;
-  color: #9ca3af;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 18px;
-  color: #6b7280;
-}
-
-/* 카드 전체 */
-.hospital-card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
-  text-align: left;
-}
-
-/* 1. 상단: 이름 / 평점+거리 / 즐겨찾기 */
-.hospital-row-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.hospital-top-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.hospital-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 4px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.hospital-type {
-  font-size: 0.82rem;
-  color: #6b7280;
-}
-
-/* 평점/거리 pill */
-.hospital-top-right {
+.recommendation-list {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.pill-row {
+/* 진료과 선택 카드 스타일 */
+.hospital-card {
+  /* 주의: components/HospitalCard.css의 클래스와 이름은 같지만 
+     여기서는 단순 '진료과 박스' 스타일로 사용됨 */
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: white;
   display: flex;
-  gap: 6px;
+  align-items: center;
+  transition: all 0.2s;
 }
 
-.pill {
-  font-size: 0.76rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background-color: #f3f4f6;
-  color: #4b5563;
-}
-
-.pill-rating {
-  min-width: 120px;
-  text-align: center;
-}
-
-.pill-distance {
-  min-width: 80px;
-  text-align: center;
-}
-
-/* 즐겨찾기 chip */
-.favorite-chip {
-  border: none;
+.hospital-card:hover {
   background-color: #f9fafb;
-  border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 0.78rem;
-  color: #6b7280;
-  cursor: pointer;
 }
 
-.favorite-chip.on {
-  background-color: #fef3c7;
-  color: #b45309;
-}
-
-/* 2. 중간: 주소 한 줄 */
-.hospital-row-middle {
-  margin-top: 6px;
-}
-
-.hospital-address {
-  font-size: 0.9rem;
-  color: #374151;
-  margin: 0;
-}
-
-/* 3. 하단: 전화번호 / 액션 버튼들 */
-.hospital-row-bottom {
-  margin-top: 8px;
+/* ✅ [NEW] 증상 결과 페이지 전용 병원 리스트 스타일 (세로 1열 고정) */
+.symptom-hospital-list {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* 무조건 세로로 쌓기 */
+  gap: 16px; /* 카드 사이 간격 */
 }
 
-.hospital-tel {
-  font-size: 0.86rem;
-  color: #4b5563;
-}
-
-.hospital-bottom-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 흰색 테두리 버튼 (예약/리뷰) */
-.secondary-button {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: #374151;
-  font-size: 0.84rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.secondary-button:hover {
-  background-color: #f3f4ff;
-}
-
-/* 파랑/흰색 길찾기 버튼 (기존 스타일 유지) */
-.naver-route-button {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: none;
-  background-color: #2563eb;
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.naver-route-button:hover {
-  background-color: #1d4ed8;
-}
-
+/* 혹시 모바일 반응형이 필요하다면 */
 @media (max-width: 768px) {
   .result-header {
     flex-direction: column;
-    gap: 16px;
     align-items: flex-start;
+    gap: 12px;
   }
-
-  .result-title {
-    font-size: 24px;
-  }
-
-  .symptom-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .result-image {
-    max-width: 100%;
-  }
-
-  .hospital-row-bottom {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .hospital-bottom-right {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+  
+  .symptom-hospital-list {
+    gap: 12px;
   }
 }
