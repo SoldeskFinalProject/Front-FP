@@ -20,14 +20,14 @@ body {
 }
 
 .layout {
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   flex-direction: column;
 }
 
 .text1 {
   text-align: center;
-  padding: 6rem;
+  padding: 3rem;
   font-size: 2rem;
   color: #1e293b;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

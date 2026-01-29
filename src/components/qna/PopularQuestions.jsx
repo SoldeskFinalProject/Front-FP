@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { getQuestionList } from "../../api/qnaAPI"
 import "./PopularQuestions.css"
@@ -12,11 +12,7 @@ const PopularQuestions = () => {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
 
-    useEffect(() => {
-        fetchPopularQuestions()
-    }, [currentPage])
-
-    const fetchPopularQuestions = async () => {
+    const fetchPopularQuestions = useCallback(async () => {
         try {
         setLoading(true)
         // 조회수 순으로 정렬된 질문을 가져옴 (백엔드에서 sort 파라미터 지원 필요)
@@ -28,7 +24,11 @@ const PopularQuestions = () => {
         } finally {
         setLoading(false)
         }
-    }
+    }, [currentPage])
+
+    useEffect(() => {
+        fetchPopularQuestions()
+    }, [fetchPopularQuestions])
 
     const handleQuestionClick = (questionId) => {
         navigate(`/qna/${questionId}`)
