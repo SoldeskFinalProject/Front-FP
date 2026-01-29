@@ -1,5 +1,5 @@
 // src/api/hospitalApi.js
-
+import { api } from "../config";
 // 백엔드 기본 URL
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
@@ -238,3 +238,9 @@ export async function createReviewByReservation(payload = {}) {
   return ensureOk(res, "리뷰 작성 실패");
 }
 
+export const searchHospitalsForVerification = async ({ keyword = "", page = 0, size = 10 }) => {
+  const res = await api.get("/api/hospitals/verification/search", {
+    params: { keyword, page, size },
+  });
+  return res.data; // Spring Page 형태
+};
