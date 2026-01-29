@@ -1,83 +1,88 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { getCommentsByAnswer, createComment, updateComment, deleteComment } from "../../api/qnaAPI"
-import { useAuth } from "../../contexts/AuthContext" // ✅ [추가] 유저 정보 가져오기
+import { useAuth } from "../../contexts/AuthContext"
+import { createReport } from "../../api/reportAPI"
+import ReportModal from "../common/ReportModal"
 import "./AnswerComments.css"
 
+// 트리 구조 변환 함수 (백엔드가 1차원 리스트로 줄 때)
+const buildCommentTree = (flatComments) => {
+    const commentMap = {};
+    const roots = [];
+    flatComments.forEach(c => {
+        commentMap[c.commentId] = { ...c, children: [] };
+    });
+    flatComments.forEach(c => {
+        if (c.parentCommentId) {
+            if (commentMap[c.parentCommentId]) {
+                commentMap[c.parentCommentId].children.push(commentMap[c.commentId]);
+            }
+        } else {
+            roots.push(commentMap[c.commentId]);
+        }
+    });
+    return roots;
+};
+
 const AnswerComments = ({ answerId }) => {
-    const { user } = useAuth() // ✅ 현재 로그인한 유저 정보 (내 ID 확인용)
+    const { user } = useAuth()
     const [comments, setComments] = useState([])
     const [newComment, setNewComment] = useState("")
-    
-    // 답글 관련
-    const [replyingTo, setReplyingTo] = useState(null) // 부모 댓글 ID
+
+    // 답글/수정/더보기 상태
+    const [replyingTo, setReplyingTo] = useState(null)
     const [replyContent, setReplyContent] = useState("")
-    
-    // 수정 관련
     const [editingCommentId, setEditingCommentId] = useState(null)
     const [editContent, setEditContent] = useState("")
-    
-    // 더보기(펼치기) 관련
     const [expandedGroups, setExpandedGroups] = useState({})
+
+    // ✅ 신고 모달 상태 (댓글 전용)
+    const [reportModal, setReportModal] = useState({ open: false, type: null, id: null });
+
+    const loadComments = useCallback(async () => {
+        if (!answerId) return;
+        try {
+            const data = await getCommentsByAnswer(answerId)
+            const treeData = buildCommentTree(data) // 트리 구조로 변환
+            setComments(treeData)
+        } catch (err) {
+            console.error("댓글 로드 실패:", err)
+        }
+    }, [answerId])
 
     useEffect(() => {
         loadComments()
-    }, [answerId])
+    }, [loadComments])
 
-    const loadComments = async () => {
-        try {
-        const data = await getCommentsByAnswer(answerId)
-        setComments(data)
-        } catch (err) {
-        console.error("댓글 로드 실패:", err)
-        }
-    }
-
-    // ✅ 댓글 등록
+    // --- 핸들러들 ---
     const handleCreateComment = async () => {
-        if (!user) return alert("로그인이 필요합니다.") // 로그인 체크
+        if (!user) return alert("로그인이 필요합니다.")
         if (!newComment.trim()) return
-
         try {
-        // userId는 보내지 않음 (백엔드가 토큰에서 찾음)
-        await createComment({
-            answerId,
-            content: newComment,
-            parentCommentId: null,
-        })
-        setNewComment("")
-        loadComments()
+            await createComment({ answerId, content: newComment, parentCommentId: null })
+            setNewComment("")
+            loadComments()
         } catch (err) {
-        console.error("댓글 작성 실패:", err)
-        alert("댓글 작성에 실패했습니다.")
+            console.error(err); alert("댓글 작성 실패")
         }
     }
 
-    // ✅ 대댓글 등록
     const handleCreateReply = async (parentCommentId) => {
         if (!user) return alert("로그인이 필요합니다.")
         if (!replyContent.trim()) return
-
         try {
-        await createComment({
-            answerId,
-            content: replyContent,
-            parentCommentId,
-        })
-        setReplyingTo(null)
-        setReplyContent("")
-        loadComments() // 목록 갱신 -> 자동으로 펼쳐진 상태 유지됨
-        
-        // 답글 단 그룹을 자동으로 펼쳐주기 (UX 향상)
-        setExpandedGroups(prev => ({ ...prev, [parentCommentId]: true }))
+            await createComment({ answerId, content: replyContent, parentCommentId })
+            setReplyingTo(null)
+            setReplyContent("")
+            await loadComments()
+            setExpandedGroups(prev => ({ ...prev, [parentCommentId]: true }))
         } catch (err) {
-        console.error("대댓글 작성 실패:", err)
-        alert("대댓글 작성에 실패했습니다.")
+            console.error(err); alert("대댓글 작성 실패")
         }
     }
 
-    // ✅ 댓글 수정
     const handleUpdateComment = async (commentId) => {
         if (!editContent.trim()) return
         try {
@@ -86,186 +91,136 @@ const AnswerComments = ({ answerId }) => {
             setEditContent("")
             loadComments()
         } catch (err) {
-            console.error("댓글 수정 실패:", err)
-            alert("댓글 수정에 실패했습니다.")
+            console.error(err); alert("댓글 수정 실패")
         }
     }
 
-    // ✅ 댓글 삭제
     const handleDeleteComment = async (commentId) => {
         if (!window.confirm("댓글을 삭제하시겠습니까?")) return
-
         try {
-        // userId 파라미터 없이 호출 (백엔드가 토큰으로 본인 확인)
-        await deleteComment(commentId)
-        loadComments()
+            await deleteComment(commentId)
+            loadComments()
         } catch (err) {
-        console.error("댓글 삭제 실패:", err)
-        alert(err.response?.data || "댓글 삭제에 실패했습니다.")
+            console.error(err); alert("댓글 삭제 실패")
         }
     }
 
-    const startEditing = (comment) => {
-        setEditingCommentId(comment.commentId)
-        setEditContent(comment.content)
-    }
+    // 신고 열기
+    const openReport = (type, id) => {
+        if (!user) return alert("로그인이 필요합니다.");
+        setReportModal({ open: true, type, id });
+    };
 
-    // 트리 구조 평탄화 (재귀)
-    const flattenCommentTree = (comment) => {
-        const flattened = [comment]
-        if (comment.children && comment.children.length > 0) {
-        comment.children.forEach((child) => {
-            flattened.push(...flattenCommentTree(child))
-        })
+    const handleReportSubmit = async (reason) => {
+        try {
+            await createReport({ targetType: reportModal.type, targetId: reportModal.id, reason });
+            alert("신고가 접수되었습니다.");
+            setReportModal({ open: false, type: null, id: null });
+        } catch (err) {
+            console.error("", err)
+            alert("신고 처리 중 오류가 발생했습니다.");
         }
-        return flattened
-    }
+    };
 
-    const toggleGroup = (parentId) => {
-        setExpandedGroups((prev) => ({
-        ...prev,
-        [parentId]: !prev[parentId],
-        }))
-    }
-
-  // 렌더링 헬퍼 함수
+    // --- 렌더링 ---
     const renderCommentGroup = (parentComment) => {
-        const flatComments = flattenCommentTree(parentComment)
+        // (트리 평탄화 함수 필요 시 컴포넌트 내부나 외부에 정의)
+        const flatten = (node) => {
+            let res = [node];
+            if (node.children) node.children.forEach(c => res.push(...flatten(c)));
+            return res;
+        }
+        const flatComments = flatten(parentComment);
         const parentId = parentComment.commentId
         const isExpanded = !!expandedGroups[parentId]
-
         const visibleComments = isExpanded ? flatComments : flatComments.slice(0, 1)
         const restCount = flatComments.length - 1
 
-    return (
-        <div key={parentId} className="comment-group">
-            {visibleComments.map((comment, index) => {
-            const isParent = index === 0 // 첫 번째 요소가 부모
-            
-            // ✅ [핵심] 내가 쓴 댓글인지 확인 (user.userId 와 comment.userId 비교)
-            // user가 null일 수 있으므로 옵셔널 체이닝(?.) 사용
-            const isMyComment = user?.userId === comment.userId
+        return (
+            <div key={parentId} className="comment-group">
+                {visibleComments.map((comment, index) => {
+                    const isParent = index === 0
+                    const isMyComment = user && String(user.userId) === String(comment.userId)
 
-            return (
-                <div
-                key={comment.commentId}
-                className={`comment-item ${!isParent ? "reply-item" : ""}`}
-                >
-                {editingCommentId === comment.commentId ? (
-                    // 수정 모드
-                    <div className="comment-edit-box">
-                    <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        rows={2}
-                    />
-                    <div className="comment-edit-actions">
-                        <button className="save-btn" onClick={() => handleUpdateComment(comment.commentId)}>
-                        저장
-                        </button>
-                        <button className="cancel-btn" onClick={() => setEditingCommentId(null)}>
-                        취소
-                        </button>
-                    </div>
-                    </div>
-                ) : (
-                    // 읽기 모드
-                    <>
-                    <div className="comment-header">
-                        <span className="comment-author">{comment.userName}</span>
-                        <span className="comment-date">
-                        {new Date(comment.createdAt).toLocaleDateString()}
-                        </span>
-                    </div>
+                    return (
+                        <div key={comment.commentId} className={`comment-item ${!isParent ? "reply-item" : ""}`}>
+                            {editingCommentId === comment.commentId ? (
+                                <div className="comment-edit-box">
+                                    <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={2} />
+                                    <div className="comment-edit-actions">
+                                        <button className="save-btn" onClick={() => handleUpdateComment(comment.commentId)}>저장</button>
+                                        <button className="cancel-btn" onClick={() => setEditingCommentId(null)}>취소</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* ✅ 댓글 헤더: 작성자/날짜 (왼쪽) vs 신고/삭제 (오른쪽) */}
+                                    <div className="comment-header-row">
+                                        <div className="comment-info">
+                                            <span className="comment-author">{comment.userName}</span>
+                                            <span className="comment-date">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        
+                                        {/* ✅ 우측 상단 버튼들 */}
+                                        <div className="comment-top-actions">
+                                            {isMyComment ? (
+                                                <>
+                                                    <span onClick={() => { setEditingCommentId(comment.commentId); setEditContent(comment.content); }}>수정</span>
+                                                    <span onClick={() => handleDeleteComment(comment.commentId)}>삭제</span>
+                                                </>
+                                            ) : (
+                                                <span className="report-link" onClick={() => openReport("COMMENT", comment.commentId)}>
+                                                    🚨 신고
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
 
-                    <p className="comment-content">{comment.content}</p>
+                                    <p className="comment-content">{comment.content}</p>
 
-                    <div className="comment-actions">
-                        {/* 답글 버튼은 로그인한 사람 누구나 가능 */}
-                        <button onClick={() => {
-                            if(!user) return alert("로그인이 필요합니다.");
-                            setReplyingTo(parentId);
-                        }}>답글</button>
+                                    {/* 하단 답글 달기 버튼 */}
+                                    <div className="comment-bottom-actions">
+                                        <button className="reply-btn" onClick={() => {
+                                            if (!user) return alert("로그인이 필요합니다.");
+                                            setReplyingTo(parentId);
+                                        }}>답글 달기</button>
+                                    </div>
+                                </>
+                            )}
 
-                        {/* ✅ 수정/삭제 버튼은 '내 댓글'일 때만 보임 */}
-                        {isMyComment && (
-                            <>
-                                <button onClick={() => startEditing(comment)}>수정</button>
-                                <button onClick={() => handleDeleteComment(comment.commentId)}>삭제</button>
-                            </>
-                        )}
-                    </div>
-                    </>
-                )}
-
-                {/* 답글 입력창 위치 계산 로직 (기존 유지) */}
-                {replyingTo === parentId &&
-                    ((!isExpanded && isParent) || (isExpanded && index === visibleComments.length - 1)) && (
-                    <div className="reply-box">
-                        <textarea
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder="답글을 입력하세요..."
-                        rows={2}
-                        />
-                        <div className="reply-actions">
-                        <button className="submit-btn" onClick={() => handleCreateReply(parentId)}>
-                            답글 등록
-                        </button>
-                        <button className="cancel-btn" onClick={() => setReplyingTo(null)}>
-                            취소
-                        </button>
+                            {/* 답글 입력창 */}
+                            {replyingTo === parentId &&
+                                ((!isExpanded && isParent) || (isExpanded && index === visibleComments.length - 1)) && (
+                                    <div className="reply-box">
+                                        <textarea value={replyContent} onChange={(e) => setReplyContent(e.target.value)} placeholder="답글 입력..." rows={2} />
+                                        <div className="reply-actions">
+                                            <button className="submit-btn" onClick={() => handleCreateReply(parentId)}>등록</button>
+                                            <button className="cancel-btn" onClick={() => setReplyingTo(null)}>취소</button>
+                                        </div>
+                                    </div>
+                                )}
                         </div>
-                    </div>
-                    )}
-                </div>
-            )
-            })}
-
-            {/* 더보기 버튼 */}
-            {restCount > 0 && (
-            <button type="button" className="comment-toggle-btn" onClick={() => toggleGroup(parentId)}>
-                {isExpanded ? "댓글 접기" : `댓글 ${restCount}개 더보기`}
-            </button>
-            )}
-        </div>
+                    )
+                })}
+                {restCount > 0 && (
+                    <button className="comment-toggle-btn" onClick={() => setExpandedGroups(prev => ({ ...prev, [parentId]: !prev[parentId] }))}>
+                        {isExpanded ? "접기" : `댓글 ${restCount}개 더보기`}
+                    </button>
+                )}
+            </div>
         )
     }
 
-    // 최상위 댓글(부모가 null인 것)만 필터링해서 렌더링 시작
-    const topLevelComments = comments.filter((comment) => !comment.parentCommentId)
-
     return (
         <div className="answer-comments">
-        {/* 최상단 댓글 입력창 */}
-        <div className="comment-input-section">
-            <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder={user ? "댓글을 입력하세요." : "로그인 후 댓글을 작성할 수 있습니다."}
-            rows={3}
-            maxLength={1000}
-            disabled={!user} // 로그인 안 하면 입력 불가
-            />
-            <div className="comment-input-footer">
-            <span className="char-count">{newComment.length} / 1000</span>
-            <button 
-                className="submit-comment-btn" 
-                onClick={handleCreateComment}
-                disabled={!user || !newComment.trim()} // 로그인 안 했거나 빈 내용이면 버튼 비활성
-            >
-                등록
-            </button>
+            <div className="comment-input-section">
+                <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder={user ? "댓글을 입력하세요." : "로그인 필요"} disabled={!user} />
+                <button className="submit-comment-btn" onClick={handleCreateComment} disabled={!user || !newComment.trim()}>등록</button>
             </div>
-        </div>
-
-        <div className="comments-list">
-            {comments.length === 0 ? (
-            <p className="no-comments">아직 댓글이 없습니다.</p>
-            ) : (
-            topLevelComments.map((comment) => renderCommentGroup(comment))
-            )}
-        </div>
+            <div className="comments-list">
+                {comments.length === 0 ? <p className="no-comments">댓글이 없습니다.</p> : comments.map(renderCommentGroup)}
+            </div>
+            <ReportModal isOpen={reportModal.open} onClose={() => setReportModal({ ...reportModal, open: false })} onSubmit={handleReportSubmit} targetType={reportModal.type} />
         </div>
     )
 }

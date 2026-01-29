@@ -3,7 +3,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
-import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
+// import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
 import "./Navbar.css"
 
 const Navbar = () => {
