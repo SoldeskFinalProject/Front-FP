@@ -3,12 +3,12 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
-// import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
+import VerificationStatusBanner from "../verification/VerificationStatusBanner" // ✅ 경로 맞게 수정
 import "./Navbar.css"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, loading, isAdmin, isHospitalMember, verificationStatus } = useAuth()
+  const { user, logout, loading, isAdmin, isHospitalMember } = useAuth()
   const navigate = useNavigate()
 
   const toggleSidebar = () => {
@@ -122,6 +122,9 @@ const Navbar = () => {
 
                       <Link to="/admin/subscriptions/plans" className="sidebar-item" onClick={toggleSidebar}>
                         💳 구독 상품(플랜) 관리
+                      </Link>
+                      <Link to="/admin/reports" className="sidebar-item" onClick={toggleSidebar}>
+                        🚨 신고 접수 현황
                       </Link>
                     </>
                   )}
