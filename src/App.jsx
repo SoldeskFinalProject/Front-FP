@@ -39,9 +39,13 @@ import DiseaseAdminForm from "./pages/admin/DiseaseAdminForm";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import DoctorVerificationList from "./pages/admin/DoctorVerificationList";
 import HospitalVerificationList from "./pages/admin/HospitalVerificationList";
+import AdminSubscriptionPlanPage from "./pages/admin/AdminSubscriptionPlanPage";
 
 // AI 채팅 위젯
 import AiChatWidget from "./components/AiChatWidget/AiChatWidget";
+
+// 병원 구독
+import SubscriptionPurchasePage from "./pages/SubscriptionPurchasePage";
 
 import "./App.css";
 import AdminReportPage from "./pages/admin/AdminReportPage";
@@ -101,6 +105,10 @@ function App() {
                 element={<HospitalReviewPage />}
               />
 
+              {/* 병원 구독 */}
+              <Route path="/subscription" element={<SubscriptionPurchasePage />} />
+              <Route path="/mypage/subscription" element={<SubscriptionPurchasePage />} />
+
               {/* 관리자(Admin) */}
               <Route path="/admin/diseases" element={<DiseaseAdminList />} />
               <Route path="/admin/diseases/form" element={<DiseaseAdminForm />} />
@@ -110,6 +118,7 @@ function App() {
               <Route path="/admin/verification/hospital" element={<HospitalVerificationList />} />
               <Route path="/admin/reports" element={<AdminReportPage />} />
               {/* <Route path="/admin/verification" */}
+              <Route path="/admin/subscriptions/plans" element={<AdminSubscriptionPlanPage />} />
             </Routes>
           </main>
 
