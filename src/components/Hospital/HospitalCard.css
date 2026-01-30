@@ -59,3 +59,34 @@
 .score { font-weight: 700; color: #333; }
 .distance { color: #228be6; font-weight: 700; }
 .tel-row { margin-top: 6px; color: #868e96; font-size: 12px; }
+
+/* =========================================
+   ✅ [NEW] 프리미엄(광고) 스타일 추가
+   ========================================= */
+
+/* 1. 금색 테두리 및 배경 */
+.hospital-card-item.premium {
+  border: 2px solid #ffd43b !important; /* 노란색 강조 (우선순위 높임) */
+  background: linear-gradient(to bottom right, #ffffff, #fff9db); /* 은은한 금빛 배경 */
+  box-shadow: 0 4px 12px rgba(255, 212, 59, 0.3); /* 살짝 빛나는 효과 */
+}
+
+/* 2. 추천 뱃지 */
+.badge-premium {
+  display: inline-block;
+  background-color: #ffd43b;
+  color: #212529;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-right: 8px; /* 이름과의 간격 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  vertical-align: middle;
+}
+
+/* (선택사항) 프리미엄 카드는 호버 시 조금 더 강조 */
+.hospital-card-item.premium:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 20px rgba(255, 212, 59, 0.4);
+}
