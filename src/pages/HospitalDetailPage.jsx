@@ -6,6 +6,7 @@ import {
   removeHospitalFavorite 
 } from "../api/hospitalApi";
 import "./HospitalDetailPage.css";
+import { api } from "../config";
 
 export default function HospitalDetailPage() {
   const { hospitalId } = useParams();
@@ -24,6 +25,7 @@ export default function HospitalDetailPage() {
   const todayIndex = new Date().getDay(); 
   const dayMap = ["일", "월", "화", "수", "목", "금", "토"];
   const currentDayStr = dayMap[todayIndex];
+  const [reviews, setReviews] = useState([]);
 
   // 1. 내 위치 가져오기
   useEffect(() => {
@@ -45,23 +47,23 @@ export default function HospitalDetailPage() {
     const loadDetail = async () => {
       try {
         setLoading(true);
+        // 1. 병원 상세 정보 가져오기
         const data = await getHospitalDetail(hospitalId);
-        
-        if (location.state?.hospital?.isFavorite) {
-            data.isFavorite = true;
-        }
-        
         setHospital(data);
+
+        // 2. 리뷰 목록만 따로 가져오는 API 호출 (백엔드에 해당 엔드포인트가 있어야 함)
+        // 예: GET /api/hospitals/{hospitalId}/reviews
+        const reviewData = await api.get(`/api/hospitals/${hospitalId}/reviews`);
+        setReviews(reviewData.data); 
+        
       } catch (error) {
-        console.error("실패:", error);
-        alert("병원 정보를 불러올 수 없습니다.");
-        navigate(-1);
+        console.error("데이터 로드 실패:", error);
       } finally {
         setLoading(false);
       }
     };
     loadDetail();
-  }, [hospitalId, navigate, location.state]);
+  }, [hospitalId]);
 
   // 길찾기
   const handleRouteClick = () => {
@@ -231,10 +233,36 @@ export default function HospitalDetailPage() {
                </div>
              ) : (
                <div className="review-content">
-                  <div className="empty-review-box">
-                    <p>등록된 리뷰가 없습니다.</p>
-                    <p className="sub-text">첫 번째 리뷰를 남겨보세요!</p>
-                  </div>
+                  {reviews && reviews.length > 0 ? (
+                    <div className="review-list">
+                      {reviews.map((r) => (
+                        <div key={r.reviewId} className="review-item-card">
+                          <div className="review-item-top">
+                            <div className="user-info">
+                              <div className="user-avatar">{r.userName?.charAt(0) || "익"}</div>
+                              <div className="user-meta">
+                                <span className="user-name">{r.userName || "익명 사용자"}</span>
+                                <span className="review-date">
+                                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "날짜 없음"}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="review-rating-badge">
+                              ⭐ {Number(r.rating).toFixed(1)}
+                            </div>
+                          </div>
+                          <div className="review-item-body">
+                            <p className="review-text">{r.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-review-box">
+                      <div className="empty-icon">📝</div>
+                      <p>아직 작성된 리뷰가 없습니다.<br/>첫 번째 리뷰의 주인공이 되어보세요!</p>
+                    </div>
+                 )}
                </div>
              )}
           </div>
