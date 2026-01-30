@@ -154,7 +154,7 @@ const MyReviewPage = () => {
                         <p className="visit-date">방문 날짜: {formatDate(res.reservedAt)}</p>
                       </div>
 
-                      <button className="go-review-btn" onClick={() => goReviewPage(res.id)}>
+                      <button className="go-review-btn" onClick={() => goReviewPage(res.reservationId)}>
                         리뷰 작성하기
                       </button>
                     </div>
