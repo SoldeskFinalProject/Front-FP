@@ -53,7 +53,7 @@ export default function SubscriptionPurchasePage() {
     setLoadingMySub(true);
     try {
       // ✅ “URL 고친 버전” 기준: hospitalId 받는 형태
-      const data = await getMyHospitalSubscriptionStatus(hospitalId);
+      const data = await getMyHospitalSubscriptionStatus();
       setMySub(data);
     } catch (e) {
       console.error("getMyHospitalSubscriptionStatus error:", e);
@@ -180,81 +180,56 @@ export default function SubscriptionPurchasePage() {
 
     setPaying(true);
     try {
-      // 1) checkout
+      // 1) 서버에 주문(Payment) 미리 생성
       const checkout = await checkoutSubscription({
         planId: selectedPlan.planId,
         hospitalId: myHospital.hospitalId,
         pgProvider: "PORTONE_V2",
       });
 
-      // 2) 결제창 (일회 결제)
-      const paymentResponse = await PortOne.requestPayment({
+      // 2) 빌링키 발급창 하나만 호출 (기존 requestPayment 제거)
+      const customerKey = `hospital_${myHospital.hospitalId}`;
+
+      const issueRes = await PortOne.requestIssueBillingKey({
         storeId: STORE_ID,
         channelKey: CHANNEL_KEY,
         paymentId: checkout.orderId,
-        orderName: checkout.planName ?? "구독 결제",
-        totalAmount: checkout.amount,
-        currency: "CURRENCY_KRW",
-        payMethod: "EASY_PAY",
+        billingKeyMethod: "EASY_PAY", // ✅ 필수 파라미터 추가
+        issueName: `${checkout.planName} 구독 및 자동결제 등록`,
+        customer: { 
+          customerId: customerKey,
+          fullName: user?.name || "병원관계자"
+         },
+        easyPay: { 
+          provider: "TOSSPAY" // 채널 설정에 맞게 "TOSSPAY", "KAKAOPAY" 등 사용
+        },
       });
 
-      if (paymentResponse?.code) {
-        console.error("PortOne payment failed:", paymentResponse);
-        alert(`결제 실패: ${paymentResponse.message || paymentResponse.code}`);
+      // 빌링키 발급 실패 시 처리
+      if (issueRes?.code) {
+        console.error("Issue billingKey failed:", issueRes);
+        alert(`결제 준비 실패: ${issueRes.message || issueRes.code}`);
         return;
       }
 
-      const paymentId = paymentResponse?.paymentId;
-      if (!paymentId) {
-        console.error("Missing paymentId:", paymentResponse);
-        alert("결제 응답 값이 올바르지 않습니다(paymentId 없음).");
-        return;
-      }
-
-      // 2-1) billingKey (없으면 발급)
-      let billingKey = paymentResponse?.billingKey ?? null;
-
+      const billingKey = issueRes?.billingKey;
       if (!billingKey) {
-        const customerKey =
-          checkout.customerKey ?? `hospital:${myHospital.hospitalId}`;
-
-        const issueRes = await PortOne.requestIssueBillingKey({
-          storeId: STORE_ID,
-          channelKey: CHANNEL_KEY,
-          payMethod: "EASY_PAY",
-          issueName: "병원 구독 자동결제 빌링키",
-          customer: { customerId: customerKey },
-          billingKeyMethod: "EASY_PAY",
-          easyPay: { provider: "TOSSPAY" }, // ✅ 채널 설정과 일치 필요
-        });
-
-        if (issueRes?.code) {
-          console.error("Issue billingKey failed:", issueRes);
-          alert(`빌링키 발급 실패: ${issueRes.message || issueRes.code}`);
-          return;
-        }
-        billingKey = issueRes?.billingKey ?? null;
-      }
-
-      if (!billingKey) {
-        alert("자동결제용 billingKey 발급에 실패했습니다.");
+        alert("자동결제용 billingKey를 받지 못했습니다.");
         return;
       }
 
-      const customerKey =
-        checkout.customerKey ?? `hospital:${myHospital.hospitalId}`;
-
-      // 3) confirm
+      // 3) 백엔드에 빌링키 전달 -> 백엔드가 결제 승인 + 구독 활성화 수행
       await confirmFirstPayment({
         orderId: checkout.orderId,
-        pgPaymentKey: paymentId,
-        billingKey,
-        customerKey,
+        billingKey: billingKey,
+        customerKey: customerKey,
       });
 
       alert("결제가 완료되었습니다. 구독이 활성화되었습니다.");
       await refreshMySubscription();
+
     } catch (e) {
+      // 에러 로깅 유지
       console.error("❌ confirmFirstPayment error status:", e?.response?.status);
       console.error("❌ confirmFirstPayment error data:", e?.response?.data);
       console.error("❌ confirmFirstPayment error:", e);
@@ -364,17 +339,25 @@ export default function SubscriptionPurchasePage() {
             {/* ✅ 해지 기능 UI */}
             {mySub.active && (
               <div className="sp-inline-actions">
-                {mySub.autoRenew === true ? (
-                  <button
-                    className="sp-btn sp-btn-danger"
-                    onClick={onCancelAutoRenew}
-                    disabled={canceling}
-                  >
-                    {canceling ? "처리 중..." : "구독 해지 (자동결제 OFF)"}
-                  </button>
+                {/* 1. 결제자(isOwner)인 경우에만 버튼 노출 */}
+                {mySub.isOwner ? ( 
+                  mySub.autoRenew === true ? (
+                    <button
+                      className="sp-btn sp-btn-danger"
+                      onClick={onCancelAutoRenew}
+                      disabled={canceling}
+                    >
+                      {canceling ? "처리 중..." : "구독 해지 (자동결제 OFF)"}
+                    </button>
+                  ) : (
+                    <div className="sp-hint">
+                      ✅ 해지 예약 상태입니다. 종료일(endAt)까지 이용 가능합니다.
+                    </div>
+                  )
                 ) : (
-                  <div className="sp-hint">
-                    ✅ 해지 예약 상태입니다. 종료일(endAt)까지 이용 가능하며 이후 자동결제는 진행되지 않습니다.
+                  /* 2. 결제자가 아닌 동료 직원에게 보이는 안내 */
+                  <div className="sp-hint sp-owner-info">
+                    ℹ️ 구독 관리는 최초 결제자만 가능합니다.
                   </div>
                 )}
               </div>
@@ -389,7 +372,7 @@ export default function SubscriptionPurchasePage() {
 
       {/* 1) 내 병원 */}
       <section className="sp-section">
-        <h3 className="sp-section-title">1) 내 병원 (고정)</h3>
+        <h3 className="sp-section-title"> 내 병원 (고정)</h3>
 
         {loadingMyHospital ? (
           <div className="sp-loading">내 병원 정보를 불러오는 중...</div>
@@ -402,7 +385,6 @@ export default function SubscriptionPurchasePage() {
               {myHospital.dutyAddr ?? myHospital.addr ?? "주소 정보 없음"}
             </div>
             <div className="sp-info">{myHospital.dutyTel1 ?? myHospital.tel ?? ""}</div>
-            <div className="sp-meta">hospitalId: {myHospital.hospitalId}</div>
           </div>
         ) : (
           <div className="sp-error">

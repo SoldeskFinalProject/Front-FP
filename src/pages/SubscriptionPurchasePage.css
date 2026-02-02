@@ -1,204 +1,157 @@
 /* src/pages/SubscriptionPurchasePage.css */
 
-/* 페이지 전체 배경 및 레이아웃 */
 .sp-page {
-  max-width: 800px; /* 너무 넓지 않게 조정하여 몰입감 향상 */
+  max-width: 800px;
   margin: 0 auto;
   padding: 60px 20px 100px;
   font-family: 'Pretendard', -apple-system, sans-serif;
   color: #1a202c;
+  background-color: #fcfcfd; /* 배경에 아주 살짝 색감을 주어 카드를 돋보이게 함 */
 }
 
-/* 상단 헤더: 서비스 아이덴티티 강조 */
+/* 상단 헤더 */
 .sp-header {
   text-align: center;
   margin-bottom: 40px;
 }
 
 .sp-title {
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 800;
-  letter-spacing: -1.5px;
-  background: linear-gradient(135deg, #1976d2 0%, #64b5f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 12px;
+  color: #2d3748;
+  letter-spacing: -1px;
 }
 
 .sp-subtitle {
   font-size: 16px;
   color: #718096;
-  font-weight: 500;
+  margin-top: 12px;
 }
 
-/* 섹션 카드: 깊이감 있는 그림자와 둥근 모서리 */
+/* 섹션 카드 */
 .sp-section {
   background: #ffffff;
   border-radius: 24px;
-  padding: 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-  border: 1px solid #edf2f7;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 은은한 그림자 */
+  border: 1px solid #f1f5f9;
   margin-bottom: 24px;
-  transition: transform 0.3s ease;
 }
 
 .sp-section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #f7fafc;
+  margin-bottom: 24px;
 }
 
 .sp-section-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #2d3748;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* 내 구독 상태 정보 박스 */
+/* 강조 숫자 제거 후 더 깔끔한 느낌 */
+.sp-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: #1976d2;
+  border-radius: 2px;
+}
+
+/* 구독 상세 카드 */
 .sp-card {
   background: #f8fbff;
   border-radius: 20px;
   padding: 24px;
-  border: 1px solid #e1e8f0;
+  border: 1px solid #e2e8f0;
+  text-align: center;
 }
 
 .sp-card-title {
   font-size: 22px;
   font-weight: 800;
   color: #1976d2;
+  margin-bottom: 16px;
 }
 
-/* 상태 뱃지 디자인 */
-.sp-status-row {
-  margin: 15px 0;
-  display: flex;
-  gap: 10px;
+/* hospitalId 숨기기 */
+.sp-meta {
+  display: none; /* 사용자에게 보이지 않도록 숨김 */
 }
 
-.sp-badge {
-  padding: 6px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.sp-badge-on { background: #e3f2fd; color: #1976d2; }
-.sp-badge-warn { background: #fff3e0; color: #ef6c00; }
-
-/* Key-Value 리스트 스타일 */
+/* Key-Value 리스트 */
 .sp-kv {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 20px;
+  text-align: left;
 }
 
 .sp-kv-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px dashed #e2e8f0;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f7;
 }
 
-.sp-kv-k { color: #718096; font-size: 14px; font-weight: 600; }
-.sp-kv-v { color: #2d3748; font-size: 14px; font-weight: 700; }
+.sp-kv-k { color: #64748b; font-size: 14px; font-weight: 600; }
+.sp-kv-v { color: #1e293b; font-size: 14px; font-weight: 700; }
 
-/* 플랜 선택 그리드 */
+/* 플랜 그리드 */
 .sp-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 3개보다 2개가 시각적으로 안정적 */
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-top: 15px;
 }
 
 .sp-plan {
-  position: relative;
   padding: 24px;
   border-radius: 20px;
-  border: 2px solid #edf2f7;
+  border: 2px solid #f1f5f9;
   background: white;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+  text-align: center;
 }
 
 .sp-plan:hover {
-  border-color: #bbdefb;
-  background: #fcfdff;
-  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
 }
 
 .sp-plan.is-selected {
   border-color: #1976d2;
   background: #f0f7ff;
-  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.1);
 }
 
-.sp-plan.is-selected::after {
-  content: '✓';
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #1976d2;
-  color: white;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
+.sp-plan-title { font-weight: 800; font-size: 17px; margin-bottom: 6px; }
+.sp-plan-info { font-size: 14px; color: #64748b; }
 
-.sp-plan-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
-.sp-plan-info { font-size: 15px; color: #4a5568; font-weight: 600; }
-
-/* 버튼 디자인 */
-.sp-btn {
-  border-radius: 16px;
-  padding: 16px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-
+/* 버튼 */
 .sp-btn-primary {
+  width: 100%;
+  padding: 18px;
   background: #1976d2;
   color: white;
-  width: 100%;
-  box-shadow: 0 4px 14px rgba(25, 118, 210, 0.3);
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+  margin-top: 20px;
 }
 
-.sp-btn-primary:hover:not(:disabled) {
-  background: #1565c0;
-  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
-}
-
-.sp-btn-ghost {
-  background: #f7fafc;
-  color: #4a5568;
-  padding: 8px 16px;
-  font-size: 13px;
-  border-radius: 10px;
-}
-
-/* 하단 꼬리말 */
-.sp-footer {
-  margin-top: 30px;
-  text-align: center;
-  font-size: 13px;
-  color: #a0aec0;
-  line-height: 1.6;
-}
-
-/* 반응형 모바일 */
-@media (max-width: 600px) {
-  .sp-grid { grid-template-columns: 1fr; }
-  .sp-title { font-size: 28px; }
-  .sp-section { padding: 20px; }
+.sp-btn-primary:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
 }
