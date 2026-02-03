@@ -30,6 +30,7 @@ export default function FindAccount() {
             });
         }
     } catch (err) {
+      console.error("", err)
         setMessage({ type: "error", text: "정보를 찾을 수 없거나 발송에 실패했습니다." });
     }
 };
