@@ -128,6 +128,10 @@ const Navbar = () => {
                         🛠 승인 요청 관리
                       </Link>
 
+                      <Link to="/admin/reports" className="sidebar-item" onClick={toggleSidebar}>
+                        🚨 신고 접수 현황
+                      </Link>
+
                       <Link to="/admin/subscriptions/plans" className="sidebar-item" onClick={toggleSidebar}>
                         💳 구독 상품(플랜) 관리
                       </Link>

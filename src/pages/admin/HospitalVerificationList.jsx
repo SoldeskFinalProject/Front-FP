@@ -15,9 +15,11 @@ const HospitalVerificationList = () => {
     const [showRejectModal, setShowRejectModal] = useState(false)
     const [processing, setProcessing] = useState(false)
 
+    // 목록 조회
     const fetchRequests = useCallback(async () => {
         try {
             setLoading(true)
+            // 백엔드에서 hospitalName, userName, businessNumber가 포함된 데이터를 받아옵니다.
             const data = await getVerificationRequests("HOSPITAL", filterDecision)
             setRequests(data)
         } catch (error) {
@@ -31,28 +33,31 @@ const HospitalVerificationList = () => {
         fetchRequests()
     }, [fetchRequests])
 
+    // 승인 처리
     const handleApprove = async (requestId) => {
         if (!confirm("이 요청을 승인하시겠습니까?")) return
 
         try {
-            setProcessing(true)
-            await approveRequest(requestId)
-            alert("승인이 완료되었습니다.")
-            fetchRequests() // 재조회
+        setProcessing(true)
+        await approveRequest(requestId)
+        alert("승인이 완료되었습니다.")
+        fetchRequests() // 목록 갱신
         } catch (error) {
-            console.error("실패", error)
-            alert("승인 처리에 실패했습니다.")
+        console.error("승인 실패", error)
+        alert("승인 처리에 실패했습니다.")
         } finally {
-            setProcessing(false)
+        setProcessing(false)
         }
     }
 
+    // 거절 모달 열기
     const handleRejectClick = (request) => {
         setSelectedRequest(request)
         setRejectReason("")
         setShowRejectModal(true)
     }
 
+    // 거절 확정
     const handleRejectConfirm = async () => {
         if (!rejectReason.trim()) {
         alert("거절 사유를 입력해주세요.")
@@ -66,9 +71,9 @@ const HospitalVerificationList = () => {
             setShowRejectModal(false)
             setSelectedRequest(null)
             setRejectReason("")
-            fetchRequests()
+            fetchRequests() // 목록 갱신
         } catch (error) {
-            console.erroro("", error)
+            console.error("거절 실패", error)
             alert("거절 처리에 실패했습니다.")
         } finally {
             setProcessing(false)
@@ -88,6 +93,7 @@ const HospitalVerificationList = () => {
             </button>
         </div>
 
+        {/* 필터 버튼 영역 */}
         <div className="filter-section">
             <div className="filter-group">
             <label className="filter-label">승인 상태</label>
@@ -114,6 +120,7 @@ const HospitalVerificationList = () => {
             </div>
         </div>
 
+        {/* 요청 목록 리스트 */}
         <div className="requests-list">
             {requests.length === 0 ? (
             <div className="no-data">요청이 없습니다.</div>
@@ -122,7 +129,8 @@ const HospitalVerificationList = () => {
                 <div key={request.requestId} className="request-card">
                 <div className="request-header">
                     <div className="request-info">
-                    <span className="request-type">🏥 병원</span>
+                    {/* ✅ 수정됨: 병원 ID 대신 병원 이름 출력 */}
+                    <h3 className="hospital-name">{request.hospitalName || "병원명 미상"}</h3>
                     <span className="request-id">#{request.requestId}</span>
                     </div>
                     <span className={`status-badge status-${request.adminDecision.toLowerCase()}`}>
@@ -135,14 +143,33 @@ const HospitalVerificationList = () => {
                 </div>
 
                 <div className="request-body">
+                    {/* ✅ 수정됨: 사용자 ID 대신 실명 및 사업자 정보 출력 */}
                     <div className="request-detail">
-                        <span className="detail-label">사용자 ID:</span>
-                        <span className="detail-value">{request.userId}</span>
+                        <span className="detail-label">신청자명:</span>
+                        <span className="detail-value">{request.userName}</span>
+                        {/* (선택사항) 필요하다면 ID도 작게 표시 */}
+                        <span className="detail-sub-text" style={{ fontSize: "0.85em", color: "#888", marginLeft: "6px" }}>
+                            (ID: {request.userId})
+                        </span>
                     </div>
+
                     <div className="request-detail">
-                        <span className="detail-label">요청 일시:</span>
-                        <span className="detail-value">{new Date(request.createdAt).toLocaleString("ko-KR")}</span>
+                        <span className="detail-label">대표자명:</span>
+                        <span className="detail-value">{request.ownerName || "-"}</span>
                     </div>
+
+                    <div className="request-detail">
+                        <span className="detail-label">사업자번호:</span>
+                        <span className="detail-value">{request.businessNumber || "-"}</span>
+                    </div>
+
+                    <div className="request-detail">
+                    <span className="detail-label">요청 일시:</span>
+                    <span className="detail-value">
+                        {new Date(request.createdAt).toLocaleString("ko-KR")}
+                    </span>
+                    </div>
+
                     {request.adminReason && (
                     <div className="request-detail">
                         <span className="detail-label">거절 사유:</span>
@@ -151,6 +178,7 @@ const HospitalVerificationList = () => {
                     )}
                 </div>
 
+                {/* 액션 버튼 (대기 상태일 때만 표시) */}
                 {request.adminDecision === "PENDING" && (
                     <div className="request-actions">
                     <button
@@ -160,7 +188,11 @@ const HospitalVerificationList = () => {
                     >
                         승인
                     </button>
-                    <button className="reject-btn" onClick={() => handleRejectClick(request)} disabled={processing}>
+                    <button
+                        className="reject-btn"
+                        onClick={() => handleRejectClick(request)}
+                        disabled={processing}
+                    >
                         거절
                     </button>
                     </div>
@@ -170,6 +202,7 @@ const HospitalVerificationList = () => {
             )}
         </div>
 
+        {/* 거절 사유 입력 모달 */}
         {showRejectModal && (
             <div className="modal-overlay" onClick={() => setShowRejectModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>

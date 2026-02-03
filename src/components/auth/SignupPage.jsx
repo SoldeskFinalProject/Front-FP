@@ -40,7 +40,7 @@ export default function SignupPage() {
         else if (formData.password.length < 8) newErrors.password = "비밀번호는 8자 이상이어야 합니다."
         
         if (formData.password !== formData.passwordConfirm) newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다."
-        
+
         if (!formData.name) newErrors.name = "이름을 입력해주세요."
 
         setErrors(newErrors)
@@ -98,7 +98,7 @@ export default function SignupPage() {
 
                 <form onSubmit={handleNext} className="signup-form">
                    {/* ... 기존 input 필드들 (변경 없음) ... */}
-                   
+
                    {/* 이메일 입력 부분 등 기존 코드 그대로 유지 */}
                     <div className="form-group">
                         <label>이메일 <span className="required">*</span></label>
